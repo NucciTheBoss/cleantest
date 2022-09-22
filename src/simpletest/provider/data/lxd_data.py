@@ -4,7 +4,6 @@
 
 """Information needed for LXD test provider."""
 
-from collections import namedtuple
 from typing import Any, Dict, Set
 
 from pydantic import BaseModel
@@ -48,47 +47,45 @@ class LXDConfig(BaseModel):
     project: str | None
 
 
-Defaults = namedtuple("Defaults", ["jammy_amd64", "focal_amd64", "bionic_amd64"])
+class Defaults:
+    jammy_amd64: Dict[str, Any] = {
+        "name": "jammy-amd64",
+        "source": {
+            "type": "image",
+            "mode": "pull",
+            "server": "https://images.linuxcontainers.org",
+            "protocol": "simplestreams",
+            "alias": "ubuntu/jammy",
+        },
+        "project": "default",
+    }
+    focal_amd64: Dict[str, Any] = {
+        "name": "focal-amd64",
+        "source": {
+            "type": "image",
+            "mode": "pull",
+            "server": "https://images.linuxcontainers.org",
+            "protocol": "simplestreams",
+            "alias": "ubuntu/focal",
+        },
+        "project": "default",
+    }
+    bionic_amd64: Dict[str, Any] = {
+        "name": "bionic-amd64",
+        "source": {
+            "type": "image",
+            "mode": "pull",
+            "server": "https://images.linuxcontainers.org",
+            "protocol": "simplestreams",
+            "alias": "ubuntu/18.04",
+        },
+        "project": "default",
+    }
 
 
 class LXDDataStore:
     def __init__(self) -> None:
-        self.__defaults = Defaults(
-            {
-                "name": "jammy-amd64",
-                "source": {
-                    "type": "image",
-                    "mode": "pull",
-                    "server": "https://images.linuxcontainers.org",
-                    "protocol": "simplestreams",
-                    "alias": "ubuntu/jammy",
-                },
-                "project": "default",
-            },
-            {
-                "name": "focal-amd64",
-                "source": {
-                    "type": "image",
-                    "mode": "pull",
-                    "server": "https://images.linuxcontainers.org",
-                    "protocol": "simplestreams",
-                    "alias": "ubuntu/focal",
-                },
-                "project": "default",
-            },
-            {
-                "name": "bionic-amd64",
-                "source": {
-                    "type": "image",
-                    "mode": "pull",
-                    "server": "https://images.linuxcontainers.org",
-                    "protocol": "simplestreams",
-                    "alias": "ubuntu/18.04",
-                },
-                "project": "default",
-            },
-        )
-
+        self.__defaults = Defaults()
         self.__config_registry = set()
         self.add_config(self.__defaults.jammy_amd64)
         self.add_config(self.__defaults.focal_amd64)
