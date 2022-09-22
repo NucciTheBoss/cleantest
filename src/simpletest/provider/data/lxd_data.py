@@ -4,7 +4,7 @@
 
 """Information needed for LXD test provider."""
 
-from typing import Any, Dict, Set
+from typing import Any, Dict, List
 
 from pydantic import BaseModel
 
@@ -86,13 +86,13 @@ class Defaults:
 class LXDDataStore:
     def __init__(self) -> None:
         self.__defaults = Defaults()
-        self.__config_registry = set()
+        self.__config_registry = []
         self.add_config(self.__defaults.jammy_amd64)
         self.add_config(self.__defaults.focal_amd64)
         self.add_config(self.__defaults.bionic_amd64)
 
     @property
-    def _config(self) -> Set[LXDConfig]:
+    def _config(self) -> List[LXDConfig]:
         return self.__config_registry
 
     @property
@@ -109,7 +109,7 @@ class LXDDataStore:
     def add_config(self, new_config: Dict[str, Any]) -> None:
         self._lint_config(new_config)
         source = new_config.get("source")
-        self.__config_registry.add(
+        self.__config_registry.append(
             LXDConfig(
                 name=new_config.get("name"),
                 source=LXDSource(
@@ -130,12 +130,12 @@ class LXDDataStore:
             if i not in config:
                 raise BadLXDConfigError(new_config)
 
-    def __deconstruct(self, d: Dict[str, Any]) -> Set[str]:
-        x = []
+    def __deconstruct(self, d: Dict[str, Any]) -> List[str]:
+        config = []
         for k in d.keys():
             if isinstance(d[k], dict):
-                x.extend(self.__deconstruct(d[k]))
+                config.extend(self.__deconstruct(d[k]))
             else:
-                x.append(k)
+                config.append(k)
 
-        return set(x)
+        return config
