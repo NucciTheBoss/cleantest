@@ -12,6 +12,7 @@ setup(
     author="Jason C. Nucciarone",
     author_email="jason.nucciarone@canonical.com",
     license="Apache-2.0",
+    python_requires=">=3.8",
     packages=find_packages(
         where="src",
         include=["simpletest*"],
@@ -31,7 +32,6 @@ setup(
         "Intended Audience :: System Administration",
         "License :: OSI Approved :: Apache-2.0",
         "Operating System :: Linux",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
