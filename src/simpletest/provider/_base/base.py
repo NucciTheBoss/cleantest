@@ -32,6 +32,10 @@ class Provider(ABC):
     def _process(self) -> Result:
         pass
 
+    @abstractmethod
+    def _handle_start_env_hooks(self) -> None:
+        pass
+
     def _construct(self, func: Callable, remove: List[re.Pattern] | None) -> str:
         """Construct Python source file to be run in subroutine.
 
@@ -54,7 +58,7 @@ class Provider(ABC):
             content = [
                 "#!/usr/bin/env python3\n",
                 f"{src}\n",
-                f"{func.__name__}()",
+                f"{func.__name__}()\n",
             ]
             f.writelines(content)
             f.seek(0)
