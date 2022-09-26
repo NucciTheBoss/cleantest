@@ -14,9 +14,9 @@ from typing import Any, Callable, Dict, List, Tuple
 from pydantic import BaseModel
 from pylxd import Client
 
-from simpletest.config.configurator import Simple
-from simpletest.provider._base import Provider, Result
-from simpletest.provider.data import EnvDataStore, LXDDataStore
+from cleantest.config.configurator import Simple
+from cleantest.provider._base import Provider, Result
+from cleantest.provider.data import EnvDataStore, LXDDataStore
 
 
 class Instance(BaseModel):

@@ -6,16 +6,16 @@ from setuptools import setup, find_packages
 
 
 setup(
-    name="simpletest",
+    name="cleantest",
     version="0.1.0",
-    description="Simple tests for developers in a hurry.",
+    description="Clean tests for developers in a hurry.",
     author="Jason C. Nucciarone",
     author_email="jason.nucciarone@canonical.com",
     license="Apache-2.0",
     python_requires=">=3.8",
     packages=find_packages(
         where="src",
-        include=["simpletest*"],
+        include=["cleantest*"],
     ),
     package_dir={"": "src"},
     install_requires=[
@@ -28,10 +28,11 @@ setup(
         "continuous integration",
     ],
     classifiers=[
-        "Development Status :: 1 - Experimental",
-        "Intended Audience :: System Administration",
-        "License :: OSI Approved :: Apache-2.0",
-        "Operating System :: Linux",
+        "Development Status :: 3 - Alpha",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Science/Research",
+        "License :: OSI Approved :: Apache Software License",
+        "Operating System :: POSIX :: Linux",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",

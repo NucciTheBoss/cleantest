@@ -6,8 +6,8 @@
 
 import os
 
-from simpletest import Simple, StartEnvHook
-from simpletest.provider import lxd
+from cleantest import Simple, StartEnvHook
+from cleantest.provider import lxd
 
 # Define the hooks and register them.
 root = os.path.dirname(os.path.realpath(__file__))

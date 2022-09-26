@@ -10,7 +10,7 @@ from typing import Dict
 
 from pydantic import BaseModel
 
-from simpletest.config.hooks import StartEnvHook, StartTestletHook, StopEnvHook, StopTestletHook
+from cleantest.config.hooks import StartEnvHook, StartTestletHook, StopEnvHook, StopTestletHook
 
 
 class HookRegistry(BaseModel):
