@@ -1,0 +1,9 @@
+site_name: Simpletest Framework
+nav:
+  - Home: 'index.md'
+  - 'User Guide':
+    - 'Installation': 'user-guide/installation.md'
+    - 'Getting Started': 'user-guide/getting-started.md'
+  - About:
+    - 'License': 'license.md'
+theme: readthedocs
