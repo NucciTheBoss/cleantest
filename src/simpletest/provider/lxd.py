@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 from types import NoneType
 from typing import Any, Callable, Dict, List, Tuple
@@ -13,8 +14,9 @@ from typing import Any, Callable, Dict, List, Tuple
 from pydantic import BaseModel
 from pylxd import Client
 
+from simpletest.config.configurator import Simple
 from simpletest.provider._base import Provider, Result
-from simpletest.provider.data import LXDDataStore
+from simpletest.provider.data import EnvDataStore, LXDDataStore
 
 
 class Instance(BaseModel):
@@ -38,12 +40,14 @@ class lxd(Provider):
         name: str = "test",
         image: str | List[str] = ["jammy-amd64"],
         preserve: bool = True,
+        env: EnvDataStore = EnvDataStore(),
         data: LXDDataStore = LXDDataStore(),
         image_config: Dict[str, Any] | List[Dict[str, Any]] | None = None,
         client_config: LXDClientConfig | None = None,
     ) -> None:
         self._name = name
         self._preserve = preserve
+        self._env = env
         self._data = data
 
         if isinstance(image, str):
@@ -69,6 +73,8 @@ class lxd(Provider):
                 project=client_config.project,
             )
 
+        self._simpleconfig = Simple()
+
     def __call__(self, func: Callable) -> Callable:
         def wrapper(*args, **kwargs) -> None:
             instances = []
@@ -76,6 +82,7 @@ class lxd(Provider):
                 instances.append(Instance(name=f"{self._name}-{i}", image=i))
 
             self._build(self._check_exists(instances))
+            self._handle_start_env_hooks(instances)
             result = self._execute(self._construct(func, [re.compile("@lxd(.*)")]), instances)
             if self._preserve is False:
                 self._teardown(instances)
@@ -106,12 +113,76 @@ class lxd(Provider):
                 if (tmp := self._client.instances.get(i.name)).status.lower() == "stopped":
                     tmp.start(wait=True)
 
+    def _handle_start_env_hooks(self, instances: List[Instance]) -> None:
+        startenvhooks = self._simpleconfig.get_start_env_hooks()
+        for hook in startenvhooks.values():
+            for i in instances:
+                instance = self._client.instances.get(i.name)
+                instance.execute(["apt-get", "install", "-y", "-qq", "python3-pip"])
+
+                if hook.packages is not None:
+                    for package in hook.packages:
+                        instance.execute(["python3", "-m", "pip", "install", package])
+
+                if hook.requirements is not None:
+                    requirements = (
+                        [hook.requirements]
+                        if isinstance(hook.requirements, str)
+                        else hook.requirements
+                    )
+
+                    if hook.constraints is not None:
+                        constraints = (
+                            [hook.constraints]
+                            if isinstance(hook.constraints, str)
+                            else hook.constraints
+                        )
+                        req_and_con = zip(requirements, constraints)
+                        for req, con in req_and_con:
+                            instance.files.put("/tmp/requirements.txt", open(req).read())
+                            instance.files.put("/tmp/constraints.txt", open(con).read())
+                            instance.execute(
+                                [
+                                    "python3",
+                                    "-m",
+                                    "pip",
+                                    "install",
+                                    "-r",
+                                    "/tmp/requirements.txt",
+                                    "-c",
+                                    "/tmp/constraints.txt",
+                                ]
+                            )
+                    else:
+                        for req in requirements:
+                            instance.files.put("/tmp/requirements.txt", open(req).read())
+                            instance.execute(
+                                [
+                                    "python3",
+                                    "-m",
+                                    "pip",
+                                    "install",
+                                    "-r",
+                                    "/tmp/requirements.txt",
+                                ]
+                            )
+
+                if hook.python_path is not None:
+                    for lib in hook.python_path:
+                        base = os.path.basename(lib)
+                        lib_path = os.path.join("/root", base)
+                        instance.execute(["mkdir", "-p", lib_path])
+                        instance.files.recursive_put(lib, lib_path)
+                        self._env.append("PYTHONPATH", lib_path)
+
     def _execute(self, test: str, instances: List[Instance]) -> Any:
         for i in instances:
             instance = self._client.instances.get(i.name)
             instance.files.put("/root/test", test)
             instance.execute(["chmod", "+x", "/root/test"])
-            result = instance.execute(["/root/test"])
+            result = instance.execute(
+                ["/root/test"], environment={"PYTHONPATH": self._env.get("PYTHONPATH")}
+            )
             return result
 
     def _process(self, result: Any) -> Result:
