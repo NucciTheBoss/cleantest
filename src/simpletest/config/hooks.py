@@ -19,21 +19,21 @@ class StartEnvHook(BaseModel):
     python_path: List[str] | None = None
 
 
-class StopEnvHook:
+class StopEnvHook(BaseModel):
     """Not implemented yet as I do not know if hooks are the move."""
 
     def __init__(self) -> None:
         raise NotImplementedError("Hook not implemented yet.")
 
 
-class StartTestletHook:
+class StartTestletHook(BaseModel):
     """Not implemented yet as I do not know if hooks are the move."""
 
     def __init__(self) -> None:
         raise NotImplementedError("Hook not implemented yet.")
 
 
-class StopTestletHook:
+class StopTestletHook(BaseModel):
     """Not implemented yet as I do not know if hooks are the move."""
 
     def __init__(self) -> None:
