@@ -47,7 +47,7 @@ class LXDConfig(BaseModel):
     project: str | None
 
 
-class Defaults:
+class Defaults(BaseModel):
     jammy_amd64: Dict[str, Any] = {
         "name": "jammy-amd64",
         "source": {
