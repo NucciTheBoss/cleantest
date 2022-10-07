@@ -3,4 +3,3 @@
 # See LICENSE file for licensing details.
 
 from .configurator import Configure
-from .hooks import StartEnvHook, StartTestletHook, StopEnvHook, StopTestletHook

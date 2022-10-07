@@ -14,7 +14,7 @@ from typing import Any, Callable, Dict, List, Tuple
 from pydantic import BaseModel
 from pylxd import Client
 
-from cleantest.config.configurator import Configure
+from cleantest.control.configurator import Configure
 from cleantest.provider._base import Provider, Result
 from cleantest.provider.data import EnvDataStore, LXDDataStore
 

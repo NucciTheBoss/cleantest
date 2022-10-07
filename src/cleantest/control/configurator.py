@@ -11,7 +11,7 @@ from typing import Deque
 
 from pydantic import BaseModel
 
-from cleantest.config.hooks import StartEnvHook, StartTestletHook, StopEnvHook, StopTestletHook
+from cleantest.hooks import StartEnvHook, StartTestletHook, StopEnvHook, StopTestletHook
 
 
 class DuplicateHookNameError(Exception):

@@ -6,7 +6,8 @@
 
 import os
 
-from cleantest import Configure, StartEnvHook
+from cleantest import Configure
+from cleantest.hooks import StartEnvHook
 from cleantest.provider import lxd
 
 # Define the hooks and register them.
@@ -19,7 +20,7 @@ startenvhook = StartEnvHook(
 )
 simpleconfig.register_hook(startenvhook)
 
-# Define the testlets. 
+# Define the testlets.
 @lxd(image="jammy-amd64", preserve=False)
 def install_snapd():
     import sys
