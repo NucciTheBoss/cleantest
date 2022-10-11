@@ -6,12 +6,13 @@
 
 import os
 
-from cleantest import Simple, StartEnvHook
+from cleantest import Configure
+from cleantest.hooks import StartEnvHook
 from cleantest.provider import lxd
 
 # Define the hooks and register them.
 root = os.path.dirname(os.path.realpath(__file__))
-simpleconfig = Simple()
+simpleconfig = Configure()
 startenvhook = StartEnvHook(
     name="my_start_hook",
     requirements=os.path.join(root, "requirements.txt"),

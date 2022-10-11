@@ -2,4 +2,5 @@
 # Copyright 2022 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-from .control import Configure
+from .charmlib import CharmLibManager
+from .pip import PipManager

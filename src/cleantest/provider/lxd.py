@@ -14,7 +14,7 @@ from typing import Any, Callable, Dict, List, Tuple
 from pydantic import BaseModel
 from pylxd import Client
 
-from cleantest.config.configurator import Simple
+from cleantest.control.configurator import Configure
 from cleantest.provider._base import Provider, Result
 from cleantest.provider.data import EnvDataStore, LXDDataStore
 
@@ -73,7 +73,7 @@ class lxd(Provider):
                 project=client_config.project,
             )
 
-        self._simpleconfig = Simple()
+        self._cleanconfig = Configure()
 
     def __call__(self, func: Callable) -> Callable:
         def wrapper(*args, **kwargs) -> None:
@@ -114,8 +114,9 @@ class lxd(Provider):
                     tmp.start(wait=True)
 
     def _handle_start_env_hooks(self, instances: List[Instance]) -> None:
-        startenvhooks = self._simpleconfig.get_start_env_hooks()
-        for hook in startenvhooks.values():
+        startenvhooks = self._cleanconfig.get_start_env_hooks()
+        while len(startenvhooks) > 0:
+            hook = startenvhooks.pop()
             for i in instances:
                 instance = self._client.instances.get(i.name)
                 instance.execute(["apt-get", "install", "-y", "-qq", "python3-pip"])
@@ -180,9 +181,13 @@ class lxd(Provider):
             instance = self._client.instances.get(i.name)
             instance.files.put("/root/test", test)
             instance.execute(["chmod", "+x", "/root/test"])
-            result = instance.execute(
-                ["/root/test"], environment={"PYTHONPATH": self._env.get("PYTHONPATH")}
-            )
+            if self._env.get("PYTHONPATH") is None:
+                result = instance.execute(
+                    ["/root/test"], environment={"PYTHONPATH": self._env.get("PYTHONPATH")}
+                )
+            else:
+                result = instance.execute(["/root/test"])
+
             return result
 
     def _process(self, result: Any) -> Result:
