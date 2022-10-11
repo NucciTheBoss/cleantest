@@ -181,9 +181,13 @@ class lxd(Provider):
             instance = self._client.instances.get(i.name)
             instance.files.put("/root/test", test)
             instance.execute(["chmod", "+x", "/root/test"])
-            result = instance.execute(
-                ["/root/test"], environment={"PYTHONPATH": self._env.get("PYTHONPATH")}
-            )
+            if self._env.get("PYTHONPATH") is None:
+                result = instance.execute(
+                    ["/root/test"], environment={"PYTHONPATH": self._env.get("PYTHONPATH")}
+                )
+            else:
+                result = instance.execute(["/root/test"])
+
             return result
 
     def _process(self, result: Any) -> Result:
