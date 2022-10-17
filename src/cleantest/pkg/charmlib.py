@@ -7,54 +7,140 @@
 from __future__ import annotations
 
 import hashlib
+import os
 import pathlib
 import pickle
+import platform
+import subprocess
+import tempfile
 import uuid
 from shutil import which
-from typing import List, Tuple
+from types import Self
+from typing import Dict, List, Type
 
 
 class CharmLibManagerError(Exception):
     ...
 
 
-# NOTE: After class has been constructed, serialize and wormhole over to remote agent.
 class CharmLibManager:
-    def __init__(self, charmlibs: str | List[str]) -> None:
-        raise NotImplementedError("CharmLibManager not available until cleantest-0.2.0")
-        self.__charmlib_store = set()
-        if type(charmlibs) == str:
-            self.__charmlib_store.add(charmlibs)
-        elif type(charmlibs) == list:
-            for lib in charmlibs:
-                self.__charmlib_store.add(lib)
+    def __init__(
+        self,
+        auth_token_path: str = None,
+        charmlibs: str | List[str] = None,
+        manager: Type[Self] | None = None,
+    ) -> None:
+        if manager is None:
+            if auth_token_path is not None:
+                self._auth_token = open(auth_token_path, "rt").read()
+            else:
+                raise CharmLibManagerError(
+                    "No filepath to auth token passed. Cannot authenticate with Charmhub."
+                )
+
+            self._charmlib_store = set()
+            if type(charmlibs) == str:
+                self._charmlib_store.add(charmlibs)
+            elif type(charmlibs) == list:
+                for lib in charmlibs:
+                    self._charmlib_store.add(lib)
+            else:
+                raise CharmLibManagerError(
+                    f"{type(charmlibs)} is invalid. charmlibs must either be str or List[str]."
+                )
+
+            self._result = {}
+
         else:
-            raise CharmLibManagerError(
-                f"{type(charmlibs)} is invalid. charmlibs must either be str or List[str]."
-            )
+            self._auth_token = manager._auth_token
+            self._charmlib_store = manager._charmlib_store
+            self._result = manager._result
 
-    def _setup(self) -> None:
-        # TODO: Check if charmcraft is installed. If not, install it.
-        # Requires snap and snapd to be available on the host system.
-        ...
+    @classmethod
+    def _load(cls, manager_file_path: str, hash: str) -> Type[Self]:
+        with open(manager_file_path, "rb") as fin:
+            if hash != hashlib.sha224(fin).hexdigest():
+                raise CharmLibManagerError(
+                    "SHA224 hashes do not match. Will not execute untrusted object."
+                )
 
-    def _run(self, provider: str) -> None:
-        # TODO: Invoke __handle_charm_lib_install.
-        ...
+            prev_manager_instance = pickle.load(fin)
 
-    def _dump(self) -> Tuple[str, str]:
+        return cls(manager=prev_manager_instance)
+
+    def _dump(self) -> Dict[str, str]:
         """Return a path to a pickled object and hash for verification."""
-        filepath = f"/tmp/{uuid.uuid4()}.dat"
+        filepath = os.path.join(tempfile.gettempdir(), f"{uuid.uuid4()}.pkl")
         data = pickle.dumps(self)
         hash = hashlib.sha224(data).hexdigest()
         fout = pathlib.Path(filepath)
         fout.write_bytes(pickle.dumps(self))
-        return filepath, hash
+        return {"path": filepath, "hash": hash}
 
-    def _verify(self, hash: str) -> bool:
-        # TODO: Validate hash of sent charmlib manager
-        ...
+    def _run(self) -> None:
+        self.__setup()
+        self.__handle_charm_lib_install()
+        self._result.update({"PYTHONPATH": os.path.join(tempfile.gettempdir(), "lib")})
+
+    def __setup(self) -> None:
+        os_variant = self.__detect_os_variant()
+
+        if which("snap") is None:
+            if os_variant == "ubuntu":
+                cmd = ["apt", "install", "-y", "snapd"]
+                try:
+                    subprocess.run(
+                        cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True
+                    )
+                except subprocess.CalledProcessError:
+                    raise CharmLibManagerError(
+                        f"Failed to install snapd using the following command: {' '.join(cmd)}."
+                    )
+            else:
+                raise NotImplementedError(
+                    f"Support for {os_variant.capitalize()} not available yet."
+                )
+
+        if which("charmcraft") is None:
+            cmd = ["snap", "install", "charmcraft", "--classic"]
+            try:
+                subprocess.run(
+                    cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True
+                )
+            except subprocess.CalledProcessError:
+                raise CharmLibManagerError(
+                    f"Failed to install charmcraft using the following command: {' '.join(cmd)}"
+                )
 
     def __handle_charm_lib_install(self) -> None:
-        # TODO: Handle placing charm libraries on site-packages.
-        ...
+        env = {"CHARMCRAFT_AUTH": self._auth_token}
+        for charm in self._charmlib_store:
+            cmd = ["charmcraft", "fetch-lib", charm]
+            try:
+                subprocess.run(
+                    cmd,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    check=True,
+                    env=env,
+                    cwd=tempfile.gettempdir(),
+                )
+            except subprocess.CalledProcessError:
+                raise CharmLibManagerError(
+                    (
+                        f"Failed to install charm library {charm} "
+                        f"using the following command: {' '.join(cmd)}"
+                    )
+                )
+
+    def __detect_os_variant(self) -> str:
+        sys_data = platform.system().lower()
+        if sys_data == "linux":
+            info = [l.strip() for l in open("/etc/os-release", "rt")]
+            for l in info:
+                if l.startswith("ID="):
+                    return l.split("=")[-1].lower()
+        elif sys_data == "windows" or sys_data == "darwin" or sys_data == "java":
+            return sys_data
+        else:
+            raise CharmLibManagerError("Unknown platform.")
