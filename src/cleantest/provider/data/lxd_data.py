@@ -4,7 +4,8 @@
 
 """Information needed for LXD test provider."""
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Type
+from types import Self
 
 from pydantic import BaseModel
 
@@ -84,6 +85,11 @@ class Defaults(BaseModel):
 
 
 class LXDDataStore:
+    def __new__(cls: Type[Self]) -> Self:
+        if not hasattr(cls, "instance"):
+            cls.instance = super(LXDDataStore, cls).__new__(cls)
+        return cls.instance
+
     def __init__(self) -> None:
         self.__defaults = Defaults()
         self.__config_registry = []

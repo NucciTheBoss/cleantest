@@ -5,10 +5,16 @@
 """Environment variable management for test providers."""
 
 import os
-from typing import Any, Dict
+from typing import Any, Dict, Type
+from types import Self
 
 
 class EnvDataStore:
+    def __new__(cls: Type[Self]) -> Self:
+        if not hasattr(cls, "instance"):
+            cls.instance = super(EnvDataStore, cls).__new__(cls)
+        return cls.instance
+
     def __init__(self) -> None:
         self.__env = {}
 
