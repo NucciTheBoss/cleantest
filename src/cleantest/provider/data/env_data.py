@@ -5,24 +5,24 @@
 """Environment variable management for test providers."""
 
 import os
-from typing import Any, Dict, Type
-from types import Self
+from typing import Any, Dict
 
 
 class EnvDataStore:
-    def __new__(cls: Type[Self]) -> Self:
+    
+    __env = {}
+
+    def __new__(cls) -> object:
         if not hasattr(cls, "instance"):
             cls.instance = super(EnvDataStore, cls).__new__(cls)
         return cls.instance
 
-    def __init__(self) -> None:
-        self.__env = {}
+    @property
+    def _raw_env(self) -> Dict[str, Any]:
+        return self.__env
 
-    def append(self, env_var: str, value: str) -> None:
-        if env_var not in self.__env.keys():
-            self.__env.update({env_var: []})
-
-        self.__env[env_var].append(value)
+    def add(self, env_mapping: Dict[str, Any]) -> None:
+        self.__env.update(env_mapping)
 
     def get(self, env_var: str) -> Any | None:
         """Retrieve environment variable from store.
@@ -39,6 +39,12 @@ class EnvDataStore:
         except KeyError:
             return None
 
-    @property
-    def _raw_env(self) -> Dict[str, Any]:
-        return self.__env
+    def dump(self) -> Dict[str, Any]:
+        result = {}
+        for k, v in result.items():
+            if type(v) == list:
+                result.update({k: os.pathsep.join(v)})
+            else:
+                result.update({k: v})
+
+        return result

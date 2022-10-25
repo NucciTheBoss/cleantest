@@ -5,6 +5,6 @@
 """Manager for installing pip packages inside remote processes."""
 
 
-class PipManager:
+class Pip:
     def __init__(self) -> None:
         raise NotImplementedError("PipManager not availbe until cleantest-0.2.0")

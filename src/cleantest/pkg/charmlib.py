@@ -15,27 +15,29 @@ import subprocess
 import tempfile
 import uuid
 from shutil import which
-from types import Self
-from typing import Dict, List, Type
+from typing import Dict, List
 
 
-class CharmLibManagerError(Exception):
+class CharmlibError(Exception):
     ...
 
 
-class CharmLibManager:
+class Charmlib:
     def __init__(
         self,
         auth_token_path: str = None,
         charmlibs: str | List[str] = None,
-        manager: Type[Self] | None = None,
+        manager: object | None = None,
     ) -> None:
         if manager is None:
             if auth_token_path is not None:
                 self._auth_token = open(auth_token_path, "rt").read()
             else:
-                raise CharmLibManagerError(
-                    "No filepath to auth token passed. Cannot authenticate with Charmhub."
+                raise CharmlibError(
+                    (
+                        "No file path to authentication token passed. ",
+                        "Cannot authenticate with Charmhub.",
+                    )
                 )
 
             self._charmlib_store = set()
@@ -45,7 +47,7 @@ class CharmLibManager:
                 for lib in charmlibs:
                     self._charmlib_store.add(lib)
             else:
-                raise CharmLibManagerError(
+                raise CharmlibError(
                     f"{type(charmlibs)} is invalid. charmlibs must either be str or List[str]."
                 )
 
@@ -57,16 +59,24 @@ class CharmLibManager:
             self._result = manager._result
 
     @classmethod
-    def _load(cls, manager_file_path: str, hash: str) -> Type[Self]:
-        with open(manager_file_path, "rb") as fin:
-            if hash != hashlib.sha224(fin).hexdigest():
-                raise CharmLibManagerError(
-                    "SHA224 hashes do not match. Will not execute untrusted object."
-                )
+    def _load(cls, manager: str | bytes, hash: str) -> object:
+        if type(manager) == str and os.path.isfile(manager):
+            with open(manager, "rb") as fin:
+                if hash != hashlib.sha224(fin).hexdigest():
+                    raise CharmlibError(
+                        "SHA224 hashes do not match. Will not load untrusted object."
+                    )
 
-            prev_manager_instance = pickle.load(fin)
+                return cls(manager=pickle.load(fin))
+        elif type(manager) == bytes:
+            if hash != hashlib.sha224(manager).hexdigest():
+                raise CharmlibError("SHA224 hashes do not match. Will not load untrusted object.")
 
-        return cls(manager=prev_manager_instance)
+            return cls(manager=manager)
+        else:
+            raise CharmlibError(
+                f"Invalid type {type(manager)} received. Type must either be str or bytes."
+            )
 
     def _dump(self) -> Dict[str, str]:
         """Return a path to a pickled object and hash for verification."""
@@ -80,7 +90,8 @@ class CharmLibManager:
     def _run(self) -> None:
         self.__setup()
         self.__handle_charm_lib_install()
-        self._result.update({"PYTHONPATH": os.path.join(tempfile.gettempdir(), "lib")})
+        self._result.update({"PYTHONPATH": "/root/lib"})
+        print(self._dump())
 
     def __setup(self) -> None:
         os_variant = self.__detect_os_variant()
@@ -93,7 +104,7 @@ class CharmLibManager:
                         cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True
                     )
                 except subprocess.CalledProcessError:
-                    raise CharmLibManagerError(
+                    raise CharmlibError(
                         f"Failed to install snapd using the following command: {' '.join(cmd)}."
                     )
             else:
@@ -108,7 +119,7 @@ class CharmLibManager:
                     cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True
                 )
             except subprocess.CalledProcessError:
-                raise CharmLibManagerError(
+                raise CharmlibError(
                     f"Failed to install charmcraft using the following command: {' '.join(cmd)}"
                 )
 
@@ -123,10 +134,10 @@ class CharmLibManager:
                     stderr=subprocess.DEVNULL,
                     check=True,
                     env=env,
-                    cwd=tempfile.gettempdir(),
+                    cwd="/root",
                 )
             except subprocess.CalledProcessError:
-                raise CharmLibManagerError(
+                raise CharmlibError(
                     (
                         f"Failed to install charm library {charm} "
                         f"using the following command: {' '.join(cmd)}"
@@ -143,4 +154,4 @@ class CharmLibManager:
         elif sys_data == "windows" or sys_data == "darwin" or sys_data == "java":
             return sys_data
         else:
-            raise CharmLibManagerError("Unknown platform.")
+            raise CharmlibError("Unknown platform.")

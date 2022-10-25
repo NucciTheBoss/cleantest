@@ -8,17 +8,22 @@ import os
 
 from cleantest import Configure
 from cleantest.hooks import StartEnvHook
+from cleantest.pkg import Charmlib
 from cleantest.provider import lxd
 
 # Define the hooks and register them.
 root = os.path.dirname(os.path.realpath(__file__))
-simpleconfig = Configure()
+cleanconfig = Configure()
 startenvhook = StartEnvHook(
     name="my_start_hook",
-    requirements=os.path.join(root, "requirements.txt"),
-    python_path=[os.path.join(root, "vendor")],
+    packages=[
+        Charmlib(
+            auth_token_path=os.path.join(root, "charmhub.secret"),
+            charmlibs=["charms.operator_libs_linux.v0.apt"],
+        )
+    ],
 )
-simpleconfig.register_hook(startenvhook)
+cleanconfig.register_hook(startenvhook)
 
 # Define the testlets.
 @lxd(image="jammy-amd64", preserve=False)
@@ -45,12 +50,13 @@ def install_snapd():
         print("Snapd failed to install.", file=sys.stderr)
         sys.exit(1)
 
-    try:
-        from tabulate import tabulate
+    # TODO: Add this test back in after Pip manager class is written.
+    # try:
+    #     from tabulate import tabulate
 
-        print("tabulate is installed.", file=sys.stdout)
-    except ImportError:
-        print("Failed to import tabulate package.", file=sys.stderr)
+    #     print("tabulate is installed.", file=sys.stdout)
+    # except ImportError:
+    #     print("Failed to import tabulate package.", file=sys.stderr)
 
     sys.exit(0)
 

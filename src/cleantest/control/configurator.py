@@ -26,14 +26,14 @@ class HookRegistry(BaseModel):
 
 
 class Configure:
+
+    __hook_registry = HookRegistry()
+    __metadata = set()
+
     def __new__(cls) -> None:
         if not hasattr(cls, "instance"):
             cls.instance = super(Configure, cls).__new__(cls)
         return cls.instance
-
-    def __init__(self) -> None:
-        self.__hook_registry = HookRegistry()
-        self.__metadata = set()
 
     def register_hook(
         self, hook: StartEnvHook | StopEnvHook | StartTestletHook | StopTestletHook
