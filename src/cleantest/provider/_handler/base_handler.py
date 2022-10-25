@@ -87,7 +87,6 @@ class Handler(ABC):
                 f"{open(src, 'rt').read()}\n",
                 f"holder = {pkg.__class__.__name__}._load('{file_path}', '{hash}')\n",
                 "holder._run()\n",
-                "print(holder._dump())\n",
             ]
             f.writelines(content)
             f.seek(0)
