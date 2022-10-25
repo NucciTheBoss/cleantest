@@ -61,13 +61,13 @@ class Charmlib:
     @classmethod
     def _load(cls, manager: str | bytes, hash: str) -> object:
         if type(manager) == str and os.path.isfile(manager):
-            with open(manager, "rb") as fin:
-                if hash != hashlib.sha224(fin).hexdigest():
-                    raise CharmlibError(
-                        "SHA224 hashes do not match. Will not load untrusted object."
-                    )
+            fin = pathlib.Path(manager)
+            if hash != hashlib.sha224(fin.read_bytes()).hexdigest():
+                raise CharmlibError(
+                    "SHA224 hashes do not match. Will not load untrusted object."
+                )
 
-                return cls(manager=pickle.load(fin))
+            return cls(manager=pickle.loads(fin.read_bytes()))
         elif type(manager) == bytes:
             if hash != hashlib.sha224(manager).hexdigest():
                 raise CharmlibError("SHA224 hashes do not match. Will not load untrusted object.")
@@ -126,7 +126,7 @@ class Charmlib:
     def __handle_charm_lib_install(self) -> None:
         env = {"CHARMCRAFT_AUTH": self._auth_token}
         for charm in self._charmlib_store:
-            cmd = ["charmcraft", "fetch-lib", charm]
+            cmd = ["/snap/bin/charmcraft", "fetch-lib", charm]
             try:
                 subprocess.run(
                     cmd,
