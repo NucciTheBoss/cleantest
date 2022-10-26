@@ -104,11 +104,9 @@ class LXDHandler(Handler):
         remote_file_path = f"/root/{os.path.basename(dump_data['path'])}"
         instance.files.put(remote_file_path, open(dump_data["path"], "rb").read())
         instance.files.put(
-            "/root/install", self._construct_pkg_installer(pkg, remote_file_path, dump_data["hash"])
+            "/root/install",
+            self._construct_pkg_installer(pkg, remote_file_path, dump_data["hash"]),
         )
         instance.execute(["chmod", "+x", "/root/install"])
-        holder = instance.execute(["/root/install"])
-        dump_data = json.loads(holder.stdout)
-        pkg_result = instance.files.get(dump_data["path"])
-        new_pkg = pkg.__class__._load(pkg_result, dump_data["hash"])
-        self._env.add(new_pkg._result)
+        result = instance.execute(["/root/install"])
+        self._env.add(json.loads(result.stdout))
