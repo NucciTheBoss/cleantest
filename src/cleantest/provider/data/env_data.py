@@ -9,7 +9,7 @@ from typing import Any, Dict
 
 
 class EnvDataStore:
-    
+
     __env = {}
 
     def __new__(cls) -> object:
@@ -41,7 +41,7 @@ class EnvDataStore:
 
     def dump(self) -> Dict[str, Any]:
         result = {}
-        for k, v in result.items():
+        for k, v in self.__env.items():
             if type(v) == list:
                 result.update({k: os.pathsep.join(v)})
             else:
