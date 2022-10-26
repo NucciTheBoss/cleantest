@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import pathlib
 import pickle
@@ -27,9 +28,9 @@ class Charmlib:
         self,
         auth_token_path: str = None,
         charmlibs: str | List[str] = None,
-        manager: object | None = None,
+        _manager: object | None = None,
     ) -> None:
-        if manager is None:
+        if _manager is None:
             if auth_token_path is not None:
                 self._auth_token = open(auth_token_path, "rt").read()
             else:
@@ -50,32 +51,21 @@ class Charmlib:
                 raise CharmlibError(
                     f"{type(charmlibs)} is invalid. charmlibs must either be str or List[str]."
                 )
-
-            self._result = {}
-
         else:
-            self._auth_token = manager._auth_token
-            self._charmlib_store = manager._charmlib_store
-            self._result = manager._result
+            self._auth_token = _manager._auth_token
+            self._charmlib_store = _manager._charmlib_store
 
     @classmethod
-    def _load(cls, manager: str | bytes, hash: str) -> object:
-        if type(manager) == str and os.path.isfile(manager):
-            fin = pathlib.Path(manager)
+    def _load(cls, _manager: str, hash: str) -> object:
+        if type(_manager) == str and os.path.isfile(_manager):
+            fin = pathlib.Path(_manager)
             if hash != hashlib.sha224(fin.read_bytes()).hexdigest():
-                raise CharmlibError(
-                    "SHA224 hashes do not match. Will not load untrusted object."
-                )
-
-            return cls(manager=pickle.loads(fin.read_bytes()))
-        elif type(manager) == bytes:
-            if hash != hashlib.sha224(manager).hexdigest():
                 raise CharmlibError("SHA224 hashes do not match. Will not load untrusted object.")
 
-            return cls(manager=manager)
+            return cls(_manager=pickle.loads(fin.read_bytes()))
         else:
             raise CharmlibError(
-                f"Invalid type {type(manager)} received. Type must either be str or bytes."
+                f"Invalid type {type(_manager)} received. Type must either be str or bytes."
             )
 
     def _dump(self) -> Dict[str, str]:
@@ -90,8 +80,7 @@ class Charmlib:
     def _run(self) -> None:
         self.__setup()
         self.__handle_charm_lib_install()
-        self._result.update({"PYTHONPATH": "/root/lib"})
-        print(self._dump())
+        print(json.dumps({"PYTHONPATH": "/root/lib"}))
 
     def __setup(self) -> None:
         os_variant = self.__detect_os_variant()
