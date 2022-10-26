@@ -7,14 +7,21 @@
 import platform
 
 
+class UnknownOSError(Exception):
+    ...
+
+
 def detect_os_variant() -> str:
-    dispatch = {
-        "linux": _determine_linux,
-        "darwin": lambda: "darwin",
-        "windows": lambda: "windows",
-        "java": lambda: "java",
-    }
-    return dispatch[platform.system().lower()]()
+    try:
+        dispatch = {
+            "linux": _determine_linux,
+            "darwin": lambda: "darwin",
+            "windows": lambda: "windows",
+            "java": lambda: "java",
+        }
+        return dispatch[platform.system().lower()]()
+    except KeyError:
+        raise UnknownOSError("Could not determine base operating system.")
 
 
 def _determine_linux() -> str:
