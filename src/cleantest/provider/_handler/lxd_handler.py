@@ -11,9 +11,9 @@ from typing import Any, Callable, Dict, List
 
 from pydantic import BaseModel
 
-from cleantest.pkg.charmlib import Charmlib
-from cleantest.pkg.pip import Pip
+from cleantest.pkg._base import Package
 from cleantest.provider._handler.base_handler import Handler, Result
+from cleantest.provider.data.lxd_data import LXDConfig
 
 
 class Instance(BaseModel):
@@ -68,10 +68,19 @@ class LXDHandler(Handler):
                 config = self._data.get_config(i.image)
                 config.name = i.name
                 self._client.instances.create(config.dict(), wait=True)
-                self._client.instances.get(i.name).start(wait=True)
+                instance = self._client.instances.get(i.name)
+                instance.start(wait=True)
+                self._init(instance, config)
             else:
                 if (tmp := self._client.instances.get(i.name)).status.lower() == "stopped":
                     tmp.start(wait=True)
+
+    def _init(self, instance: Any, config: LXDConfig) -> None:
+        if "ubuntu" in config.source.alias:
+            instance.execute(["apt", "install", "python3-pip"])
+            instance.execute(["pip", "install", "cleantest"])
+        else:
+            NotImplementedError(f"{config.source.alias} injection not supported yet.")
 
     def _execute(self, test: str, instances: List[Instance]) -> Any:
         for i in instances:
@@ -99,7 +108,9 @@ class LXDHandler(Handler):
                     for pkg in hook.packages:
                         self.__handle_package_install(instance, pkg)
 
-    def __handle_package_install(self, instance: Any, pkg: Charmlib | Pip) -> None:
+    def __handle_package_install(self, instance: Any, pkg: Package) -> None:
+        dispatch = {"charmlib": lambda x: self._env.add(json.loads(x))}
+
         dump_data = pkg._dump()
         remote_file_path = f"/root/{os.path.basename(dump_data['path'])}"
         instance.files.put(remote_file_path, open(dump_data["path"], "rb").read())
@@ -109,4 +120,6 @@ class LXDHandler(Handler):
         )
         instance.execute(["chmod", "+x", "/root/install"])
         result = instance.execute(["/root/install"])
-        self._env.add(json.loads(result.stdout))
+
+        if (tmp := pkg.__class__.__name__.lower()) in dispatch:
+            dispatch[tmp](result.stdout)
