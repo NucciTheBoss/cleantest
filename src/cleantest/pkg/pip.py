@@ -46,7 +46,7 @@ class Pip(Package):
 
             self.__load_file_data()
         else:
-            self._package_store = _manager._packages_store
+            self._package_store = _manager._package_store
             self._requirements_store = _manager._requirements_store
             self._constraints_store = _manager._constraints_store
 
@@ -86,14 +86,14 @@ class Pip(Package):
                     f"using the following command {' '.join(cmd)}"
                 )
 
-        if not self._constraints_store:
+        if self._constraints_store:
             for r, c in zip(self._requirements_store, self._constraints_store):
                 r_file = pathlib.Path(pathlib.Path.home().joinpath("requirements.txt"))
                 c_file = pathlib.Path(pathlib.Path.home().joinpath("constraints.txt"))
-                with r_file.open() as fout:
-                    fout.writelines(r)
-                with c_file.open() as fout:
-                    fout.writelines(c)
+                r_file.touch()
+                c_file.touch()
+                with r_file.open(mode="w") as fout: fout.writelines(r)
+                with c_file.open(mode="w") as fout: fout.writelines(c)
                 cmd = ["python3", "-m", "pip", "install", "-r", str(r_file), "-c", str(c_file)]
                 try:
                     subprocess.run(
@@ -110,8 +110,8 @@ class Pip(Package):
         else:
             for r in self._requirements_store:
                 r_file = pathlib.Path(pathlib.Path.home().joinpath("requirements.txt"))
-                with r_file.open() as fout:
-                    fout.writelines(r)
+                r_file.touch()
+                with r_file.open(mode="w") as fout: fout.writelines(r)
                 cmd = ["python3", "-m", "pip", "install", "-r", str(r_file)]
                 try:
                     subprocess.run(
