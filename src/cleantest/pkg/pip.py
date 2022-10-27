@@ -92,8 +92,10 @@ class Pip(Package):
                 c_file = pathlib.Path(pathlib.Path.home().joinpath("constraints.txt"))
                 r_file.touch()
                 c_file.touch()
-                with r_file.open(mode="w") as fout: fout.writelines(r)
-                with c_file.open(mode="w") as fout: fout.writelines(c)
+                with r_file.open(mode="w") as fout:
+                    fout.writelines(r)
+                with c_file.open(mode="w") as fout:
+                    fout.writelines(c)
                 cmd = ["python3", "-m", "pip", "install", "-r", str(r_file), "-c", str(c_file)]
                 try:
                     subprocess.run(
@@ -111,7 +113,8 @@ class Pip(Package):
             for r in self._requirements_store:
                 r_file = pathlib.Path(pathlib.Path.home().joinpath("requirements.txt"))
                 r_file.touch()
-                with r_file.open(mode="w") as fout: fout.writelines(r)
+                with r_file.open(mode="w") as fout:
+                    fout.writelines(r)
                 cmd = ["python3", "-m", "pip", "install", "-r", str(r_file)]
                 try:
                     subprocess.run(
