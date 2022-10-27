@@ -92,11 +92,11 @@ class LXDDataStore:
         self.add_config(self.__defaults.bionic_amd64)
 
     @property
-    def _config(self) -> List[LXDConfig]:
+    def _raw_config(self) -> List[LXDConfig]:
         return self.__config_registry
 
     @property
-    def _defaults(self) -> Defaults:
+    def _raw_defaults(self) -> Defaults:
         return self.__defaults
 
     def get_config(self, config_name: str) -> LXDConfig:

@@ -2,5 +2,4 @@
 # Copyright 2022 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-from .charmlib import Charmlib
-from .pip import Pip
+from .lxd_handler import LXDHandler

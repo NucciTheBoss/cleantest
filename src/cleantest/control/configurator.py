@@ -25,7 +25,7 @@ class HookRegistry(BaseModel):
     stop_testlet: Deque[StopTestletHook] = deque()
 
 
-class Configure(object):
+class Configure:
 
     __hook_registry = HookRegistry()
     __metadata = set()

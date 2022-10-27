@@ -7,8 +7,8 @@ from setuptools import setup, find_packages
 
 setup(
     name="cleantest",
-    version="0.1.0",
-    description="Clean tests for developers in a hurry.",
+    version="0.2.0",
+    description="Clean tests for developers in a hurry",
     author="Jason C. Nucciarone",
     author_email="jason.nucciarone@canonical.com",
     license="Apache-2.0",

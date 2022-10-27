@@ -13,7 +13,4 @@ from pydantic import BaseModel
 
 class StartEnvHook(BaseModel):
     name: str = "default"
-    packages: List[str] | None = None
-    requirements: str | List[str] | None = None
-    constraints: str | List[str] | None = None
-    python_path: List[str] | None = None
+    packages: List[object] = []

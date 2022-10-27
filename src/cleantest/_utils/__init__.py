@@ -2,4 +2,4 @@
 # Copyright 2022 Canonical Ltd.
 # See LICENSE file for licensing details.
 
-from .base import Provider, Result
+from .detect_os import detect_os_variant
