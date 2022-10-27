@@ -77,7 +77,7 @@ class LXDHandler(Handler):
 
     def _init(self, instance: Any, config: LXDConfig) -> None:
         if "ubuntu" in config.source.alias:
-            instance.execute(["apt", "install", "python3-pip"])
+            instance.execute(["apt", "install", "-y", "python3-pip"])
             instance.execute(["pip", "install", "cleantest"])
         else:
             NotImplementedError(f"{config.source.alias} injection not supported yet.")
