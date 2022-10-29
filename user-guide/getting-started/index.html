@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Getting Started - Cleantest Framework</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/styles/github.min.css" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Getting Started";
+        var mkdocs_page_input_path = "user-guide/getting-started.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <script src="../../js/jquery-3.6.0.min.js" defer></script>
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.5.0/highlight.min.js"></script>
+      <script>hljs.initHighlightingOnLoad();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> Cleantest Framework
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">User Guide</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../installation/">Installation</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="./">Getting Started</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#some-background">Some background</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#defining-a-testlet">Defining a testlet</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#writing-a-test-suite">Writing a test suite</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#bringing-it-all-together">Bringing it all together</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#next-steps">Next steps</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">About</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../license/">License</a>
+                  </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">Cleantest Framework</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" alt="Docs"></a> &raquo;</li>
+          <li>User Guide &raquo;</li>
+      <li>Getting Started</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="getting-started-with-cleantest">Getting started with cleantest</h1>
+<p>Now that you have the <code>cleantest</code> framework installed on your system, let's get you introduced to writing some basic tests. This example assumes that you have LXD installed and configured, and <code>cleantest</code> is installed correctly on your system. If not, please revisit the <a href="../installation/">installation</a> documentation.</p>
+<p>Also, you will need to have <a href="https://docs.pytest.org/en/7.1.x/"><strong>pytest</strong></a> installed on your system as well. You can install it using the following command:</p>
+<pre><code class="language-text">pip install pytest
+</code></pre>
+<h2 id="some-background">Some background</h2>
+<p>The goal of the <code>cleantest</code> framework is to provide an easy way to bring up clean testing environments without a hassle. A "simple test" is a test written with <code>cleantest</code> that can drop on top of a pre-existing testing framework such as <strong>pytest</strong> or <strong>unittest</strong>. These "simple tests" can be broken down into three parts: </p>
+<ol>
+<li>Configuration statements</li>
+<li>A collection of Testlets</li>
+<li>One or more Test Suites</li>
+</ol>
+<p><em>Configuration statements</em> control the state and flow of <code>cleantest</code>, <em>testlets</em> are the tests to be run in the testing environment, and the <em>test suites</em> define the order in which the testlets are executed.</p>
+<h2 id="defining-a-testlet">Defining a testlet</h2>
+<p>A <em>testlet</em> is essentially an entire Python file wrapped in a function; it contains all the imports, definitions, and logic a program needs to run. Here is an example of a testlet:</p>
+<pre><code class="language-python">from cleantest.provider import lxd
+
+
+@lxd()
+def do_something():
+    import sys
+
+    try:
+        import urllib
+        sys.exit(0)
+    except ImportError:
+        sys.exit(1)
+</code></pre>
+<p>An important thing to note about testlets is that they are not run in the environment as the test suite. The testlets are actually picked up by the interpreter and run somewhere else, and a <code>Result</code> object is returned containing an exit code, stdout, and stderr. Therefore, you should always import the Python models and assets you need within the body of the testlet.</p>
+<h2 id="writing-a-test-suite">Writing a test suite</h2>
+<p>To evaluate the results of a testlet, you need a <em>test suite</em>. This part should be invoked by your testing framework of choice. In our case, we used <strong>pytest</strong>:</p>
+<pre><code class="language-python">class TestSuite:
+    def test_do_something(self) -&gt; None:
+        result = do_something()
+        assert result.exit_code == 0
+</code></pre>
+<p>The test suite should be focused solely on launching testlets and evaulating the results. You should never define testlets inside a test suite. They should always be a top-level, global function.</p>
+<h2 id="bringing-it-all-together">Bringing it all together</h2>
+<p>To bring it all together, combine the testlet and test suite combined into a single Python file:</p>
+<pre><code class="language-python">#!/usr/bin/env python3
+
+&quot;&quot;&quot;A basic test&quot;&quot;&quot;
+
+from cleantest.provider import lxd
+
+
+@lxd(preserve=False)
+def do_something():
+    import sys
+
+    try:
+        import urllib
+        sys.exit(0)
+    except ImportError:
+        sys.exit(1)
+
+
+class TestSuite:
+    def test_do_something(self) -&gt; None:
+        result = do_something()
+        assert result.exit_code == 0
+</code></pre>
+<p>Now use <strong>pytest</strong> to run the test:</p>
+<pre><code class="language-text">pytest my_cleantest.py
+</code></pre>
+<p>You should see the following output from your test:</p>
+<pre><code class="language-test">=========== test session starts ===========
+platform linux -- Python 3.10.4, pytest-7.1.3, pluggy-1.0.0
+rootdir: /mnt/d/scratch
+collected 1 item                                                                                                                                                                                                  
+
+basic_test.py .                                                                                                                                                                                             [100%]
+
+
+=========== 1 passed in 8.95s ===========
+
+</code></pre>
+<p>Congrats, you have written your first simple test!</p>
+<h2 id="next-steps">Next steps</h2>
+<p>Now that you have taken your first steps with <code>cleantest</code>, proceed to the next section on controlling your test environment with hooks.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../installation/" class="btn btn-neutral float-left" title="Installation"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../../license/" class="btn btn-neutral float-right" title="License">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../installation/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../../license/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script>var base_url = '../..';</script>
+    <script src="../../js/theme_extra.js" defer></script>
+    <script src="../../js/theme.js" defer></script>
+      <script src="../../search/main.js" defer></script>
+    <script defer>
+        window.onload = function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        };
+    </script>
+
+</body>
+</html>
