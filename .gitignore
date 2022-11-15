@@ -77,3 +77,6 @@ venv.bak/
 
 # Secrets
 *.secret
+
+# Pycharm
+.idea/
