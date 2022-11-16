@@ -4,3 +4,4 @@
 
 from .charmlib import Charmlib
 from .pip import Pip
+from .snap import Snap, SnapConfinement
