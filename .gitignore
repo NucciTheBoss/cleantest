@@ -80,3 +80,6 @@ venv.bak/
 
 # Pycharm
 .idea/
+
+# Packages
+*.snap
