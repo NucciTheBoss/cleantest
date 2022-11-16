@@ -29,7 +29,7 @@ class Handler(ABC):
     """Abstract super-class for all test environment providers."""
 
     @abstractmethod
-    def run() -> Result:
+    def run(self) -> Result:
         ...
 
     @abstractmethod
@@ -37,7 +37,7 @@ class Handler(ABC):
         ...
 
     @abstractmethod
-    def _process() -> Result:
+    def _process(self) -> Result:
         ...
 
     @abstractmethod
