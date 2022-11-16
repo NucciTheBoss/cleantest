@@ -765,7 +765,10 @@ def _wrap_snap_operations(
 
 
 def install_local(
-    filename: str, classic: Optional[bool] = False, dangerous: Optional[bool] = False, devmode: Optional[bool] = False
+    filename: str,
+    classic: Optional[bool] = False,
+    devmode: Optional[bool] = False,
+    dangerous: Optional[bool] = False,
 ) -> Snap:
     """Perform a snap operation.
 
@@ -785,10 +788,10 @@ def install_local(
     ]
     if classic:
         _cmd.append("--classic")
-    if dangerous:
-        _cmd.append("--dangerous")
     if devmode:
         _cmd.append("--devmode")
+    if dangerous:
+        _cmd.append("--dangerous")
     try:
         result = subprocess.check_output(_cmd, universal_newlines=True).splitlines()[0]
         snap_name, _ = result.split(" ", 1)
