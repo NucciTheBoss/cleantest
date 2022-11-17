@@ -12,7 +12,7 @@ from enum import Enum
 from shutil import which
 from typing import List
 
-from cleantest._utils import detect_os_variant
+from cleantest.utils import detect_os_variant
 from cleantest.pkg._base import Package, PackageError
 from cleantest.pkg.handler import snap
 
