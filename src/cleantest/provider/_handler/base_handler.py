@@ -10,7 +10,6 @@ import inspect
 import os
 import pathlib
 import re
-import sys
 import tarfile
 import tempfile
 import textwrap
