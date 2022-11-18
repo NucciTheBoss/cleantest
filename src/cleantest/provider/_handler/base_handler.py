@@ -7,12 +7,19 @@
 from __future__ import annotations
 
 import inspect
+import os
+import pathlib
 import re
+import sys
+import tarfile
 import tempfile
+import textwrap
 from abc import ABC, abstractmethod
 from typing import Any, Callable, List
 
 from pydantic import BaseModel
+
+import cleantest
 
 
 class HandlerError(Exception):
@@ -33,6 +40,10 @@ class Handler(ABC):
         ...
 
     @abstractmethod
+    def _init(self) -> None:
+        ...
+
+    @abstractmethod
     def _execute(self) -> Any:
         ...
 
@@ -43,6 +54,36 @@ class Handler(ABC):
     @abstractmethod
     def _handle_start_env_hooks(self) -> None:
         ...
+
+    def _get_cleantest_source(self) -> bytes:
+        for root, directory, file in os.walk(cleantest.__path__[0]):
+            src_path = pathlib.Path(root)
+            if src_path.name == cleantest.__name__:
+                old_dir = os.getcwd()
+                os.chdir(os.sep.join(str(src_path).split(os.sep)[:-1]))
+                tar_path = pathlib.Path(tempfile.gettempdir()).joinpath(cleantest.__name__)
+                with tarfile.open(tar_path, "w:gz") as tarball:
+                    tarball.add(cleantest.__name__)
+                os.chdir(old_dir)
+
+                return tar_path.read_bytes()
+
+        raise HandlerError(f"Could not find source directory for {cleantest.__name__}.")
+
+    def _construct_cleantest_injection(self, path: str) -> str:
+        return textwrap.dedent(
+            f"""
+            #!/usr/bin/env python3
+            import site
+            import tarfile
+    
+            site.getsitepackages()[0]
+            tarball = tarfile.open("{path}", "r:gz")
+            tarball.extractall(site.getsitepackages()[0])
+            """.strip(
+                "\n"
+            )
+        )
 
     def _construct_testlet(self, func: Callable, remove: List[re.Pattern] | None) -> str:
         """Construct Python source file to be run in subroutine.

@@ -77,8 +77,15 @@ class LXDHandler(Handler):
 
     def _init(self, instance: Any, config: LXDConfig) -> None:
         if "ubuntu" in config.source.alias:
+            cleantest_src = self._get_cleantest_source()
+            injectable = self._construct_cleantest_injection("/root/cleantest_src.tar.gz")
+            instance.files.put("/root/cleantest_src.tar.gz", cleantest_src)
+            instance.files.put("/root/init_cleantest", injectable)
+            instance.execute(["chmod", "+x", "/root/init_cleantest"])
+            instance.execute(["/root/init_cleantest"])
+            instance.execute(["apt", "update"])
             instance.execute(["apt", "install", "-y", "python3-pip"])
-            instance.execute(["pip", "install", "cleantest"])
+            instance.execute(["pip", "install", "pylxd", "pydantic"])
         else:
             NotImplementedError(f"{config.source.alias} injection not supported yet.")
 
