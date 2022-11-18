@@ -11,8 +11,8 @@ import subprocess
 from shutil import which
 from typing import List
 
-from cleantest.utils import detect_os_variant
 from cleantest.pkg._base import Package, PackageError
+from cleantest.utils import detect_os_variant
 
 
 class Charmlib(Package):
@@ -20,7 +20,7 @@ class Charmlib(Package):
         self,
         auth_token_path: str = None,
         charmlibs: str | List[str] = None,
-        _manager: object | None = None,
+        _manager: "Charmlib" = None,
     ) -> None:
         if _manager is None:
             if auth_token_path is not None:
@@ -49,7 +49,7 @@ class Charmlib(Package):
 
     def _run(self) -> None:
         self._setup()
-        self.__handle_charm_lib_install()
+        self._handle_charm_lib_install()
         print(json.dumps({"PYTHONPATH": "/root/lib"}))
 
     def _setup(self) -> None:
@@ -82,7 +82,7 @@ class Charmlib(Package):
                     f"Failed to install charmcraft using the following command: {' '.join(cmd)}"
                 )
 
-    def __handle_charm_lib_install(self) -> None:
+    def _handle_charm_lib_install(self) -> None:
         env = {"CHARMCRAFT_AUTH": self._auth_token}
         for charm in self._charmlib_store:
             cmd = ["/snap/bin/charmcraft", "fetch-lib", charm]

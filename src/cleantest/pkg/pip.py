@@ -11,8 +11,8 @@ import subprocess
 from shutil import which
 from typing import List
 
-from cleantest.utils import detect_os_variant
 from cleantest.pkg._base import Package, PackageError
+from cleantest.utils import detect_os_variant
 
 
 class Pip(Package):
@@ -21,10 +21,10 @@ class Pip(Package):
         packages: str | List[str] = None,
         requirements: str | List[str] = None,
         constraints: str | List[str] = None,
-        _manager: object | None = None,
+        _manager: "Pip" = None,
     ) -> None:
         if _manager is None:
-            self.__lint_inputs(packages, requirements, constraints)
+            self._lint_inputs(packages, requirements, constraints)
 
             self._package_store = set()
             if type(packages) == str:
@@ -44,7 +44,7 @@ class Pip(Package):
             elif type(constraints) == list:
                 self._constraints_store.extend(constraints)
 
-            self.__load_file_data()
+            self._load_file_data()
         else:
             self._package_store = _manager._package_store
             self._requirements_store = _manager._requirements_store
@@ -66,7 +66,7 @@ class Pip(Package):
                     )
                 except subprocess.CalledProcessError:
                     raise PackageError(
-                        f"Failed to isntall pip using the following command: {' '.join(cmd)}"
+                        f"Failed to install pip using the following command: {' '.join(cmd)}"
                     )
             else:
                 raise NotImplementedError(
@@ -128,7 +128,7 @@ class Pip(Package):
                         )
                     )
 
-    def __lint_inputs(
+    def _lint_inputs(
         self,
         packages: str | List[str] | None,
         requirements: str | List[str] | None,
@@ -150,17 +150,17 @@ class Pip(Package):
                     f"Ensure passed arguments to {self.__class__.__name__} are correct.",
                 )
 
-    def __load_file_data(self) -> None:
+    def _load_file_data(self) -> None:
         for i in range(0, len(self._requirements_store)):
             file = pathlib.Path(self._requirements_store[i])
             if file.exists():
-                self._requirements_store[i] = [l.strip() for l in file.open()]
+                self._requirements_store[i] = [line.strip() for line in file.open()]
             else:
                 raise PackageError(f"Requirements file {self._requirements_store[i]} not found.")
 
         for i in range(0, len(self._constraints_store)):
             file = pathlib.Path(self._constraints_store[i])
             if file.exists():
-                self._constraints_store[i] = [l.strip() for l in file.open()]
+                self._constraints_store[i] = [line.strip() for line in file.open()]
             else:
                 raise PackageError(f"Constraints file {self._constraints_store[i]} not found.")
