@@ -12,9 +12,9 @@ from enum import Enum
 from shutil import which
 from typing import List
 
-from cleantest.utils import detect_os_variant
 from cleantest.pkg._base import Package, PackageError
 from cleantest.pkg.handler import snap
+from cleantest.utils import detect_os_variant
 
 
 class SnapConfinement(Enum):
@@ -100,8 +100,10 @@ class Snap(Package):
                     raise PackageError(
                         f"Failed to install snapd using the following command: {' '.join(cmd)}."
                     )
-        else:
-            raise NotImplementedError(f"Support for {os_variant.capitalize()} not available yet.")
+            else:
+                raise NotImplementedError(
+                    f"Support for {os_variant.capitalize()} not available yet."
+                )
 
     def _handle_snap_install(self) -> None:
         if len(self._snap_store) > 0:
