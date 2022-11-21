@@ -22,24 +22,36 @@ Below is an outline of currently supported operating systems, Python versions, a
 
 ### Installing cleantest
 
-cleantest can be installed using pip:
+The recommended way to install cleantest is by downloading the published package on PyPI:
 
-```
+```commandline
 pip install cleantest
+```
+
+For those who wish to use the latest, bleeding-edge, and potentially *unstable* version cleantest of cleantest, the
+following command can be used to install cleantest from the main branch of this repository:
+
+```commandline
+git clone https://github.com/NucciTheBoss/cleantest.git
+cd cleantest
+python3 -m pip install .
 ```
 
 ### Configuring a test environment provider
 
-Before you can start using cleantest to run tests, you need to set up a test environment provider. Currently, the only supported environment provider is [LXD](https://ubuntu.com/lxd). You can set LXD up on your system using the following commands:
+Before you can start using cleantest to run tests, you need to set up a test environment provider. Currently, the only 
+supported environment provider is [LXD](https://ubuntu.com/lxd). You can set LXD up on your system using the following 
+commands:
 
-```
+```commandline
 sudo snap install lxd
 lxd init --auto
 ```
 
 ### Run your first test
 
-You can use any testing framework of your choice with cleantest, but this example will use [pytest](https://docs.pytest.org/en/7.2.x/):
+You can use any testing framework of your choice with cleantest, but this example will use 
+[pytest](https://docs.pytest.org/en/7.2.x/):
 
 ```
 pip install pytest
@@ -78,21 +90,25 @@ class TestSuite:
 
 With the test file downloaded, run the test using pytest:
 
-```
+```commandline
 pytest test.py
 ```
 
 ### Where to next?
 
-Please the see the [documentation](https://nuccitheboss.github.io/cleantest/) for more information on all that you can do with cleantest.
+Please the see the [documentation](https://nuccitheboss.github.io/cleantest/) for more information on all that you can 
+do with cleantest.
 
 ## Contributing
 
-Please read through the [contributing guidelines](https://github.com/NucciTheBoss/cleantest/blob/main/CONTRIBUTING.md) if you are interested in contributing to cleantest. Included are guidelines for opening issues, code formatting standards, and how to submit contributions to cleantest.
+Please read through the [contributing guidelines](https://github.com/NucciTheBoss/cleantest/blob/main/CONTRIBUTING.md) 
+if you are interested in contributing to cleantest. Included are guidelines for opening issues, code formatting 
+standards, and how to submit contributions to cleantest.
 
 ## License
 
-Code and documentation copyright &copy; 2022 Jason C. Nucciarone, Canonical Ltd. Please see the [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.html) license for more details.
+Code and documentation copyright &copy; 2022 Jason C. Nucciarone, Canonical Ltd. Please see the 
+[Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.html) license for more details.
 
 ## Roadmap
 
@@ -109,7 +125,7 @@ Here are my (NucciTheBoss's) goals to get cleantest to release version 1.0.0:
 * Enable support for running parallel tests with LXD
 * Better test logging capabilities
 * Support for a select few popular packaging formats:
-  * Snap
+  * ~~Snap~~
   * ~~Pip~~
   * ~~Charm libraries~~
   * Debs, Rpms, Pacs, etc.

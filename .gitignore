@@ -77,3 +77,9 @@ venv.bak/
 
 # Secrets
 *.secret
+
+# Pycharm
+.idea/
+
+# Packages
+*.snap
