@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import pathlib
 import subprocess
+from dataclasses import dataclass
 from enum import Enum
 from shutil import which
 from typing import List
@@ -17,7 +18,7 @@ from cleantest.pkg.handler import snap
 from cleantest.utils import detect_os_variant
 
 
-class SnapConfinement(Enum):
+class Confinement(Enum):
     """Confinement modes for snap packages."""
 
     STRICT = "strict"
@@ -25,15 +26,57 @@ class SnapConfinement(Enum):
     DEVMODE = "devmode"
 
 
+@dataclass
+class Plug:
+    snap: str
+    name: str
+
+
+@dataclass
+class Slot:
+    snap: str = None
+    name: str = None
+
+
+class Connection:
+    def __init__(self, plug: Plug, slot: Slot = None, wait=True) -> None:
+        self._plug = plug
+        self._slot = slot
+        self._wait = wait
+        self._lint()
+
+    def _lint(self) -> None:
+        if self._plug.snap is None or self._plug.name is None:
+            raise PackageError(
+                f"Invalid plug: {self._plug.__dict__}. "
+                "Plug must have an associated snap and name."
+            )
+        if self._slot is not None and self._slot.snap is None and self._slot.name is None:
+            raise PackageError(
+                f"Invalid slot: {self._slot.__dict__}. "
+                "Slot must at least have an associated snap or name."
+            )
+
+    def connect(self) -> None:
+        snap.connect(
+            self._plug.snap,
+            self._plug.name,
+            self._slot.snap,
+            self._slot.name,
+            wait=self._wait,
+        )
+
+
 class Snap(Package):
     def __init__(
         self,
         snaps: str | List[str] = None,
         local_snaps: str | List[str] = None,
-        confinement: SnapConfinement = SnapConfinement.STRICT,
+        confinement: Confinement = Confinement.STRICT,
         channel: str = None,
         cohort: str = None,
         dangerous: bool = False,
+        connections: List[Connection] = None,
         _manager: "Snap" = None,
     ) -> None:
         if _manager is None:
@@ -63,17 +106,18 @@ class Snap(Package):
                                 f"Could not find local snap package at {local_snaps}"
                             )
 
-                if hasattr(SnapConfinement, confinement.name):
+                if hasattr(Confinement, confinement.name):
                     self._confinement = confinement
                 else:
                     raise PackageError(
                         f"Invalid confinement {confinement.name}. "
-                        f"Must be either {', '.join([i.name for i in SnapConfinement])}"
+                        f"Must be either {', '.join([i.name for i in Confinement])}"
                     )
 
                 self._channel = channel
                 self._cohort = cohort
                 self._dangerous = dangerous
+                self._connections = connections
         else:
             self._snap_store = _manager._snap_store
             self._local_snap_store = _manager._local_snap_store
@@ -81,6 +125,7 @@ class Snap(Package):
             self._channel = _manager._channel
             self._cohort = _manager._cohort
             self._dangerous = _manager._dangerous
+            self._connections = _manager._connections
 
     def _run(self) -> None:
         self._setup()
@@ -110,7 +155,7 @@ class Snap(Package):
             snap.install(
                 list(self._snap_store),
                 channel=self._channel,
-                classic=True if self._confinement == SnapConfinement.CLASSIC else False,
+                classic=True if self._confinement == Confinement.CLASSIC else False,
                 cohort=self._cohort if self._cohort is not None else "",
             )
 
@@ -119,7 +164,10 @@ class Snap(Package):
             out.write_bytes(pkg)
             snap.install_local(
                 "/root/tmp.snap",
-                classic=True if self._confinement == SnapConfinement.CLASSIC else False,
-                devmode=True if self._confinement == SnapConfinement.DEVMODE else False,
+                classic=True if self._confinement == Confinement.CLASSIC else False,
+                devmode=True if self._confinement == Confinement.DEVMODE else False,
                 dangerous=self._dangerous,
             )
+
+        for connection in self._connections:
+            connection.connect()

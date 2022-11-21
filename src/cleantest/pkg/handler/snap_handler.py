@@ -22,6 +22,9 @@ from typing import Dict, Iterable, List, Optional
 
 from cleantest.pkg._base import PackageError
 
+# Filter for extracting 7-bit C1 ANSI sequences from a string.
+ansi_filter = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+
 
 class SnapAPIError(Exception):
     """Raised when an HTTP API error occurs talking to the Snapd server."""
@@ -794,15 +797,35 @@ def install_local(
     if dangerous:
         _cmd.append("--dangerous")
     try:
-        ansi_filter = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
         result = subprocess.check_output(_cmd, universal_newlines=True).splitlines()[-1]
         snap_name, _ = result.split(" ", 1)
         snap_name = ansi_filter.sub("", snap_name)
 
         c = SnapCache()
+
         return c[snap_name]
     except CalledProcessError as e:
         raise PackageError(f"Could not install snap {filename}: {e.output}")
+
+
+def connect(
+    plug_snap: str, plug: str, slot_snap: str = None, slot: str = None, wait: bool = True
+) -> None:
+    """Connect a snap plug to a slot."""
+    _cmd = ["snap", "connect", f"{plug_snap}:{plug}"]
+    if slot_snap is not None and slot is not None:
+        _cmd.append(f"{slot_snap}:{slot}")
+    if slot_snap is not None and slot is None:
+        _cmd.append(slot_snap)
+    if slot_snap is None and slot is not None:
+        _cmd.append(f":{slot}")
+    if not wait:
+        _cmd.append("--no-wait")
+
+    try:
+        subprocess.check_output(_cmd, universal_newlines=True)
+    except subprocess.CalledProcessError:
+        raise PackageError(f"Failed to connect. Command used: {' '.join(_cmd)}")
 
 
 def _system_set(config_item: str, value: str) -> None:

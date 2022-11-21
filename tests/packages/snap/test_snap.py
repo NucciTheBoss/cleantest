@@ -8,7 +8,7 @@ import os
 
 from cleantest import Configure
 from cleantest.hooks import StartEnvHook
-from cleantest.pkg import Snap
+from cleantest.pkg import Connection, Plug, Slot, Snap
 from cleantest.provider import lxd
 
 root = os.path.dirname(os.path.realpath(__file__))
@@ -16,7 +16,12 @@ config = Configure()
 start_hook = StartEnvHook(
     name="test_snaps",
     packages=[
-        Snap(snaps="pypi-server"),
+        Snap(
+            snaps="pypi-server",
+            connections=[
+                Connection(Plug("pypi-server", "removable-media"), Slot(name="removable-media"))
+            ],
+        ),
         Snap(local_snaps=os.path.join(root, "hello-world-gtk_0.1_amd64.snap"), dangerous=True),
     ],
 )
