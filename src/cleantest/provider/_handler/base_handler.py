@@ -14,9 +14,8 @@ import tarfile
 import tempfile
 import textwrap
 from abc import ABC, abstractmethod
-from typing import Any, Callable, List
-
-from pydantic import BaseModel
+from dataclasses import dataclass
+from typing import Any, Callable, Dict, List
 
 import cleantest
 
@@ -25,18 +24,29 @@ class HandlerError(Exception):
     ...
 
 
-class Result(BaseModel):
-    exit_code: int | None = None
-    stdout: Any | None = None
-    stderr: Any | None = None
+@dataclass
+class Result:
+    exit_code: int = None
+    stdout: Any = None
+    stderr: Any = None
+
+
+class Entrypoint(ABC):
+    """Abstract super-class for test environment provider entrypoints.
+
+    Entrypoints define the tooling needed by cleantest to start a test.
+    """
+
+    @abstractmethod
+    def run(self) -> Dict[str, Result]:
+        ...
 
 
 class Handler(ABC):
-    """Abstract super-class for all test environment providers."""
+    """Abstract super-class for test environment handlers.
 
-    @abstractmethod
-    def run(self) -> Result:
-        ...
+    Handlers define all the tooling needed to run tests inside the remote environment.
+    """
 
     @abstractmethod
     def _init(self) -> None:

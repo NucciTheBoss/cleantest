@@ -2,4 +2,4 @@
 # Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
 # See LICENSE file for licensing details.
 
-import snap_handler as snap
+import cleantest.pkg.handler.snap_handler as snap
