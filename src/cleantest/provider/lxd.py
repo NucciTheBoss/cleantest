@@ -10,8 +10,6 @@ import os
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Tuple
 
-from pylxd import Client
-
 from cleantest.control.configurator import Configure
 from cleantest.provider.data import EnvDataStore, LXDDataStore
 
@@ -46,7 +44,8 @@ class lxd:
         self._env = env
         self._data = data
         self._parallel = parallel
-        self._cleanconfig = Configure()
+        self._client_config = client_config
+        self._clean_config = Configure()
 
         if type(image) == str:
             self._image = [image]
@@ -58,18 +57,6 @@ class lxd:
         elif type(image_config) == list:
             for c in image_config:
                 self._data.add_config(c)
-
-        if client_config is None:
-            self._client = Client(project="default")
-        else:
-            self._client = Client(
-                endpoint=client_config.endpoint,
-                version=client_config.version,
-                cert=client_config.cert,
-                verify=client_config.verify,
-                timeout=client_config.timeout,
-                project=client_config.project,
-            )
 
         if (type(num_threads) != int or num_threads < 1) and self._parallel is True:
             env_var = os.getenv("CLEANTEST_NUM_THREADS")
