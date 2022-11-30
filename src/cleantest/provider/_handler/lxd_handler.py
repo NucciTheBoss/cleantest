@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2022 Canonical Ltd.
+# Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
 # See LICENSE file for licensing details.
 
 """Handler for LXD-based test environments."""
@@ -101,7 +101,6 @@ class LXDHandler(Handler):
 
 class Serial(Entrypoint, LXDHandler):
     def __init__(self, attr: Dict[str, Any], func: Callable) -> None:
-        # TODO: Consider replacing the mount with explicit values.
         [setattr(self, k, v) for k, v in attr.items()]
         self.func = func
 
@@ -110,9 +109,7 @@ class Serial(Entrypoint, LXDHandler):
         for i in self._construct_instance_metaclasses():
             self._build(self._check_exists(i))
             self._handle_start_env_hooks(i)
-            result = self._execute(
-                self._construct_testlet(self.func, [re.compile("@lxd(.*)")]), i
-            )
+            result = self._execute(self._construct_testlet(self.func, [re.compile("@lxd(.*)")]), i)
             if self._preserve is False:
                 self._teardown(i)
             results.update({i.name: self._process(result)})
@@ -122,20 +119,26 @@ class Serial(Entrypoint, LXDHandler):
 
 class Parallel(Entrypoint, LXDHandler):
     def __init__(self, attr: Dict[str, Any], func: Callable) -> None:
-        # TODO: Consider replacing the mount with explicit values.
         [setattr(self, k, v) for k, v in attr.items()]
         self.func = func
 
     def run(self) -> Dict[str, Result]:
-        # TODO: Polish off multiprocessing for LXD tests.
-        #   Data will need to be massaged so it can return in the proper format.
-        # pool = multiprocessing.Pool(processes=4)
-        # results = pool.map(self._target, self._construct_instance_metaclasses())
-        ...
+        results = {}
+        pool = multiprocessing.Pool(processes=self._num_threads)
+        pool_results = pool.map(self._target, self._construct_instance_metaclasses())
+        for res in pool_results:
+            [results.update({key: value}) for key, value in res.items()]
 
-    def _target(self):
-        # TODO: Test that methods defined in classes can serve as targets.
-        ...
+        return results
+
+    def _target(self, i: Instance) -> Dict[str, Result]:
+        self._build(self._check_exists(i))
+        self._handle_start_env_hooks(i)
+        result = self._execute(self._construct_testlet(self.func, [re.compile("@lxd(.*)")]), i)
+        if self._preserve is False:
+            self._teardown(i)
+
+        return {i.name: self._process(result)}
 
 
 class LXDProvider:
