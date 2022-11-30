@@ -30,7 +30,7 @@ class Configure:
     __hook_registry = HookRegistry()
     __metadata = set()
 
-    def __new__(cls) -> None:
+    def __new__(cls) -> "Configure":
         if not hasattr(cls, "instance"):
             cls.instance = super(Configure, cls).__new__(cls)
         return cls.instance
