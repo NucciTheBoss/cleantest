@@ -14,9 +14,8 @@ import tarfile
 import tempfile
 import textwrap
 from abc import ABC, abstractmethod
-from typing import Any, Callable, List
-
-from pydantic import BaseModel
+from dataclasses import dataclass
+from typing import Any, Callable, Dict, List
 
 import cleantest
 
@@ -25,18 +24,29 @@ class HandlerError(Exception):
     ...
 
 
-class Result(BaseModel):
-    exit_code: int | None = None
-    stdout: Any | None = None
-    stderr: Any | None = None
+@dataclass
+class Result:
+    exit_code: int = None
+    stdout: Any = None
+    stderr: Any = None
+
+
+class Entrypoint(ABC):
+    """Abstract super-class for test environment provider entrypoints.
+
+    Entrypoints define the tooling needed by cleantest to start a test.
+    """
+
+    @abstractmethod
+    def run(self) -> Dict[str, Result]:
+        ...
 
 
 class Handler(ABC):
-    """Abstract super-class for all test environment providers."""
+    """Abstract super-class for test environment handlers.
 
-    @abstractmethod
-    def run(self) -> Result:
-        ...
+    Handlers define all the tooling needed to run tests inside the remote environment.
+    """
 
     @abstractmethod
     def _init(self) -> None:
@@ -84,11 +94,11 @@ class Handler(ABC):
             )
         )
 
-    def _construct_testlet(self, func: Callable, remove: List[re.Pattern] | None) -> str:
+    def _construct_testlet(self, src: str, name: str, remove: List[re.Pattern] | None) -> str:
         """Construct Python source file to be run in subroutine.
 
         Args:
-            func (Callable): TODO
+            src (str): TODO
             remove (List[re.Pattern]): TODO
 
         Returns:
@@ -98,7 +108,6 @@ class Handler(ABC):
             This will need more advanced logic if tests accept arguments.
         """
         try:
-            src = inspect.getsource(func)
             if remove is not None:
                 for pattern in remove:
                     src = re.sub(pattern, "", src)
@@ -107,7 +116,7 @@ class Handler(ABC):
                 content = [
                     "#!/usr/bin/env python3\n",
                     f"{src}\n",
-                    f"{func.__name__}()\n",
+                    f"{name}()\n",
                 ]
                 f.writelines(content)
                 f.seek(0)
@@ -115,7 +124,7 @@ class Handler(ABC):
 
             return scriptlet
         except OSError:
-            raise HandlerError(f"Could not locate source code for testlet {func.__name__}.")
+            raise HandlerError(f"Could not locate source code for testlet {name}.")
 
     def _construct_pkg_installer(self, pkg: object, file_path: str, hash: str) -> str:
         src = inspect.getsourcefile(pkg.__class__)
