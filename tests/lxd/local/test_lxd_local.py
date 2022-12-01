@@ -26,6 +26,7 @@ startenvhook = StartEnvHook(
 )
 cleanconfig.register_hook(startenvhook)
 
+
 # Define the testlets.
 @lxd(image="jammy-amd64", preserve=False)
 def install_snapd():
@@ -65,5 +66,6 @@ def install_snapd():
 # Run the tests through pytest.
 class TestLocalLXD:
     def test_local_lxd(self) -> None:
-        result = install_snapd()
-        assert result.exit_code == 0
+        results = install_snapd()
+        for name, result in results.items():
+            assert result.exit_code == 0

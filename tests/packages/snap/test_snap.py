@@ -43,5 +43,6 @@ def functional_snaps():
 
 class TestLocalLXD:
     def test_snap_package(self) -> None:
-        result = functional_snaps()
-        assert result.exit_code == 0
+        results = functional_snaps()
+        for name, result in results.items():
+            assert result.exit_code == 0
