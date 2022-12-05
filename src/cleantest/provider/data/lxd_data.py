@@ -1,53 +1,43 @@
 #!/usr/bin/env python3
-# Copyright 2022 Canonical Ltd.
+# Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
 # See LICENSE file for licensing details.
 
 """Information needed for LXD test provider."""
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, Union
 
-from pydantic import BaseModel
+from ._mixins import DictOps
 
 
 class BadLXDConfigError(Exception):
     """Raised when the newly entered configuration fails the lint check."""
 
-    def __init__(self, config: Dict, desc: str = "Bad configuration for LXD instance.") -> None:
-        self.config = config
-        self.desc = desc
-        super().__init__(self.desc)
-
-    def __str__(self) -> str:
-        return f"{self.config}: {self.message}"
+    ...
 
 
 class LXDConfigNotFoundError(Exception):
     """Raised when the requested configuration for an LXD instance is not found in the registry."""
 
-    def __init__(self, name: str, desc: str = "Configuration not found in registry.") -> None:
+    ...
+
+
+class LXDSource:
+    def __init__(self, type: str, mode: str, server: str, protocol: str, alias: str) -> None:
+        self.type = type
+        self.mode = mode
+        self.server = server
+        self.protocol = protocol
+        self.alias = alias
+
+
+class LXDConfig(DictOps):
+    def __init__(self, name: str, source: LXDSource, project: Optional[str] = None) -> None:
         self.name = name
-        self.desc = desc
-        super().__init__(self.desc)
-
-    def __str__(self) -> str:
-        return f"{self.name}: {self.message}"
+        self.source = source
+        self.project = project
 
 
-class LXDSource(BaseModel):
-    type: str
-    mode: str
-    server: str
-    protocol: str
-    alias: str
-
-
-class LXDConfig(BaseModel):
-    name: str
-    source: LXDSource
-    project: str | None
-
-
-class Defaults(BaseModel):
+class Defaults:
     jammy_amd64: Dict[str, Any] = {
         "name": "jammy-amd64",
         "source": {

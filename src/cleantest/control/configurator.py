@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
-# Copyright 2022 Canonical Ltd.
+# Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
 # See LICENSE file for licensing details.
 
 """Manage the state and flow of cleantest."""
 
-from __future__ import annotations
-
 from collections import deque
-from typing import Deque
-
-from pydantic import BaseModel
+from typing import Deque, Union
 
 from cleantest.hooks import StartEnvHook, StartTestletHook, StopEnvHook, StopTestletHook
 
@@ -18,7 +14,7 @@ class DuplicateHookNameError(Exception):
     ...
 
 
-class HookRegistry(BaseModel):
+class HookRegistry:
     start_env: Deque[StartEnvHook] = deque()
     stop_env: Deque[StopEnvHook] = deque()
     start_testlet: Deque[StartTestletHook] = deque()
@@ -36,7 +32,7 @@ class Configure:
         return cls.instance
 
     def register_hook(
-        self, hook: StartEnvHook | StopEnvHook | StartTestletHook | StopTestletHook
+        self, hook: Union[StartEnvHook, StopEnvHook, StartTestletHook, StopTestletHook]
     ) -> None:
         lint = [
             h for h in self.__metadata if hook.name == h[0] and hook.__class__.__name__ == h[1]

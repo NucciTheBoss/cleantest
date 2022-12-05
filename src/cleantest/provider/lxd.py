@@ -4,37 +4,29 @@
 
 """LXD test environment provider functions and utilities."""
 
-from __future__ import annotations
-
 import os
-from dataclasses import dataclass
-from typing import Any, Callable, Dict, List, Tuple
+from collections import namedtuple
+from typing import Any, Callable, Dict, List, Union
 
 from cleantest.control.configurator import Configure
 from cleantest.provider.data import EnvDataStore, LXDDataStore
 
 from ._handler import LXDProvider, Result
 
-
-@dataclass
-class LXDClientConfig:
-    endpoint: Any = None
-    version: str = "1.0"
-    cert: Tuple[str, str] = None
-    verify: bool | str = True
-    timeout: float | Tuple[float, float] = None
-    project: str = "default"
+LXDClientConfig = namedtuple(
+    "LXDClientConfig", ["endpoint", "version", "cert", "verify", "timeout", "project"]
+)
 
 
 class lxd:
     def __init__(
         self,
         name: str = "test",
-        image: str | List[str] = ["jammy-amd64"],
+        image: Union[str, List[str]] = ["jammy-amd64"],
         preserve: bool = True,
         env: EnvDataStore = EnvDataStore(),
         data: LXDDataStore = LXDDataStore(),
-        image_config: Dict[str, Any] | List[Dict[str, Any]] = None,
+        image_config: Union[Dict[str, Any], List[Dict[str, Any]]] = None,
         client_config: LXDClientConfig = None,
         parallel: bool = False,
         num_threads: int = None,

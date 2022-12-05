@@ -8,9 +8,8 @@ from __future__ import annotations
 
 from typing import List
 
-from pydantic import BaseModel
 
-
-class StartEnvHook(BaseModel):
-    name: str = "default"
-    packages: List[object] = []
+class StartEnvHook:
+    def __init__(self, name: str = "default", packages: List[object] = []):
+        self.name = name
+        self.packages = packages

@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
-# Copyright 2022 Canonical Ltd.
+# Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
 # See LICENSE file for licensing details.
 
 """Environment variable management for test providers."""
 
 import os
-from typing import Any, Dict
+from typing import Any, Dict, Union
 
 
 class EnvDataStore:
@@ -24,7 +24,7 @@ class EnvDataStore:
     def add(self, env_mapping: Dict[str, Any]) -> None:
         self.__env.update(env_mapping)
 
-    def get(self, env_var: str) -> Any | None:
+    def get(self, env_var: str) -> Union[Any, None]:
         """Retrieve environment variable from store.
 
         Args:

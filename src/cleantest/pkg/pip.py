@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
-# Copyright 2022 Canonical Ltd.
+# Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
 # See LICENSE file for licensing details.
 
 """Manager for installing pip packages inside remote processes."""
 
-from __future__ import annotations
-
 import pathlib
 import subprocess
 from shutil import which
-from typing import List
+from typing import List, Union
 
 from cleantest.pkg._base import Package, PackageError
 from cleantest.utils import detect_os_variant
@@ -18,9 +16,9 @@ from cleantest.utils import detect_os_variant
 class Pip(Package):
     def __init__(
         self,
-        packages: str | List[str] = None,
-        requirements: str | List[str] = None,
-        constraints: str | List[str] = None,
+        packages: Union[str, List[str]] = None,
+        requirements: Union[str, List[str]] = None,
+        constraints: Union[str, List[str]] = None,
         _manager: "Pip" = None,
     ) -> None:
         if _manager is None:
@@ -130,9 +128,9 @@ class Pip(Package):
 
     def _lint_inputs(
         self,
-        packages: str | List[str] | None,
-        requirements: str | List[str] | None,
-        constraints: str | List[str] | None,
+        packages: Union[str, List[str], None],
+        requirements: Union[str, List[str], None],
+        constraints: Union[str, List[str], None],
     ) -> None:
         lint_rules = [
             lambda: True if packages is None and requirements is None else False,
