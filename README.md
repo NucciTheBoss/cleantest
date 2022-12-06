@@ -122,7 +122,7 @@ Here are my (NucciTheBoss's) goals to get cleantest to release version 1.0.0:
   * Rocky
   * Fedora
   * Arch
-* Enable support for running parallel tests with LXD
+* ~~Enable support for running parallel tests with LXD~~
 * Better test logging capabilities
 * Support for a select few popular packaging formats:
   * ~~Snap~~
