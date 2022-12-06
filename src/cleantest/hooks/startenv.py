@@ -4,8 +4,6 @@
 
 """Hook run when test environment first starts."""
 
-from __future__ import annotations
-
 from typing import List
 
 
