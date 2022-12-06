@@ -8,7 +8,6 @@ import inspect
 import json
 import os
 import re
-import sys
 from concurrent.futures import ProcessPoolExecutor
 from typing import Any, Callable, Dict, List
 
@@ -17,8 +16,6 @@ from pylxd import Client
 from cleantest.pkg._base import Package
 from cleantest.provider._handler.base_handler import Entrypoint, Handler, Result
 from cleantest.provider.data.lxd_data import LXDConfig
-
-import pdb
 
 
 class Instance:
@@ -145,7 +142,6 @@ class Serial(Entrypoint, LXDHandler):
 class Parallel(Entrypoint, LXDHandler):
     def __init__(self, attr: Dict[str, Any], func: Callable) -> None:
         [setattr(self, k, v) for k, v in attr.items()]
-        print(dir(func), file=sys.stderr)
         self._func = inspect.getsource(func)
         self._func_name = func.__name__
 
