@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
-# Copyright 2022 Canonical Ltd.
+# Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
 # See LICENSE file for licensing details.
 
 """Manager for installing charm libraries inside remote processes."""
 
-from __future__ import annotations
-
 import json
 import subprocess
 from shutil import which
-from typing import List
+from typing import List, Union
 
 from cleantest.pkg._base import Package, PackageError
 from cleantest.utils import detect_os_variant
@@ -19,7 +17,7 @@ class Charmlib(Package):
     def __init__(
         self,
         auth_token_path: str = None,
-        charmlibs: str | List[str] = None,
+        charmlibs: Union[str, List[str]] = None,
         _manager: "Charmlib" = None,
     ) -> None:
         if _manager is None:

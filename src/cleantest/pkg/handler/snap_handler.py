@@ -18,7 +18,7 @@ from collections.abc import Mapping
 from datetime import datetime, timedelta, timezone
 from enum import Enum
 from subprocess import CalledProcessError, CompletedProcess
-from typing import Dict, Iterable, List, Optional
+from typing import Dict, Iterable, List, Optional, Union
 
 from cleantest.pkg._base import PackageError
 
@@ -502,7 +502,7 @@ class SnapClient:
         path: str,
         query: Dict = None,
         body: Dict = None,
-    ) -> dict | List:
+    ) -> Union[dict, List]:
         """Make a JSON request to the Snapd server with the given HTTP method and path.
 
         If query dict is provided, it is encoded and appended as a query string
@@ -665,12 +665,12 @@ class SnapCache(Mapping):
 
 @_cache_init
 def install(
-    snap_names: str | List[str],
-    state: str | SnapState = SnapState.LATEST,
+    snap_names: Union[str, List[str]],
+    state: Union[str, SnapState] = SnapState.LATEST,
     channel: Optional[str] = "latest",
     classic: Optional[bool] = False,
     cohort: Optional[str] = "",
-) -> Snap | List[Snap]:
+) -> Union[Snap, List[Snap]]:
     """Install a snap or snaps in a remote process.
 
     Args:
@@ -696,7 +696,7 @@ def install(
 
 
 @_cache_init
-def remove(snap_names: str | List[str]) -> Snap | List[Snap]:
+def remove(snap_names: Union[str, List[str]]) -> Union[Snap, List[Snap]]:
     """Removes a snap from the system.
 
     Args:
@@ -714,12 +714,12 @@ def remove(snap_names: str | List[str]) -> Snap | List[Snap]:
 
 @_cache_init
 def ensure(
-    snap_names: str | List[str],
+    snap_names: Union[str, List[str]],
     state: str,
     channel: Optional[str] = "latest",
     classic: Optional[bool] = False,
     cohort: Optional[str] = "",
-) -> Snap | List[Snap]:
+) -> Union[Snap, List[Snap]]:
     """Ensures a snap is in a given state to the system.
 
     Args:
@@ -745,7 +745,7 @@ def _wrap_snap_operations(
     channel: str,
     classic: bool,
     cohort: Optional[str] = "",
-) -> Snap | List[Snap]:
+) -> Union[Snap, List[Snap]]:
     """Wrap common operations for bare commands."""
     snaps = {"success": [], "failed": []}
 

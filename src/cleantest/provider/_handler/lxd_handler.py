@@ -8,9 +8,7 @@ import inspect
 import json
 import os
 import re
-import sys
 from concurrent.futures import ProcessPoolExecutor
-from dataclasses import dataclass
 from typing import Any, Callable, Dict, List
 
 from pylxd import Client
@@ -20,11 +18,11 @@ from cleantest.provider._handler.base_handler import Entrypoint, Handler, Result
 from cleantest.provider.data.lxd_data import LXDConfig
 
 
-@dataclass
 class Instance:
-    name: str
-    image: str
-    exists: bool = False
+    def __init__(self, name: str, image: str, exists: bool = False) -> None:
+        self.name = name
+        self.image = image
+        self.exists = exists
 
 
 class LXDHandler(Handler):
@@ -144,7 +142,6 @@ class Serial(Entrypoint, LXDHandler):
 class Parallel(Entrypoint, LXDHandler):
     def __init__(self, attr: Dict[str, Any], func: Callable) -> None:
         [setattr(self, k, v) for k, v in attr.items()]
-        print(dir(func), file=sys.stderr)
         self._func = inspect.getsource(func)
         self._func_name = func.__name__
 
@@ -164,7 +161,9 @@ class Parallel(Entrypoint, LXDHandler):
         self._build(self._check_exists(i))
         self._handle_start_env_hooks(i)
         result = self._execute(
-            self._construct_testlet(self._func, self._func_name, [re.compile(r"^@lxd\(([^)]+)\)")]),
+            self._construct_testlet(
+                self._func, self._func_name, [re.compile(r"^@lxd\(([^)]+)\)")]
+            ),
             i,
         )
         if self._preserve is False:

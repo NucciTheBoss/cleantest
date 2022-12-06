@@ -4,11 +4,9 @@
 
 """Hook run after testlet finishes but before StopEnv hook."""
 
-from pydantic import BaseModel
 
-
-class StopTestletHook(BaseModel):
+class StopTestletHook:
     """Not implemented yet as I do not know if hooks are the move."""
 
-    def __init__(self) -> None:
+    def __init__(self):
         raise NotImplementedError("Hook not implemented yet.")

@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-# Copyright 2022 Canonical Ltd.
+# Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
 # See LICENSE file for licensing details.
 
 """Abstractions and utilities for test environment providers."""
-
-from __future__ import annotations
 
 import inspect
 import os
@@ -14,8 +12,8 @@ import tarfile
 import tempfile
 import textwrap
 from abc import ABC, abstractmethod
-from dataclasses import dataclass
-from typing import Any, Callable, Dict, List
+from collections import namedtuple
+from typing import Any, Dict, List, Union
 
 import cleantest
 
@@ -24,11 +22,7 @@ class HandlerError(Exception):
     ...
 
 
-@dataclass
-class Result:
-    exit_code: int = None
-    stdout: Any = None
-    stderr: Any = None
+Result = namedtuple("Result", ["exit_code", "stdout", "stderr"])
 
 
 class Entrypoint(ABC):
@@ -94,7 +88,9 @@ class Handler(ABC):
             )
         )
 
-    def _construct_testlet(self, src: str, name: str, remove: List[re.Pattern] | None) -> str:
+    def _construct_testlet(
+        self, src: str, name: str, remove: Union[List[re.Pattern], None]
+    ) -> str:
         """Construct Python source file to be run in subroutine.
 
         Args:

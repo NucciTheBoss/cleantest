@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2022 Canonical Ltd.
+# Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
 # See LICENSE file for licensing details.
 
 """Detect operating system of test environment."""
@@ -25,7 +25,7 @@ def detect_os_variant() -> str:
 
 
 def _determine_linux() -> str:
-    os_release_data = [l.strip() for l in open("/etc/os-release", "rt")]
-    for l in os_release_data:
-        if l.startswith("ID="):
-            return l.split("=")[-1].lower()
+    os_release_data = [line.strip() for line in open("/etc/os-release", "rt")]
+    for line in os_release_data:
+        if line.startswith("ID="):
+            return line.split("=")[-1].lower()

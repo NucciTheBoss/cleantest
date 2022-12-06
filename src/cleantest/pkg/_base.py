@@ -4,8 +4,6 @@
 
 """Base package class for installing packages inside remote processes."""
 
-from __future__ import annotations
-
 import hashlib
 import os
 import pathlib

@@ -4,14 +4,11 @@
 
 """Manager for installing snap packages inside remote processes."""
 
-from __future__ import annotations
-
 import pathlib
 import subprocess
-from dataclasses import dataclass
 from enum import Enum
 from shutil import which
-from typing import List
+from typing import List, Optional, Union
 
 from cleantest.pkg._base import Package, PackageError
 from cleantest.pkg.handler import snap
@@ -26,16 +23,16 @@ class Confinement(Enum):
     DEVMODE = "devmode"
 
 
-@dataclass
 class Plug:
-    snap: str
-    name: str
+    def __init__(self, snap: str, name: str) -> None:
+        self.snap = snap
+        self.name = name
 
 
-@dataclass
 class Slot:
-    snap: str = None
-    name: str = None
+    def __init__(self, snap: Optional[str] = None, name: Optional[str] = None) -> None:
+        self.snap = snap
+        self.name = name
 
 
 class Connection:
@@ -70,8 +67,8 @@ class Connection:
 class Snap(Package):
     def __init__(
         self,
-        snaps: str | List[str] = None,
-        local_snaps: str | List[str] = None,
+        snaps: Union[str, List[str]] = None,
+        local_snaps: Union[str, List[str]] = None,
         confinement: Confinement = Confinement.STRICT,
         channel: str = None,
         cohort: str = None,

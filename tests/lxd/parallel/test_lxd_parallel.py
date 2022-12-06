@@ -16,7 +16,7 @@ cleantest_config.register_hook(start_hook)
 
 @lxd(
     image=["jammy-amd64", "focal-amd64", "bionic-amd64"],
-    preserve=True,
+    preserve=False,
     parallel=True,
     num_threads=2,
 )
@@ -38,4 +38,7 @@ class TestParallelLXD:
     def test_parallel_lxd(self) -> None:
         results = install_tabulate()
         for name, result in results.items():
-            assert result.exit_code == 0
+            try:
+                assert result.exit_code == 0
+            except AssertionError:
+                raise Exception(f"{name} failed. Result: {result}")
