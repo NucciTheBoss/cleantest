@@ -4,6 +4,7 @@
 
 """Manage the state and flow of cleantest."""
 
+import copy
 from collections import deque
 from typing import Deque, Union
 
@@ -63,16 +64,16 @@ class Configure:
                 dispatch[hook[1]].remove(hook_name)
 
     def get_start_env_hooks(self) -> Deque[StartEnvHook]:
-        return self.__hook_registry.start_env
+        return copy.deepcopy(self.__hook_registry.start_env)
 
     def get_stop_env_hooks(self) -> Deque[StopEnvHook]:
-        return self.__hook_registry.stop_env
+        return copy.deepcopy(self.__hook_registry.stop_env)
 
     def get_start_testlet_hooks(self) -> Deque[StartTestletHook]:
-        return self.__hook_registry.start_testlet
+        return copy.deepcopy(self.__hook_registry.start_testlet)
 
     def get_stop_testlet_hooks(self) -> Deque[StopTestletHook]:
-        return self.__hook_registry.stop_testlet
+        return copy.deepcopy(self.__hook_registry.stop_testlet)
 
     @property
     def _hook_registry(self) -> HookRegistry:
