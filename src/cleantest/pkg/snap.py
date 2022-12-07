@@ -36,7 +36,7 @@ class Slot:
 
 
 class Connection:
-    def __init__(self, plug: Plug, slot: Slot = None, wait=True) -> None:
+    def __init__(self, plug: Plug, slot: Slot = None, wait: bool = True) -> None:
         self._plug = plug
         self._slot = slot
         self._wait = wait
@@ -64,6 +64,25 @@ class Connection:
         )
 
 
+class Alias:
+    def __init__(self, snap_name: str, app_name: str, alias_name: str, wait: bool = True) -> None:
+        self._snap_name = snap_name
+        self._app_name = app_name
+        self._alias_name = alias_name
+        self._wait = wait
+        self._lint()
+
+    def _lint(self) -> None:
+        if self._snap_name is None or self._app_name is None or self._alias_name is None:
+            holder = ", ".join(
+                [f"{key} = {value}" for key, value in self.__dict__.items() if value is None]
+            )
+            raise PackageError(f"Invalid alias: {holder} cannot be None.")
+
+    def alias(self) -> None:
+        snap.alias(self._snap_name, self._app_name, self._alias_name, self._wait)
+
+
 class Snap(Package):
     def __init__(
         self,
@@ -74,6 +93,7 @@ class Snap(Package):
         cohort: str = None,
         dangerous: bool = False,
         connections: List[Connection] = None,
+        aliases: List = None,
         _manager: "Snap" = None,
     ) -> None:
         if _manager is None:
@@ -115,6 +135,7 @@ class Snap(Package):
                 self._cohort = cohort
                 self._dangerous = dangerous
                 self._connections = connections
+                self._aliases = aliases
         else:
             self._snap_store = _manager._snap_store
             self._local_snap_store = _manager._local_snap_store
@@ -123,6 +144,7 @@ class Snap(Package):
             self._cohort = _manager._cohort
             self._dangerous = _manager._dangerous
             self._connections = _manager._connections
+            self._aliases = _manager._aliases
 
     def _run(self) -> None:
         self._setup()
@@ -168,3 +190,6 @@ class Snap(Package):
 
         for connection in self._connections:
             connection.connect()
+
+        for alias in self._aliases:
+            alias.alias()
