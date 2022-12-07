@@ -808,6 +808,30 @@ def install_local(
         raise PackageError(f"Could not install snap {filename}: {e.output}")
 
 
+def alias(alias_snap: str, app: str, alias: str, wait: bool = True) -> None:
+    """Add an alias for a snap command."""
+    _cmd = ["snap", "alias", f"{alias_snap}.{app}", alias]
+    if not wait:
+        _cmd.append("--no-wait")
+
+    try:
+        subprocess.check_output(_cmd, universal_newlines=True)
+    except subprocess.CalledProcessError:
+        raise PackageError(f"Failed to create alias. Command used: {' '.join(_cmd)}")
+
+
+def unalias(alias_snap: str, wait: bool = True) -> None:
+    """Remove an alias for a snap command."""
+    _cmd = ["snap", "alias", alias_snap]
+    if not wait:
+        _cmd.append("--no-wait")
+
+    try:
+        subprocess.check_output(_cmd, universal_newlines=True)
+    except subprocess.CalledProcessError:
+        raise PackageError(f"Failed to destroy alias. Command used: {' '.join(_cmd)}")
+
+
 def connect(
     plug_snap: str, plug: str, slot_snap: str = None, slot: str = None, wait: bool = True
 ) -> None:
@@ -826,6 +850,26 @@ def connect(
         subprocess.check_output(_cmd, universal_newlines=True)
     except subprocess.CalledProcessError:
         raise PackageError(f"Failed to connect. Command used: {' '.join(_cmd)}")
+
+
+def disconnect(
+    plug: str,
+    plug_snap: str = None,
+    slot_snap: str = None,
+    slot: str = None,
+    wait: bool = True,
+    forget: bool = False,
+) -> None:
+    """Disconnect a snap plug from a slot"""
+    _cmd = ["snap", "disconnect", f":{plug}"]
+    if plug_snap is not None:
+        _cmd[2] = f"{plug_snap}:{plug}"
+    if slot_snap is not None and slot is not None:
+        _cmd.append(f"{slot_snap}:{slot}")
+    if not wait:
+        _cmd.append("--no-wait")
+    if forget:
+        _cmd.append("--forget")
 
 
 def _system_set(config_item: str, value: str) -> None:
