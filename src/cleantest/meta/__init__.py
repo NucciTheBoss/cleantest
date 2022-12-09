@@ -2,5 +2,6 @@
 # Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
 # See LICENSE file for licensing details.
 
+from .base_handler import BaseEntrypoint, BaseHandler
 from .cleantest_info import CleantestInfo
 from .injectable import Injectable
