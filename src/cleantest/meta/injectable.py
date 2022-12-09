@@ -34,7 +34,12 @@ class Injectable(ABC):
             if verification_hash != hashlib.sha224(fin.read_bytes()).hexdigest():
                 raise InjectionError("Hashes do not match. Will not load untrusted object.")
 
-            return cls(*pickle.loads(fin.read_bytes()).values())
+            data = [
+                value
+                for key, value in pickle.loads(fin.read_bytes()).items()
+                if not key.startswith("_")
+            ]
+            return cls(*data)
         else:
             raise InjectionError(
                 f"Cannot load object {data}. Cannot find pickle file or {type(data)} is not str."
