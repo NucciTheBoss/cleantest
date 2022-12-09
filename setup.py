@@ -19,7 +19,6 @@ setup(
     ),
     package_dir={"": "src"},
     install_requires=[
-        "pydantic",
         "pylxd",
     ],
     keywords=[
