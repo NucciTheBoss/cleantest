@@ -72,7 +72,7 @@ class File(Injectable):
         os.chdir(old_dir)
         self._data = archive_path.read_bytes()
 
-    def __injectable__(self, path: str, mode: str) -> str:
+    def __injectable__(self, path: str, verification_hash: str, mode: str) -> str:
         if mode == "upload":
             return textwrap.dedent(
                 f"""
@@ -91,7 +91,7 @@ class File(Injectable):
                 
                 from {self.__module__} import {self.__class__.__name__}
                 
-                holder = {self.__class__.__name__}._load("{path}")
+                holder = {self.__class__.__name__}._load("{path}", "{verification_hash}")
                 holder.load()
                 holder._dump()
                 """
