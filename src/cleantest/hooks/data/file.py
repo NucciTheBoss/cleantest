@@ -77,8 +77,10 @@ class File(Injectable):
             return textwrap.dedent(
                 f"""
                 #!/usr/bin/env python3
+                
                 from {self.__module__} import {self.__class__.__name__}
-                holder = {self.__class__.__name__}._load({path})
+                
+                holder = {self.__class__.__name__}._load("{path}")
                 holder.dump()
                 """
             ).strip("\n")
@@ -86,8 +88,10 @@ class File(Injectable):
             return textwrap.dedent(
                 f"""
                 #!/usr/bin/env python3
+                
                 from {self.__module__} import {self.__class__.__name__}
-                holder = {self.__class__.__name__}._load({path})
+                
+                holder = {self.__class__.__name__}._load("{path}")
                 holder.load()
                 holder._dump()
                 """
