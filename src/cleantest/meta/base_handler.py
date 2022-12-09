@@ -30,7 +30,7 @@ class BaseEntrypoint(ABC):
 
 
 class BaseHandler(ABC):
-    """Abstract super-class for test environment handlers.
+    """Metaclass for test environment handlers.
 
     Handlers define the tooling stubs needed to run tests inside the test environment.
     """
