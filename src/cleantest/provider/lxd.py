@@ -8,7 +8,7 @@ import os
 from collections import namedtuple
 from typing import Any, Callable, Dict, List, Union
 
-from cleantest.control.configurator import Configure
+from cleantest.control.configure import Configure
 from cleantest.provider.data import EnvDataStore, LXDDataStore
 
 from ._handler import LXDProvider, Result
