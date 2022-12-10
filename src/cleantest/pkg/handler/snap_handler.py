@@ -873,6 +873,11 @@ def disconnect(
     if forget:
         _cmd.append("--forget")
 
+    try:
+        subprocess.check_output(_cmd, universal_newlines=True)
+    except subprocess.CalledProcessError:
+        raise SnapHandlerError(f"Failed to create alias. Command used: {' '.join(_cmd)}")
+
 
 def _system_set(config_item: str, value: str) -> None:
     """Helper for setting snap system config values.
