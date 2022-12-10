@@ -4,7 +4,7 @@
 
 """Metaclass for objects that handle installing packages inside test environments."""
 
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
 from .injectable import Injectable
 
@@ -13,7 +13,7 @@ class BasePackageError(Exception):
     ...
 
 
-class BasePackage(ABC, Injectable):
+class BasePackage(Injectable):
     """Metaclass for package handlers.
 
     Packages define tooling stubs needed to install packages inside test environments.
