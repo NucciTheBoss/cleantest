@@ -26,10 +26,13 @@ class DirectoryNotFoundError(Exception):
 
 
 class Dir(File):
-    def __init__(self, src: str, dest: str, compression: str = "gz") -> None:
+    def __init__(
+        self, src: str, dest: str, compression: str = "gz", overwrite: bool = False
+    ) -> None:
         self.src = pathlib.Path(src)
         self.dest = pathlib.Path(dest)
         self.compression = compression
+        self.overwrite = overwrite
         self._data = None
 
         if self.src.is_file():
@@ -41,8 +44,8 @@ class Dir(File):
                 f"Format can be one of the following: {['gz', 'zip', 'bz2', 'xz', None]}"
             )
 
-    def dump(self, overwrite: bool = False) -> None:
-        if self.dest.exists() and overwrite is False:
+    def dump(self) -> None:
+        if self.dest.exists() and self.overwrite is False:
             raise DirectoryExistsError(
                 f"{self.dest} already exists. Set overwrite = True to overwrite {self.dest}."
             )
