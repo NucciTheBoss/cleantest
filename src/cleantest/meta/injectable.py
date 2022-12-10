@@ -10,11 +10,14 @@ import pickle
 import tempfile
 import uuid
 from abc import ABC, abstractmethod
-from typing import Dict
+from collections import namedtuple
 
 
 class InjectionError(Exception):
     ...
+
+
+InjectableData = namedtuple("InjectableData", ["path", "hash"])
 
 
 class Injectable(ABC):
@@ -49,11 +52,11 @@ class Injectable(ABC):
                 f"Cannot load object {data}. Cannot find pickle file or {type(data)} is not str."
             )
 
-    def _dump(self) -> Dict[str, str]:
+    def _dump(self) -> InjectableData:
         """Serialize object and generate SHA224 hash for verification.
 
         Returns:
-            (Dict[str, str]):
+            (InjectableData):
                 path (str): Path to file containing serialized object.
                 hash (str): Hash to verify authenticity of serialized object.
         """
@@ -61,7 +64,7 @@ class Injectable(ABC):
         data = pickle.dumps(self)
         fout.write_bytes(data)
         verification_hash = hashlib.sha224(data).hexdigest()
-        return {"path": str(fout), "hash": verification_hash}
+        return InjectableData(str(fout), verification_hash)
 
     @abstractmethod
     def __injectable__(self) -> str:

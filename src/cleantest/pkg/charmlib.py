@@ -10,9 +10,9 @@ import subprocess
 import sys
 import textwrap
 from shutil import which
-from typing import Dict, List, Union
+from typing import List, Union
 
-from cleantest.meta import BasePackage, BasePackageError
+from cleantest.meta import BasePackage, BasePackageError, InjectableData
 
 from ._mixins import SnapdSupport
 
@@ -75,7 +75,7 @@ class Charmlib(BasePackage, SnapdSupport):
                     )
                 )
 
-    def _dump(self) -> Dict[str, str]:
+    def _dump(self) -> InjectableData:
         if not self.auth_token_path.exists() or not self.auth_token_path.is_file():
             raise FileNotFoundError(f"Could not find authentication token {self.auth_token_path}")
 

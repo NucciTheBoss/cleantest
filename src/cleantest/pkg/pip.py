@@ -8,9 +8,9 @@ import pathlib
 import subprocess
 import textwrap
 from shutil import which
-from typing import Dict, List, Union
+from typing import List, Union
 
-from cleantest.meta import BasePackage, BasePackageError
+from cleantest.meta import BasePackage, BasePackageError, InjectableData
 from cleantest.utils import detect_os_variant
 
 
@@ -128,7 +128,7 @@ class Pip(BasePackage):
                         )
                     )
 
-    def _dump(self) -> Dict[str, str]:
+    def _dump(self) -> InjectableData:
         for requirement in self.requirements:
             fin = pathlib.Path(requirement)
             if not fin.exists() or not fin.is_file():

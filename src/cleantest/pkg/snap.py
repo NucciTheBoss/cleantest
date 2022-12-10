@@ -7,9 +7,9 @@
 import pathlib
 import textwrap
 from enum import Enum
-from typing import Dict, List, Optional, Union
+from typing import List, Optional, Union
 
-from cleantest.meta import BasePackage, BasePackageError
+from cleantest.meta import BasePackage, BasePackageError, InjectableData
 from cleantest.pkg.handler import snap
 
 from ._mixins import SnapdSupport
@@ -150,7 +150,7 @@ class Snap(BasePackage, SnapdSupport):
         for alias in self.aliases:
             alias.alias()
 
-    def _dump(self) -> Dict[str, str]:
+    def _dump(self) -> InjectableData:
         for local_snap in self.local_snaps:
             snap_path = pathlib.Path(local_snap)
             if not snap_path.exists() or not snap_path.is_file():
