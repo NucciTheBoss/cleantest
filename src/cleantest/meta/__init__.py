@@ -5,4 +5,4 @@
 from .base_handler import BaseEntrypoint, BaseHandler, BaseHandlerError, Result
 from .base_package import BasePackage, BasePackageError
 from .cleantest_info import CleantestInfo
-from .injectable import Injectable
+from .injectable import Injectable, InjectableData
