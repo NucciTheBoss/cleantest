@@ -22,11 +22,11 @@ class CleantestInfo:
         return cls.instance
 
     @property
-    def src(self) -> bytes:
+    def src(self) -> Dict[str, bytes]:
         """Source code of cleantest module.
 
         Returns:
-            (bytes): Tarfile containing source code of cleantest.
+            (Dict[str, bytes]): Name and source code of cleantest module.
         """
         old_dir = os.getcwd()
         os.chdir(pkg_resources.get_distribution("cleantest").location)
@@ -35,7 +35,7 @@ class CleantestInfo:
             tar.add("cleantest")
         os.chdir(old_dir)
 
-        return tar_path.read_bytes()
+        return {"cleantest": tar_path.read_bytes()}
 
     @property
     def dependencies(self) -> Dict[str, bytes]:
