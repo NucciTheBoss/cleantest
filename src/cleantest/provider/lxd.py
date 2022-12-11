@@ -9,9 +9,10 @@ from collections import namedtuple
 from typing import Any, Callable, Dict, List, Union
 
 from cleantest.control.configure import Configure
+from cleantest.meta import Result
 from cleantest.provider.data import EnvDataStore, LXDDataStore
 
-from ._handler import LXDProvider, Result
+from ._handler import LXDProvider
 
 LXDClientConfig = namedtuple(
     "LXDClientConfig", ["endpoint", "version", "cert", "verify", "timeout", "project"]
