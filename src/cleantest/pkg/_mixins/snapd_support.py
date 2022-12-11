@@ -16,7 +16,7 @@ class SnapdSupportError(Exception):
 
 class SnapdSupport:
     @staticmethod
-    def install_snapd() -> None:
+    def _install_snapd() -> None:
         """Install snapd inside test environment."""
         os_variant = detect_os_variant()
 
