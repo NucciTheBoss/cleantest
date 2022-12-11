@@ -4,6 +4,7 @@
 
 """Metaclass for retrieving information about cleantest."""
 
+import csv
 import os
 import pathlib
 import tarfile
@@ -53,12 +54,12 @@ class CleantestInfo:
                 ),
             )
             for res in pool_results:
-                [result.update({key, value}) for key, value in res.items()]
+                [result.update({key: value}) for key, value in res.items()]
 
         return result
 
     def _get_dependencies(self, dependency: pkg_resources.Distribution) -> Dict[str, bytes]:
-        """
+        """Collect source code of cleantest dependency.
 
         Args:
             dependency (pkg_resources.Distribution): Dependency of cleantest.
@@ -69,7 +70,11 @@ class CleantestInfo:
         os.chdir(dependency.location)
         tar_path = pathlib.Path(tempfile.gettempdir()).joinpath(dependency.key)
         with tarfile.open(tar_path, "w:gz") as tar:
-            tar.add(dependency.key)
+            with pathlib.Path(
+                f"{dependency.key.replace('-', '_')}-{dependency.version}.dist-info"
+            ).joinpath("RECORD").open(mode="rt") as fin:
+                for row in csv.reader(fin):
+                    tar.add(row[0])
 
         return {dependency.key: tar_path.read_bytes()}
 
