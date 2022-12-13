@@ -2,7 +2,7 @@
 # Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
 # See LICENSE file for licensing details.
 
-"""Test parallel testing capabilites of LXD provider using local LXD cluster."""
+"""Test parallel testing capabilities of LXD provider using local LXD cluster."""
 
 from cleantest import Configure
 from cleantest.hooks import StartEnvHook
