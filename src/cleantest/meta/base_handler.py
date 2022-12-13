@@ -5,7 +5,7 @@
 """Metaclass for objects that will serve as handlers for test environments."""
 
 import re
-import textwrap
+import tempfile
 from abc import ABC, abstractmethod
 from collections import namedtuple
 from typing import Any, Dict, List
@@ -75,13 +75,13 @@ class BaseHandler(ABC):
         """Handle StopEnv hooks."""
         ...
 
-    def _make_testlet(self, src: str, name: str, remove: List[re.Pattern] = None) -> str:
+    def _make_testlet(self, src: str, name: str, remove: List[Any] = None) -> str:
         """Construct Python source file to be run in subroutine.
 
         Args:
             src (str): Source code of testlet.
             name (str): Name of testlet.
-            remove (List[re.Pattern]): String patterns to remove from source code of testlet.
+            remove (List[Any]): String patterns to remove from source code in regex form.
 
         Returns:
             (str): Injectable testlet.
@@ -93,12 +93,14 @@ class BaseHandler(ABC):
             for pattern in remove:
                 src = re.sub(pattern, "", src)
 
-        return textwrap.dedent(
-            f"""
-            #!/usr/bin/env python3
-            
-            {src}
-            
-            {name}()
-            """
-        ).strip("\n")
+        with tempfile.TemporaryFile(mode="w+t") as f:
+            content = [
+                "#!/usr/bin/env python3\n",
+                f"{src}\n",
+                f"{name}()\n",
+            ]
+            f.writelines(content)
+            f.seek(0)
+            testlet = f.read()
+
+        return testlet
