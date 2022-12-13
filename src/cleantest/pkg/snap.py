@@ -97,7 +97,7 @@ class Snap(BasePackage, SnapdSupport):
         cohort: str = None,
         dangerous: bool = False,
         connections: List[Connection] = None,
-        aliases: List = None,
+        aliases: List[Alias] = None,
     ) -> None:
         self.snaps = [snaps] if type(snaps) == str else snaps
         self.local_snaps = [local_snaps] if type(local_snaps) == str else local_snaps
@@ -126,7 +126,7 @@ class Snap(BasePackage, SnapdSupport):
         self._install_snapd()
 
     def _handle_snap_install(self) -> None:
-        if len(self.snaps) > 0:
+        if self.snaps is not None:
             snap.install(
                 self.snaps,
                 channel=self.channel,
@@ -144,18 +144,21 @@ class Snap(BasePackage, SnapdSupport):
                 dangerous=self.dangerous,
             )
 
-        for connection in self.connections:
-            connection.connect()
+        if self.connections is not None:
+            for connection in self.connections:
+                connection.connect()
 
-        for alias in self.aliases:
-            alias.alias()
+        if self.aliases is not None:
+            for alias in self.aliases:
+                alias.alias()
 
     def _dump(self) -> InjectableData:
-        for local_snap in self.local_snaps:
-            snap_path = pathlib.Path(local_snap)
-            if not snap_path.exists() or not snap_path.is_file():
-                raise FileNotFoundError(f"Could not find local snap package {snap_path}")
-            self._cached_local_snaps.add(snap_path.read_bytes())
+        if self.local_snaps is not None:
+            for local_snap in self.local_snaps:
+                snap_path = pathlib.Path(local_snap)
+                if not snap_path.exists() or not snap_path.is_file():
+                    raise FileNotFoundError(f"Could not find local snap package {snap_path}")
+                self._cached_local_snaps.add(snap_path.read_bytes())
 
         return super()._dump()
 

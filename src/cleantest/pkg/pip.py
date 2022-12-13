@@ -71,7 +71,7 @@ class Pip(BasePackage):
                 )
 
     def _handle_pip_install(self) -> None:
-        if len(self.packages) > 0:
+        if self.packages is not None:
             cmd = ["python3", "-m", "pip", "install", " ".join(self.packages)]
             try:
                 subprocess.run(
@@ -129,17 +129,19 @@ class Pip(BasePackage):
                     )
 
     def _dump(self) -> InjectableData:
-        for requirement in self.requirements:
-            fin = pathlib.Path(requirement)
-            if not fin.exists() or not fin.is_file():
-                raise FileNotFoundError(f"Could not find requirements file {requirement}.")
-            self._requirements_store.append(fin.read_text())
+        if self.requirements is not None:
+            for requirement in self.requirements:
+                fin = pathlib.Path(requirement)
+                if not fin.exists() or not fin.is_file():
+                    raise FileNotFoundError(f"Could not find requirements file {requirement}.")
+                self._requirements_store.append(fin.read_text())
 
-        for constraint in self.constraints:
-            fin = pathlib.Path(constraint)
-            if not fin.exists() or not fin.is_file():
-                raise FileNotFoundError(f"Could not find requirements file {constraint}.")
-            self._constraints_store.append(fin.read_text())
+        if self.constraints is not None:
+            for constraint in self.constraints:
+                fin = pathlib.Path(constraint)
+                if not fin.exists() or not fin.is_file():
+                    raise FileNotFoundError(f"Could not find requirements file {constraint}.")
+                self._constraints_store.append(fin.read_text())
 
         return super()._dump()
 

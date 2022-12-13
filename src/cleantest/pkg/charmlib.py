@@ -13,6 +13,7 @@ from shutil import which
 from typing import List, Union
 
 from cleantest.meta import BasePackage, BasePackageError, InjectableData
+from cleantest.pkg.handler import snap
 
 from ._mixins import SnapdSupport
 
@@ -45,15 +46,7 @@ class Charmlib(BasePackage, SnapdSupport):
     def _setup(self) -> None:
         self._install_snapd()
         if which("charmcraft") is None:
-            cmd = ["snap", "install", "charmcraft", "--classic"]
-            try:
-                subprocess.run(
-                    cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True
-                )
-            except subprocess.CalledProcessError:
-                raise CharmlibPackageError(
-                    f"Failed to install charmcraft using the following command: {' '.join(cmd)}"
-                )
+            snap.install("charmcraft", classic=True)
 
     def _handle_charm_lib_install(self) -> None:
         for charm in self.charmlibs:
