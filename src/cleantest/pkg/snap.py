@@ -5,14 +5,18 @@
 """Manager for installing snap packages inside remote processes."""
 
 import pathlib
-import subprocess
+import textwrap
 from enum import Enum
-from shutil import which
 from typing import List, Optional, Union
 
-from cleantest.pkg._base import Package, PackageError
+from cleantest.meta import BasePackage, BasePackageError, InjectableData
 from cleantest.pkg.handler import snap
-from cleantest.utils import detect_os_variant
+
+from ._mixins import SnapdSupport
+
+
+class SnapPackageError(BasePackageError):
+    ...
 
 
 class Confinement(Enum):
@@ -44,12 +48,12 @@ class Connection:
 
     def _lint(self) -> None:
         if self._plug.snap is None or self._plug.name is None:
-            raise PackageError(
+            raise SnapPackageError(
                 f"Invalid plug: {self._plug.__dict__}. "
                 "Plug must have an associated snap and name."
             )
         if self._slot is not None and self._slot.snap is None and self._slot.name is None:
-            raise PackageError(
+            raise SnapPackageError(
                 f"Invalid slot: {self._slot.__dict__}. "
                 "Slot must at least have an associated snap or name."
             )
@@ -77,13 +81,13 @@ class Alias:
             holder = ", ".join(
                 [f"{key} = {value}" for key, value in self.__dict__.items() if value is None]
             )
-            raise PackageError(f"Invalid alias: {holder} cannot be None.")
+            raise SnapPackageError(f"Invalid alias: {holder} cannot be None.")
 
     def alias(self) -> None:
         snap.alias(self._snap_name, self._app_name, self._alias_name, self._wait)
 
 
-class Snap(Package):
+class Snap(BasePackage, SnapdSupport):
     def __init__(
         self,
         snaps: Union[str, List[str]] = None,
@@ -93,103 +97,79 @@ class Snap(Package):
         cohort: str = None,
         dangerous: bool = False,
         connections: List[Connection] = None,
-        aliases: List = None,
-        _manager: "Snap" = None,
+        aliases: List[Alias] = None,
     ) -> None:
-        if _manager is None:
-            if snaps is None and local_snaps is None:
-                raise PackageError("No valid snap packages were passed.")
-            else:
-                self._snap_store = set()
-                if type(snaps) == str:
-                    self._snap_store.add(snaps)
-                elif type(snaps) == list:
-                    [self._snap_store.add(pkg) for pkg in snaps]
+        self.snaps = [snaps] if type(snaps) == str else snaps
+        self.local_snaps = [local_snaps] if type(local_snaps) == str else local_snaps
+        self._cached_local_snaps = set()
+        self.confinement = confinement
+        self.channel = channel
+        self.cohort = cohort
+        self.dangerous = dangerous
+        self.connections = connections
+        self.aliases = aliases
 
-                self._local_snap_store = set()
-                if type(local_snaps) == str:
-                    path = pathlib.Path(local_snaps)
-                    if path.exists():
-                        self._local_snap_store.add(path.read_bytes())
-                    else:
-                        raise PackageError(f"Could not find local snap package at {local_snaps}")
-                elif type(local_snaps) == list:
-                    for pkg in local_snaps:
-                        path = pathlib.Path(pkg)
-                        if path.exists():
-                            self._local_snap_store.add(path.read_bytes())
-                        else:
-                            raise PackageError(
-                                f"Could not find local snap package at {local_snaps}"
-                            )
+        if snaps is None and local_snaps is None:
+            raise SnapPackageError("No snaps specified.")
 
-                if hasattr(Confinement, confinement.name):
-                    self._confinement = confinement
-                else:
-                    raise PackageError(
-                        f"Invalid confinement {confinement.name}. "
-                        f"Must be either {', '.join([i.name for i in Confinement])}"
-                    )
-
-                self._channel = channel
-                self._cohort = cohort
-                self._dangerous = dangerous
-                self._connections = connections
-                self._aliases = aliases
-        else:
-            self._snap_store = _manager._snap_store
-            self._local_snap_store = _manager._local_snap_store
-            self._confinement = _manager._confinement
-            self._channel = _manager._channel
-            self._cohort = _manager._cohort
-            self._dangerous = _manager._dangerous
-            self._connections = _manager._connections
-            self._aliases = _manager._aliases
+        if not hasattr(Confinement, confinement.name):
+            raise SnapPackageError(
+                f"Invalid confinement {confinement.name}. "
+                f"Must be either {', '.join([i.name for i in Confinement])}"
+            )
 
     def _run(self) -> None:
         self._setup()
         self._handle_snap_install()
 
     def _setup(self) -> None:
-        os_variant = detect_os_variant()
-
-        if which("snap") is None:
-            if os_variant == "ubuntu":
-                cmd = ["apt", "install", "-y", "snapd"]
-                try:
-                    subprocess.run(
-                        cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True
-                    )
-                except subprocess.CalledProcessError:
-                    raise PackageError(
-                        f"Failed to install snapd using the following command: {' '.join(cmd)}."
-                    )
-            else:
-                raise NotImplementedError(
-                    f"Support for {os_variant.capitalize()} not available yet."
-                )
+        self._install_snapd()
 
     def _handle_snap_install(self) -> None:
-        if len(self._snap_store) > 0:
+        if self.snaps is not None:
             snap.install(
-                list(self._snap_store),
-                channel=self._channel,
-                classic=True if self._confinement == Confinement.CLASSIC else False,
-                cohort=self._cohort if self._cohort is not None else "",
+                self.snaps,
+                channel=self.channel,
+                classic=True if self.confinement == Confinement.CLASSIC else False,
+                cohort=self.cohort if self.cohort is not None else "",
             )
 
-        for pkg in self._local_snap_store:
-            out = pathlib.Path("/root/tmp.snap")
-            out.write_bytes(pkg)
+        for pkg in self._cached_local_snaps:
+            path = pathlib.Path.home().joinpath("tmp.snap")
+            path.write_bytes(pkg)
             snap.install_local(
-                "/root/tmp.snap",
-                classic=True if self._confinement == Confinement.CLASSIC else False,
-                devmode=True if self._confinement == Confinement.DEVMODE else False,
-                dangerous=self._dangerous,
+                str(path),
+                classic=True if self.confinement == Confinement.CLASSIC else False,
+                devmode=True if self.confinement == Confinement.DEVMODE else False,
+                dangerous=self.dangerous,
             )
 
-        for connection in self._connections:
-            connection.connect()
+        if self.connections is not None:
+            for connection in self.connections:
+                connection.connect()
 
-        for alias in self._aliases:
-            alias.alias()
+        if self.aliases is not None:
+            for alias in self.aliases:
+                alias.alias()
+
+    def _dump(self) -> InjectableData:
+        if self.local_snaps is not None:
+            for local_snap in self.local_snaps:
+                snap_path = pathlib.Path(local_snap)
+                if not snap_path.exists() or not snap_path.is_file():
+                    raise FileNotFoundError(f"Could not find local snap package {snap_path}")
+                self._cached_local_snaps.add(snap_path.read_bytes())
+
+        return super()._dump()
+
+    def __injectable__(self, path: str, verification_hash: str) -> str:
+        return textwrap.dedent(
+            f"""
+            #!/usr/bin/env python3
+
+            from {self.__module__} import {self.__class__.__name__}
+
+            holder = {self.__class__.__name__}._load("{path}", "{verification_hash}")
+            holder._run()
+            """
+        ).strip("\n")

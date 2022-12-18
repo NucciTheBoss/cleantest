@@ -6,51 +6,50 @@
 
 import pathlib
 import subprocess
+import textwrap
 from shutil import which
 from typing import List, Union
 
-from cleantest.pkg._base import Package, PackageError
+from cleantest.meta import BasePackage, BasePackageError, InjectableData
 from cleantest.utils import detect_os_variant
 
 
-class Pip(Package):
+class PipPackageError(BasePackageError):
+    ...
+
+
+class Pip(BasePackage):
     def __init__(
         self,
         packages: Union[str, List[str]] = None,
         requirements: Union[str, List[str]] = None,
         constraints: Union[str, List[str]] = None,
-        _manager: "Pip" = None,
     ) -> None:
-        if _manager is None:
-            self._lint_inputs(packages, requirements, constraints)
+        self.packages = [packages] if type(packages) == str else packages
+        self.requirements = [requirements] if type(requirements) == str else requirements
+        self._requirements_store = []
+        self.constraints = [constraints] if type(constraints) == str else constraints
+        self._constraints_store = []
 
-            self._package_store = set()
-            if type(packages) == str:
-                self._package_store.add(packages)
-            elif type(packages) == list:
-                [self._package_store.add(p) for p in packages]
-
-            self._requirements_store = []
-            if type(requirements) == str:
-                self._requirements_store.append(requirements)
-            elif type(requirements) == list:
-                self._requirements_store.extend(requirements)
-
-            self._constraints_store = []
-            if type(constraints) == str:
-                self._constraints_store.append(constraints)
-            elif type(constraints) == list:
-                self._constraints_store.extend(constraints)
-
-            self._load_file_data()
-        else:
-            self._package_store = _manager._package_store
-            self._requirements_store = _manager._requirements_store
-            self._constraints_store = _manager._constraints_store
+        lint_rules = [
+            lambda: True if packages is None and requirements is None else False,
+            lambda: True if requirements is None and constraints is not None else False,
+            lambda: True
+            if type(requirements) == list
+            and type(constraints) == list
+            and len(requirements) != len(constraints)
+            else False,
+        ]
+        for expr in lint_rules:
+            if expr():
+                raise PipPackageError(
+                    "Lint rule failed. ",
+                    f"Ensure passed arguments to {self.__class__.__name__} are correct.",
+                )
 
     def _run(self) -> None:
         self._setup()
-        self.__handle_pip_install()
+        self._handle_pip_install()
 
     def _setup(self) -> None:
         os_variant = detect_os_variant()
@@ -63,7 +62,7 @@ class Pip(Package):
                         cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True
                     )
                 except subprocess.CalledProcessError:
-                    raise PackageError(
+                    raise PipPackageError(
                         f"Failed to install pip using the following command: {' '.join(cmd)}"
                     )
             else:
@@ -71,94 +70,89 @@ class Pip(Package):
                     f"Support for {os_variant.capitalize()} not available yet."
                 )
 
-    def __handle_pip_install(self) -> None:
-        for package in self._package_store:
-            cmd = ["python3", "-m", "pip", "install", package]
+    def _handle_pip_install(self) -> None:
+        if self.packages is not None:
+            cmd = ["python3", "-m", "pip", "install", " ".join(self.packages)]
             try:
                 subprocess.run(
                     cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True
                 )
             except subprocess.CalledProcessError:
-                raise PackageError(
-                    f"Failed to install package {package} "
+                raise PipPackageError(
+                    f"Failed to install packages {self.packages} "
                     f"using the following command {' '.join(cmd)}"
                 )
 
         if self._constraints_store:
-            for r, c in zip(self._requirements_store, self._constraints_store):
-                r_file = pathlib.Path(pathlib.Path.home().joinpath("requirements.txt"))
-                c_file = pathlib.Path(pathlib.Path.home().joinpath("constraints.txt"))
-                r_file.touch()
-                c_file.touch()
-                with r_file.open(mode="w") as fout:
-                    fout.writelines(r)
-                with c_file.open(mode="w") as fout:
-                    fout.writelines(c)
-                cmd = ["python3", "-m", "pip", "install", "-r", str(r_file), "-c", str(c_file)]
+            for requirement, constraint in zip(self._requirements_store, self._constraints_store):
+                requirement_file = pathlib.Path.home().joinpath("requirements.txt")
+                requirement_file.write_text(requirement)
+                constraint_file = pathlib.Path.home().joinpath("constraints.txt")
+                constraint_file.write_text(constraint)
+                cmd = [
+                    "python3",
+                    "-m",
+                    "pip",
+                    "install",
+                    "-r",
+                    str(requirement_file),
+                    "-c",
+                    str(constraint_file),
+                ]
                 try:
                     subprocess.run(
                         cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True
                     )
                 except subprocess.CalledProcessError:
-                    raise PackageError(
+                    raise PipPackageError(
                         (
-                            f"Failed to install packages listed in requirements.txt file {r} "
-                            f"with constraints.txt file {c} using the "
+                            f"Failed to install packages listed in requirements.txt file {requirement} "
+                            f"with constraints.txt file {constraint} using the "
                             f"following command: {' '.join(cmd)}"
                         )
                     )
         else:
-            for r in self._requirements_store:
-                r_file = pathlib.Path(pathlib.Path.home().joinpath("requirements.txt"))
-                r_file.touch()
-                with r_file.open(mode="w") as fout:
-                    fout.writelines(r)
-                cmd = ["python3", "-m", "pip", "install", "-r", str(r_file)]
+            for requirement in self._requirements_store:
+                requirement_file = pathlib.Path(pathlib.Path.home().joinpath("requirements.txt"))
+                requirement_file.write_text(requirement)
+                cmd = ["python3", "-m", "pip", "install", "-r", str(requirement_file)]
                 try:
                     subprocess.run(
                         cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True
                     )
                 except subprocess.CalledProcessError:
-                    raise PackageError(
+                    raise PipPackageError(
                         (
-                            f"Failed to install packages listed in requirements.txt file {r} "
+                            f"Failed to install packages listed in requirements.txt file {requirement} "
                             f"using the following command: {' '.join(cmd)}"
                         )
                     )
 
-    def _lint_inputs(
-        self,
-        packages: Union[str, List[str], None],
-        requirements: Union[str, List[str], None],
-        constraints: Union[str, List[str], None],
-    ) -> None:
-        lint_rules = [
-            lambda: True if packages is None and requirements is None else False,
-            lambda: True if requirements is None and constraints is not None else False,
-            lambda: True
-            if type(requirements) == list
-            and type(constraints) == list
-            and len(requirements) != len(constraints)
-            else False,
-        ]
-        for expr in lint_rules:
-            if expr():
-                raise PackageError(
-                    "Lint rule failed. ",
-                    f"Ensure passed arguments to {self.__class__.__name__} are correct.",
-                )
+    def _dump(self) -> InjectableData:
+        if self.requirements is not None:
+            for requirement in self.requirements:
+                fin = pathlib.Path(requirement)
+                if not fin.exists() or not fin.is_file():
+                    raise FileNotFoundError(f"Could not find requirements file {requirement}.")
+                self._requirements_store.append(fin.read_text())
 
-    def _load_file_data(self) -> None:
-        for i in range(0, len(self._requirements_store)):
-            file = pathlib.Path(self._requirements_store[i])
-            if file.exists():
-                self._requirements_store[i] = [line.strip() for line in file.open()]
-            else:
-                raise PackageError(f"Requirements file {self._requirements_store[i]} not found.")
+        if self.constraints is not None:
+            for constraint in self.constraints:
+                fin = pathlib.Path(constraint)
+                if not fin.exists() or not fin.is_file():
+                    raise FileNotFoundError(f"Could not find requirements file {constraint}.")
+                self._constraints_store.append(fin.read_text())
 
-        for i in range(0, len(self._constraints_store)):
-            file = pathlib.Path(self._constraints_store[i])
-            if file.exists():
-                self._constraints_store[i] = [line.strip() for line in file.open()]
-            else:
-                raise PackageError(f"Constraints file {self._constraints_store[i]} not found.")
+        return super()._dump()
+
+    def __injectable__(self, path: str, verification_hash: str) -> str:
+        return textwrap.dedent(
+            f"""
+            #!/usr/bin/env python3
+
+            from {self.__module__} import {self.__class__.__name__}
+
+            holder = {self.__class__.__name__}._load("{path}", "{verification_hash}")
+            holder._run()
+            """
+        ).strip("\n")

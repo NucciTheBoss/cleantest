@@ -4,9 +4,16 @@
 
 """Hook run before test environment stops."""
 
+from typing import List
+
+from cleantest.meta import Injectable
+
 
 class StopEnvHook:
-    """Not implemented yet as I do not know if hooks are the move."""
+    def __init__(self, download: List[Injectable]) -> None:
+        """Hook run before stopping test environment.
 
-    def __init__(self):
-        raise NotImplementedError("Hook not implemented yet.")
+        Args:
+            download (List[Injectable]): Artifacts to download from test environment.
+        """
+        self.download = download

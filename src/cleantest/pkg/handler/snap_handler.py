@@ -20,10 +20,12 @@ from enum import Enum
 from subprocess import CalledProcessError, CompletedProcess
 from typing import Dict, Iterable, List, Optional, Union
 
-from cleantest.pkg._base import PackageError
-
 # Filter for extracting 7-bit C1 ANSI sequences from a string.
 ansi_filter = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+
+
+class SnapHandlerError(Exception):
+    ...
 
 
 class SnapAPIError(Exception):
@@ -166,7 +168,7 @@ class Snap:
         try:
             return subprocess.check_output(_cmd, universal_newlines=True)
         except CalledProcessError as e:
-            raise PackageError(
+            raise SnapHandlerError(
                 f"Snap: {self._name}; command {_cmd} failed with output = {e.output}"
             )
 
@@ -187,7 +189,7 @@ class Snap:
         try:
             return subprocess.run(_cmd, universal_newlines=True, check=True, capture_output=True)
         except CalledProcessError as e:
-            raise PackageError(f"Could not {_cmd} for snap [{self._name}]: {e.stderr}")
+            raise SnapHandlerError(f"Could not {_cmd} for snap [{self._name}]: {e.stderr}")
 
     def get(self, key) -> str:
         """Gets a snap configuration value.
@@ -577,7 +579,7 @@ class SnapCache(Mapping):
 
     def __init__(self):
         if not self.snapd_installed:
-            raise PackageError("snapd is not installed or not in /usr/bin") from None
+            raise SnapHandlerError("snapd is not installed or not in /usr/bin") from None
         self._snap_client = SnapClient()
         self._snap_map = {}
         if self.snapd_installed:
@@ -605,7 +607,7 @@ class SnapCache(Mapping):
             try:
                 self._snap_map[snap_name] = self._load_info(snap_name)
             except SnapAPIError:
-                raise PackageError(f"Snap '{snap_name}' not found!")
+                raise SnapHandlerError(f"Snap '{snap_name}' not found!")
 
         return self._snap_map[snap_name]
 
@@ -757,11 +759,11 @@ def _wrap_snap_operations(
             else:
                 snap.ensure(state=state, classic=classic, channel=channel, cohort=cohort)
             snaps["success"].append(snap)
-        except PackageError:
+        except SnapHandlerError:
             snaps["failed"].append(s)
 
     if len(snaps["failed"]):
-        raise PackageError(
+        raise SnapHandlerError(
             f"Failed to install or refresh snap(s): {', '.join([s for s in snaps['failed']])}"
         )
 
@@ -805,7 +807,7 @@ def install_local(
 
         return c[snap_name]
     except CalledProcessError as e:
-        raise PackageError(f"Could not install snap {filename}: {e.output}")
+        raise SnapHandlerError(f"Could not install snap {filename}: {e.output}")
 
 
 def alias(alias_snap: str, app: str, alias: str, wait: bool = True) -> None:
@@ -817,7 +819,7 @@ def alias(alias_snap: str, app: str, alias: str, wait: bool = True) -> None:
     try:
         subprocess.check_output(_cmd, universal_newlines=True)
     except subprocess.CalledProcessError:
-        raise PackageError(f"Failed to create alias. Command used: {' '.join(_cmd)}")
+        raise SnapHandlerError(f"Failed to create alias. Command used: {' '.join(_cmd)}")
 
 
 def unalias(alias_snap: str, wait: bool = True) -> None:
@@ -829,7 +831,7 @@ def unalias(alias_snap: str, wait: bool = True) -> None:
     try:
         subprocess.check_output(_cmd, universal_newlines=True)
     except subprocess.CalledProcessError:
-        raise PackageError(f"Failed to destroy alias. Command used: {' '.join(_cmd)}")
+        raise SnapHandlerError(f"Failed to destroy alias. Command used: {' '.join(_cmd)}")
 
 
 def connect(
@@ -849,7 +851,7 @@ def connect(
     try:
         subprocess.check_output(_cmd, universal_newlines=True)
     except subprocess.CalledProcessError:
-        raise PackageError(f"Failed to connect. Command used: {' '.join(_cmd)}")
+        raise SnapHandlerError(f"Failed to connect. Command used: {' '.join(_cmd)}")
 
 
 def disconnect(
@@ -871,6 +873,11 @@ def disconnect(
     if forget:
         _cmd.append("--forget")
 
+    try:
+        subprocess.check_output(_cmd, universal_newlines=True)
+    except subprocess.CalledProcessError:
+        raise SnapHandlerError(f"Failed to create alias. Command used: {' '.join(_cmd)}")
+
 
 def _system_set(config_item: str, value: str) -> None:
     """Helper for setting snap system config values.
@@ -883,7 +890,7 @@ def _system_set(config_item: str, value: str) -> None:
     try:
         subprocess.check_call(_cmd, universal_newlines=True)
     except CalledProcessError:
-        raise PackageError(f"Failed setting system config '{config_item}' to '{value}'")
+        raise SnapHandlerError(f"Failed setting system config '{config_item}' to '{value}'")
 
 
 def hold_refresh(days: int = 90) -> None:
