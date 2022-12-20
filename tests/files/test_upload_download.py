@@ -25,12 +25,11 @@ start_hook = StartEnvHook(
 stop_hook = StopEnvHook(
     name="download_artifact",
     download=[
-        File("/root/dump.txt", os.path.join(tempfile.gettempdir(), "dump.txt")),
-        Dir("/root/dump", os.path.join(tempfile.gettempdir(), "dump")),
+        File("/root/dump.txt", os.path.join(tempfile.gettempdir(), "dump.txt"), overwrite=True),
+        Dir("/root/dump", os.path.join(tempfile.gettempdir(), "dump"), overwrite=True),
     ],
 )
-config.register_hook(start_hook)
-config.register_hook(stop_hook)
+config.register_hook(start_hook, stop_hook)
 
 
 @lxd(image="jammy-amd64", preserve=True)
