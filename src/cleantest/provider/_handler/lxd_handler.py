@@ -8,12 +8,20 @@ import inspect
 import json
 import pathlib
 import re
+import tempfile
 from concurrent.futures import ProcessPoolExecutor
 from typing import Any, Callable, Dict, List
 
 from pylxd import Client
 
-from cleantest.meta import BaseEntrypoint, BaseHandler, BasePackage, CleantestInfo, Result
+from cleantest.meta import (
+    BaseEntrypoint,
+    BaseHandler,
+    BasePackage,
+    CleantestInfo,
+    Injectable,
+    Result,
+)
 
 
 class InstanceMetadata:
@@ -87,15 +95,24 @@ class LXDHandler(BaseHandler):
 
     def _handle_start_env_hooks(self, instance: InstanceMetadata) -> None:
         start_env_hooks = self._clean_config.get_start_env_hooks()
-        while len(start_env_hooks) > 0:
+        while start_env_hooks:
             hook = start_env_hooks.pop()
             instance = self._client.instances.get(instance.name)
             if hook.packages is not None:
                 for pkg in hook.packages:
                     self._handle_package_install(instance, pkg)
+            if hook.upload is not None:
+                for artifact in hook.upload:
+                    self._handle_artifact_upload(instance, artifact)
 
-    def _handle_stop_env_hooks(self) -> None:
-        ...
+    def _handle_stop_env_hooks(self, instance: InstanceMetadata) -> None:
+        stop_env_hooks = self._clean_config.get_stop_env_hooks()
+        while stop_env_hooks:
+            hook = stop_env_hooks.pop()
+            instance = self._client.instances.get(instance.name)
+            if hook.download is not None:
+                for artifact in hook.download:
+                    self._handle_artifact_download(instance, artifact)
 
     def _handle_package_install(self, instance: Any, pkg: BasePackage) -> None:
         dispatch = {"charmlib": lambda x: self._env.add(json.loads(x))}
@@ -113,6 +130,39 @@ class LXDHandler(BaseHandler):
         if pkg.__class__.__name__.lower() in dispatch:
             dispatch[pkg.__class__.__name__.lower()](result.stdout)
 
+    def _handle_artifact_upload(self, instance: Any, artifact: Injectable) -> None:
+        artifact.load()
+        dump_data = artifact._dump()
+        data_path = pathlib.Path(dump_data.path)
+        instance.execute(["mkdir", "-p", "/root/init/data"])
+        instance.files.put(f"/root/init/data/{data_path.name}", data_path.read_bytes())
+        instance.files.put(
+            "/root/init/data/dump",
+            artifact.__injectable__(
+                f"/root/init/data/{data_path.name}", dump_data.hash, mode="upload"
+            ),
+        )
+        instance.execute(["python3", "/root/init/data/dump"])
+
+    def _handle_artifact_download(self, instance: Any, artifact: Injectable) -> None:
+        dump_data = artifact._dump()
+        data_path = pathlib.Path(dump_data.path)
+        instance.execute(["mkdir", "-p", "/root/post/data"])
+        instance.files.put(f"/root/post/data/{data_path.name}", data_path.read_bytes())
+        instance.files.put(
+            "/root/post/data/load",
+            artifact.__injectable__(
+                f"/root/post/data/{data_path.name}", dump_data.hash, mode="download"
+            ),
+        )
+        result = json.loads(instance.execute(["python3", "/root/post/data/load"]).stdout)
+        data = instance.files.get(result["path"])
+        with tempfile.NamedTemporaryFile() as fout:
+            handler = pathlib.Path(fout.name)
+            handler.write_bytes(data)
+            holder = artifact.__class__._load(str(handler), result["hash"])
+            holder.dump()
+
 
 class Serial(BaseEntrypoint, LXDHandler):
     def __init__(self, attr: Dict[str, Any], func: Callable) -> None:
@@ -129,6 +179,7 @@ class Serial(BaseEntrypoint, LXDHandler):
                 self._make_testlet(self._func, self._func_name, [re.compile(r"^@lxd\(([^)]+)\)")]),
                 i,
             )
+            self._handle_stop_env_hooks(i)
             if self._preserve is False:
                 self._teardown(i)
             results.update({i.name: self._process(result)})
@@ -160,6 +211,7 @@ class Parallel(BaseEntrypoint, LXDHandler):
             self._make_testlet(self._func, self._func_name, [re.compile(r"^@lxd\(([^)]+)\)")]),
             i,
         )
+        self._handle_stop_env_hooks(i)
         if self._preserve is False:
             self._teardown(i)
 
