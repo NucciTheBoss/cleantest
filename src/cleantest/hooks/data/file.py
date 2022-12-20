@@ -9,7 +9,7 @@ import pathlib
 import tarfile
 import tempfile
 import textwrap
-import zipfile
+from io import BytesIO
 
 from cleantest.meta import Injectable
 
@@ -23,23 +23,11 @@ class InjectableModeError(Exception):
 
 
 class File(Injectable):
-    def __init__(
-        self, src: str, dest: str, compression: str = "gz", overwrite: bool = False
-    ) -> None:
+    def __init__(self, src: str, dest: str, overwrite: bool = False) -> None:
         self.src = pathlib.Path(src)
         self.dest = pathlib.Path(dest)
-        self.compression = compression
         self.overwrite = overwrite
         self._data = None
-
-        if self.src.is_dir():
-            raise FileError(f"{self.src} is a directory. Use Dir class instead.")
-
-        if self.compression not in ["gz", "zip", "bz2", "xz", None]:
-            raise FileError(
-                f"{self.compression} not valid compression format. "
-                f"Format can be one of the following: {['gz', 'zip', 'bz2', 'xz', None]}"
-            )
 
     def dump(self) -> None:
         if self.dest.exists() and self.overwrite is False:
@@ -50,28 +38,24 @@ class File(Injectable):
         if self._data is None:
             raise FileError(f"Nothing to write.")
 
-        if self.compression in ["gz", "bz2", "xz", None]:
-            protocol = "r" if self.compression is None else f"r:{self.compression}"
-            with tarfile.open(self._data, protocol) as tar:
-                tar.extract(self.src.name, self.dest)
-        else:
-            with zipfile.ZipFile(self._data, "r") as zip_out:
-                zip_out.extract(self.src.name, self.dest)
+        with tarfile.open(
+            fileobj=BytesIO(self._data), mode="r:gz"
+        ) as tar, tempfile.TemporaryDirectory() as tmp_dir:
+            tar.extractall(tmp_dir)
+            self.dest.write_bytes(pathlib.Path(tmp_dir).joinpath(self.src.name).read_bytes())
 
     def load(self) -> None:
         if self.src.exists() is False:
             raise FileNotFoundError(f"Could not find {self.src}.")
 
+        if self.src.is_dir():
+            raise FileError(f"{self.src} is a directory. Use Dir class instead.")
+
         old_dir = os.getcwd()
         os.chdir(os.sep.join(str(self.src).split(os.sep)[:-1]))
         archive_path = pathlib.Path(tempfile.gettempdir()).joinpath(self.src.name)
-        if self.compression in ["gz", "bz2", "xz", None]:
-            protocol = "w" if self.compression is None else f"w:{self.compression}"
-            with tarfile.open(archive_path, protocol) as tar:
-                tar.add(self.src.name)
-        else:
-            with zipfile.ZipFile(archive_path, "w") as zip_out:
-                zip_out.write(self.src.name)
+        with tarfile.open(archive_path, "w:gz") as tar:
+            tar.add(self.src.name)
         os.chdir(old_dir)
         self._data = archive_path.read_bytes()
 
@@ -83,7 +67,7 @@ class File(Injectable):
                 
                 from {self.__module__} import {self.__class__.__name__}
                 
-                holder = {self.__class__.__name__}._load("{path}")
+                holder = {self.__class__.__name__}._load("{path}", "{verification_hash}")
                 holder.dump()
                 """
             ).strip("\n")
@@ -91,12 +75,14 @@ class File(Injectable):
             return textwrap.dedent(
                 f"""
                 #!/usr/bin/env python3
+                import json
+                import sys
                 
                 from {self.__module__} import {self.__class__.__name__}
                 
                 holder = {self.__class__.__name__}._load("{path}", "{verification_hash}")
                 holder.load()
-                holder._dump()
+                print(json.dumps(holder._dump()._asdict()), file=sys.stdout)
                 """
             ).strip("\n")
         else:

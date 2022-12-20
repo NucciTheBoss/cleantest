@@ -10,10 +10,12 @@ from cleantest.meta import Injectable
 
 
 class StopEnvHook:
-    def __init__(self, download: List[Injectable]) -> None:
+    def __init__(self, name: str = "default", download: List[Injectable] = []) -> None:
         """Hook run before stopping test environment.
 
         Args:
+            name (str): Unique name of hook.
             download (List[Injectable]): Artifacts to download from test environment.
         """
+        self.name = name
         self.download = download

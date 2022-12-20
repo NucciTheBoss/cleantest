@@ -13,7 +13,7 @@ class StartEnvHook:
     def __init__(
         self,
         name: str = "default",
-        packages: List[object] = [],
+        packages: List[Injectable] = [],
         upload: List[Injectable] = [],
     ) -> None:
         """Hook run at the start of the test environment.
