@@ -11,13 +11,26 @@ from cleantest.utils import detect_os_variant
 
 
 class SnapdSupportError(Exception):
+    """Base error for SnapdSupport mixin."""
+
     ...
 
 
 class SnapdSupport:
+    """
+    Mixin that provides methods needed by pkg classes that
+    require snapd to be installed inside the test environment.
+    """
+
     @staticmethod
     def _install_snapd() -> None:
-        """Install snapd inside test environment."""
+        """Install snapd inside test environment.
+
+        Raises:
+            SnapdSupportError: Raised if snapd fails to install inside test environment.
+            NotImplementedError: Raised if unsupported operating system is
+                being used for a test environment.
+        """
         os_variant = detect_os_variant()
 
         if which("snap") is None:

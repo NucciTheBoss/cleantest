@@ -14,12 +14,28 @@ from cleantest.provider.data import EnvDataStore, LXDDataStore
 
 from ._handler import LXDProvider
 
+# Configure LXD client configuration if hypervisor is not on localhost.
 LXDClientConfig = namedtuple(
     "LXDClientConfig", ["endpoint", "version", "cert", "verify", "timeout", "project"]
 )
 
 
 class lxd:
+    """LXD test environment provider.
+
+    Args:
+        name (str): Name for test environment (Default: "test").
+        image (List[str]): LXD image to use for test environment (Default: ["jammy-amd64"]).
+        preserve (bool): Preserve test environment after test has completed (Default: True).
+        env (EnvDataStore): Environment to use in test environment (Default: EnvDataStore).
+        data (LXDDataStore): Data necessary for LXD (Default: LXDDataStore).
+        image_config (List[Dict[str, Any]]): Configuration to use for LXD image (Default: None).
+        client_config (LXDClientConfig): Configuration to use for LXD client (Default: None).
+        parallel (bool): Run test environments in parallel (Default: False).
+        num_threads (bool): Number of threads to use when running
+            test environments in parallel (Default: None).
+    """
+
     def __init__(
         self,
         name: str = "test",
@@ -60,6 +76,7 @@ class lxd:
             self._num_threads = num_threads
 
     def __call__(self, func: Callable) -> Callable:
+        """Callable for lxd decorator."""
         def wrapper(*args, **kwargs) -> Dict[str, Result]:
             handler = (
                 LXDProvider.parallel(self, func)

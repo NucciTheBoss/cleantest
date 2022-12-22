@@ -75,31 +75,39 @@ class Defaults:
 
 class LXDDataStore:
     def __init__(self) -> None:
-        self.__defaults = Defaults()
-        self.__config_registry = []
-        self.add_config(self.__defaults.jammy_amd64)
-        self.add_config(self.__defaults.focal_amd64)
-        self.add_config(self.__defaults.bionic_amd64)
-
-    @property
-    def _raw_config(self) -> List[LXDConfig]:
-        return self.__config_registry
-
-    @property
-    def _raw_defaults(self) -> Defaults:
-        return self.__defaults
+        self._defaults = Defaults()
+        self._config_registry = []
+        self.add_config(self._defaults.jammy_amd64)
+        self.add_config(self._defaults.focal_amd64)
+        self.add_config(self._defaults.bionic_amd64)
 
     def get_config(self, config_name: str) -> LXDConfig:
-        for c in self.__config_registry:
+        """
+
+        Args:
+            config_name (str):
+
+        Raises:
+            LXDConfigNotFoundError:
+
+        Returns:
+            (LXDConfig)
+        """
+        for c in self._config_registry:
             if c.name == config_name:
                 return c
 
         raise LXDConfigNotFoundError(config_name)
 
     def add_config(self, new_config: Dict[str, Any]) -> None:
+        """
+
+        Args:
+            new_config (Dict[str, Any]):
+        """
         self._lint_config(new_config)
         source = new_config.get("source")
-        self.__config_registry.append(
+        self._config_registry.append(
             LXDConfig(
                 name=new_config.get("name"),
                 source=LXDSource(
@@ -114,17 +122,33 @@ class LXDDataStore:
         )
 
     def _lint_config(self, new_config: Dict[str, Any]) -> None:
+        """
+
+        Args:
+            new_config (Dict[str, Any]):
+
+        Raises:
+            BadLXDConfigError:
+        """
         checks = ["name", "server", "alias", "protocol", "type", "mode"]
-        config = self.__deconstruct(new_config)
+        config = self._deconstruct(new_config)
         for i in checks:
             if i not in config:
                 raise BadLXDConfigError(new_config)
 
-    def __deconstruct(self, d: Dict[str, Any]) -> List[str]:
+    def _deconstruct(self, d: Dict[str, Any]) -> List[str]:
+        """Recursively deconstruct a dictionary to get all of its keys.
+
+        Args:
+            d (Dict[str, Any]): Dictionary to deconstruct.
+
+        Returns:
+            (List[str]): Keys of deconstructed dictionary.
+        """
         config = []
         for k in d.keys():
             if isinstance(d[k], dict):
-                config.extend(self.__deconstruct(d[k]))
+                config.extend(self._deconstruct(d[k]))
             else:
                 config.append(k)
 

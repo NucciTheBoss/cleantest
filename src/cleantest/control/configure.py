@@ -12,10 +12,14 @@ from cleantest.hooks import StartEnvHook, StartTestletHook, StopEnvHook, StopTes
 
 
 class DuplicateHookNameError(Exception):
+    """Raised when more than one hook in the same classification share the same name."""
+
     ...
 
 
 class HookRegistry:
+    """Dataclass to store hooks based on hook classification."""
+
     start_env: Deque[StartEnvHook] = deque()
     stop_env: Deque[StopEnvHook] = deque()
     start_testlet: Deque[StartTestletHook] = deque()
@@ -23,6 +27,7 @@ class HookRegistry:
 
 
 class Configure:
+    """Configure cleantest."""
 
     _hook_registry = HookRegistry()
     _metadata = set()
@@ -35,6 +40,12 @@ class Configure:
     def register_hook(
         self, *hooks: Union[StartEnvHook, StopEnvHook, StartTestletHook, StopTestletHook]
     ) -> None:
+        """Register hooks in the hook registry.
+
+        Args:
+            *hooks (Union[StartEnvHook, StopEnvHook, StartTestletHook, StopTestletHook]):
+                Hooks to register.
+        """
         dispatch = {
             StartEnvHook.__name__: self._hook_registry.start_env,
             StopEnvHook.__name__: self._hook_registry.stop_env,
@@ -53,6 +64,11 @@ class Configure:
             self._metadata.add((hook.name, hook.__class__.__name__))
 
     def deregister_hook(self, *hooks: str) -> None:
+        """Deregister hooks from the hook registry.
+
+        Args:
+            *hooks (str): Name of hook to deregister.
+        """
         dispatch = {
             StartEnvHook.__name__: self._hook_registry.start_env,
             StopEnvHook.__name__: self._hook_registry.stop_env,
@@ -65,13 +81,39 @@ class Configure:
                     dispatch[hook[1]].remove(hook_name)
 
     def get_start_env_hooks(self) -> Deque[StartEnvHook]:
+        """Get hooks that will run when the test environment starts.
+
+        Returns:
+            (Deque[StartEnvHook]): Deque containing start environment hooks.
+        """
         return copy.deepcopy(self._hook_registry.start_env)
 
     def get_stop_env_hooks(self) -> Deque[StopEnvHook]:
+        """Get hooks that will run when the test environment stops.
+
+        Returns:
+            (Deque[StopEnvHook]): Deque containing stop environment hooks.
+        """
         return copy.deepcopy(self._hook_registry.stop_env)
 
     def get_start_testlet_hooks(self) -> Deque[StartTestletHook]:
+        """Get hooks that will run before the testlet is started.
+
+        Returns:
+            (Deque[StartTestletHook]): Deque containing start testlet hooks.
+
+        Warnings:
+            This hook may be deleted in a later version of cleantest.
+        """
         return copy.deepcopy(self._hook_registry.start_testlet)
 
     def get_stop_testlet_hooks(self) -> Deque[StopTestletHook]:
+        """Get hooks that will run after the testlet has completed.
+
+        Returns:
+            (Deque[StopTestletHook]): Deque containing stop testlet hooks.
+
+        Warnings:
+            This hook may be deleted in a later version of cleantest.
+        """
         return copy.deepcopy(self._hook_registry.stop_testlet)

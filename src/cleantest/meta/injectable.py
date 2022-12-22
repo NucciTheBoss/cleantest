@@ -14,16 +14,22 @@ from collections import namedtuple
 
 
 class InjectionError(Exception):
+    """Base error for classes that inherit from Injectable."""
+
     ...
 
 
+# Namedtuple returned by the _dump() method that contains
+# the path to the dumped object and its verification hash for future loading.
 InjectableData = namedtuple("InjectableData", ["path", "hash"])
 
 
 class Injectable(ABC):
+    """Abstract metaclass that provides core methods needed by all injectable objects."""
+
     @classmethod
     def _load(cls, data: str, verification_hash: str) -> object:
-        """Alternative constructor to load previous created object.
+        """Alternative constructor to load previously created object.
 
         Args:
             data (str): Path to file containing serialized object.
@@ -68,5 +74,5 @@ class Injectable(ABC):
 
     @abstractmethod
     def __injectable__(self) -> str:
-        """Code to be injected into test environment provider."""
+        """Generate script that will be injected into test environment provider."""
         ...

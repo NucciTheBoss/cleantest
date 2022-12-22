@@ -15,14 +15,28 @@ from cleantest.meta import Injectable
 
 
 class FileError(Exception):
+    """Base error for File class."""
+
     ...
 
 
 class InjectableModeError(Exception):
+    """Raised when an invalid injection mode has been passed to __injectable__()."""
+
     ...
 
 
 class File(Injectable):
+    """Represents a file that can be shared between host and test environment.
+
+    Args:
+        src (pathlib.Path): Where to load file from.
+        dest (pathlib.Path): Where to dump file to.
+        overwrite (bool):
+            True - overwrite file if it already exists when dumping.
+            False - raise error if file already exists when dumping.
+    """
+
     def __init__(self, src: str, dest: str, overwrite: bool = False) -> None:
         self.src = pathlib.Path(src)
         self.dest = pathlib.Path(dest)
@@ -30,6 +44,12 @@ class File(Injectable):
         self._data = None
 
     def dump(self) -> None:
+        """Dump directory to specified destination.
+
+        Raises:
+            FileExistsError: Raised if directory already exists and overwrite=False.
+            FileError: Raised if no data has been loaded prior to calling dump().
+        """
         if self.dest.exists() and self.overwrite is False:
             raise FileExistsError(
                 f"{self.dest} already exists. Set overwrite = True to overwrite {self.dest}."
@@ -45,6 +65,12 @@ class File(Injectable):
             self.dest.write_bytes(pathlib.Path(tmp_dir).joinpath(self.src.name).read_bytes())
 
     def load(self) -> None:
+        """Load file from specified source.
+
+        Raises:
+            FileNotFoundError: Raised if file is not found.
+            FileError: Raised if source is a directory rather than a file.
+        """
         if self.src.exists() is False:
             raise FileNotFoundError(f"Could not find {self.src}.")
 
@@ -60,6 +86,21 @@ class File(Injectable):
         self._data = archive_path.read_bytes()
 
     def __injectable__(self, path: str, verification_hash: str, mode: str) -> str:
+        """Generate injectable script that will be run inside the test environment.
+
+        Args:
+            path (str): Path to pickled object inside the test environment.
+            verification_hash (str): Hash to verify authenticity of pickled object.
+            mode (str):
+                "upload" - Uploading artifact into test environment.
+                "download" - Downloading artifact from the test environment.
+
+        Raises:
+            InjectableModeError: Raised if invalid mode has been passed.
+
+        Returns:
+            (str): Injectable script.
+        """
         if mode == "upload":
             return textwrap.dedent(
                 f"""

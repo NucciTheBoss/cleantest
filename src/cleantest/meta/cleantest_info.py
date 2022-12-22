@@ -17,6 +17,8 @@ import pkg_resources
 
 
 class CleantestInfo:
+    """Metaclass for getting information about cleantest module."""
+
     def __new__(cls) -> "CleantestInfo":
         if not hasattr(cls, "instance"):
             cls.instance = super(CleantestInfo, cls).__new__(cls)
@@ -79,7 +81,7 @@ class CleantestInfo:
         return {dependency.key: tar_path.read_bytes()}
 
     def make_pkg_injectable(self, pkg_path: str) -> str:
-        """Create injectable to install cleantest packages inside test environment.
+        """Generate injectable script to install cleantest packages inside test environment.
 
         Args:
             pkg_path (str): Path to package inside test environment.
