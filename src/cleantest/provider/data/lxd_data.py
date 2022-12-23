@@ -2,7 +2,7 @@
 # Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
 # See LICENSE file for licensing details.
 
-"""Information needed for LXD test provider."""
+"""Information needed by LXD test environment provider."""
 
 from typing import Any, Dict, List, Optional, Union
 
@@ -22,6 +22,16 @@ class LXDConfigNotFoundError(Exception):
 
 
 class LXDSource:
+    """Metaclass to define an LXD image to use for the test environment.
+
+    Args:
+        type (str): Type of artifact to pull.
+        mode (str): Mode in which to access the artifact.
+        server (str): Server to get the artifact from.
+        protocol (str): Protocol to use when pulling/pushing the artifact.
+        alias (str): Alias of the artifact.
+    """
+
     def __init__(self, type: str, mode: str, server: str, protocol: str, alias: str) -> None:
         self.type = type
         self.mode = mode
@@ -31,6 +41,14 @@ class LXDSource:
 
 
 class LXDConfig(DictOps):
+    """Metaclass to define an LXD container or virtual machine to bring up.
+
+    Args:
+        name (str): Name to use for container or virtual machine.
+        source (LXDSource): Where to get the LXD image from.
+        project (str): Project to make LXD container or virtual machine member of.
+    """
+
     def __init__(self, name: str, source: LXDSource, project: Optional[str] = None) -> None:
         self.name = name
         self.source = source
@@ -38,6 +56,14 @@ class LXDConfig(DictOps):
 
 
 class Defaults:
+    """Define default images that can be used with test environment provider.
+
+    Notes:
+        jammy_amd64: Ubuntu 22.04 LTS amd64
+        focal_amd64: Ubuntu 20.04 LTS amd64
+        bionic_amd64: Ubuntu 18.04 LTS amd64
+    """
+
     jammy_amd64: Dict[str, Any] = {
         "name": "jammy-amd64",
         "source": {
@@ -82,16 +108,16 @@ class LXDDataStore:
         self.add_config(self._defaults.bionic_amd64)
 
     def get_config(self, config_name: str) -> LXDConfig:
-        """
+        """Get the configuration of an LXD image.
 
         Args:
-            config_name (str):
+            config_name (str): Name of configuration to get.
 
         Raises:
-            LXDConfigNotFoundError:
+            LXDConfigNotFoundError: Raised if configuration does not exist in registry.
 
         Returns:
-            (LXDConfig)
+            (LXDConfig): Retrieved LXD image configuration.
         """
         for c in self._config_registry:
             if c.name == config_name:
@@ -100,10 +126,10 @@ class LXDDataStore:
         raise LXDConfigNotFoundError(config_name)
 
     def add_config(self, new_config: Dict[str, Any]) -> None:
-        """
+        """Add a new LXD image configuration to the registry.
 
         Args:
-            new_config (Dict[str, Any]):
+            new_config (Dict[str, Any]): New configuration to add to the registry.
         """
         self._lint_config(new_config)
         source = new_config.get("source")
@@ -122,13 +148,13 @@ class LXDDataStore:
         )
 
     def _lint_config(self, new_config: Dict[str, Any]) -> None:
-        """
+        """Lint a new LXD image configuration to ensure that it is valid.
 
         Args:
-            new_config (Dict[str, Any]):
+            new_config (Dict[str, Any]): New configuration to lint.
 
         Raises:
-            BadLXDConfigError:
+            BadLXDConfigError: Raised if the passed LXD image configuration is invalid.
         """
         checks = ["name", "server", "alias", "protocol", "type", "mode"]
         config = self._deconstruct(new_config)
