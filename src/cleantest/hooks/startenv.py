@@ -20,7 +20,7 @@ class StartEnvHook:
 
         Args:
             name (str): Unique name of hook.
-            packages (List[object]): Packages to inject into test environment.
+            packages (List[Injectable]): Packages to inject into test environment.
             upload (List[Injectable]): Artifacts to upload into test environment.
         """
         self.name = name
