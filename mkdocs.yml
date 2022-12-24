@@ -1,9 +1,38 @@
-site_name: Cleantest Framework
+site_name: cleantest
+repo_name: NucciTheBoss/cleantest
+repo_url: https://github.com/NucciTheBoss/cleantest
+
+theme:
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    primary: black
+  features:
+    - navigation.expand
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - admonition
+  - pymdownx.details
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+
 nav:
   - Home: 'index.md'
   - 'User Guide':
     - 'Installation': 'user-guide/installation.md'
-    - 'Getting Started': 'user-guide/getting-started.md'
+    - 'Getting started': 'user-guide/getting-started.md'
+    - 'Using hooks': 'user-guide/hooks.md'
+    - 'Working with packages':
+        - 'Charm libraries': 'user-guide/packages/charmlib.md'
+        - 'Pip': 'user-guide/packages/pip.md'
+        - 'Snaps': 'user-guide/packages/snaps.md'
+    - 'Working with artifacts':
+        - 'Directories': 'user-guide/artifacts/directory.md'
+        - 'Files': 'user-guide/artifacts/file.md'
+    - 'Parallel testsing': 'user-guide/parallelization.md'
   - About:
     - 'License': 'license.md'
-theme: readthedocs
