@@ -1,8 +1,11 @@
 # Getting started with cleantest
 
-Now that you have the `cleantest` framework installed on your system, let's get you introduced to writing some basic tests. This example assumes that you have LXD installed and configured, and `cleantest` is installed correctly on your system. If not, please revisit the [installation](./installation.md) documentation.
+Now that you have the `cleantest` framework installed on your system, let's get you introduced to writing some basic 
+tests. This example assumes that you have LXD installed and configured, and `cleantest` is installed correctly on 
+your system. If not, please revisit the [installation](./installation.md) documentation.
 
-Also, you will need to have [__pytest__](https://docs.pytest.org/en/7.1.x/) installed on your system as well. You can install it using the following command:
+Also, you will need to have [__pytest__](https://docs.pytest.org/en/7.1.x/) installed on your system as well. 
+You can install it using the following command:
 
 ```text
 pip install pytest
@@ -10,7 +13,9 @@ pip install pytest
 
 ## Some background
 
-The goal of the `cleantest` framework is to provide an easy way to bring up clean testing environments without a hassle. A "simple test" is a test written with `cleantest` that can drop on top of a pre-existing testing framework such as __pytest__ or __unittest__. These "simple tests" can be broken down into three parts: 
+The goal of the `cleantest` framework is to provide an easy way to bring up clean testing environments without a 
+hassle. A "clean test" is a test written with `cleantest` that can drop on top of a pre-existing testing framework 
+such as __pytest__ or __unittest__. These "clean tests" can be broken down into three parts: 
 
 1. Configuration statements
 2. A collection of Testlets
@@ -20,7 +25,8 @@ The goal of the `cleantest` framework is to provide an easy way to bring up clea
 
 ## Defining a testlet
 
-A *testlet* is essentially an entire Python file wrapped in a function; it contains all the imports, definitions, and logic a program needs to run. Here is an example of a testlet:
+A *testlet* is essentially an entire Python script encapsulated in a function; it contains all the imports, 
+definitions, and logic a program needs to run. Here is an example of a testlet below:
 
 ```python
 from cleantest.provider import lxd
@@ -37,20 +43,26 @@ def do_something():
         sys.exit(1)
 ``` 
 
-An important thing to note about testlets is that they are not run in the environment as the test suite. The testlets are actually picked up by the interpreter and run somewhere else, and a `Result` object is returned containing an exit code, stdout, and stderr. Therefore, you should always import the Python models and assets you need within the body of the testlet.
+An important thing to note about testlets is that they are not run in the same Python interpreter as the test suite. 
+The testlets are actually picked up by the interpreter and run somewhere else, and a `Result` object is returned 
+containing an exit code, stdout, and stderr. Therefore, you should always import the Python modules and assets you 
+need within the body of the testlet, not in the main test files.
 
 ## Writing a test suite
 
-To evaluate the results of a testlet, you need a *test suite*. This part should be invoked by your testing framework of choice. In our case, we used __pytest__:
+To evaluate the results of a testlet, you need a *test suite*. This part should be invoked by your testing framework 
+of choice. In our case, we used __pytest__:
 
 ```python
 class TestSuite:
     def test_do_something(self) -> None:
-        result = do_something()
-        assert result.exit_code == 0
+        results = do_something()
+        for name, result in results.items()
+            assert result.exit_code == 0
 ```
 
-The test suite should be focused solely on launching testlets and evaulating the results. You should never define testlets inside a test suite. They should always be a top-level, global function.
+The test suite should be focused solely on launching testlets and evaluating the results. You should never define 
+testlets inside a test suite. They should always be a top-level, globally accessible function.
 
 ## Bringing it all together
 
@@ -77,8 +89,9 @@ def do_something():
 
 class TestSuite:
     def test_do_something(self) -> None:
-        result = do_something()
-        assert result.exit_code == 0
+        results = do_something()
+        for name, result in results.items()
+            assert result.exit_code == 0
 ```
 
 Now use __pytest__ to run the test:
@@ -102,8 +115,9 @@ basic_test.py .                                                                 
 
 ```
 
-Congrats, you have written your first simple test!
+Congrats, you have written your first clean test!
 
 ## Next steps
 
-Now that you have taken your first steps with `cleantest`, proceed to the next section on controlling your test environment with hooks.
+Now that you have taken your first introductory steps with `cleantest`, let's start learning how to control the
+test environments [using hooks](./hooks.md).
