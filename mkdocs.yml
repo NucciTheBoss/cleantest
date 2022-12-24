@@ -33,6 +33,6 @@ nav:
     - 'Working with artifacts':
         - 'Directories': 'user-guide/artifacts/directory.md'
         - 'Files': 'user-guide/artifacts/file.md'
-    - 'Parallel testsing': 'user-guide/parallelization.md'
+    - 'Parallel testing': 'user-guide/parallelization.md'
   - About:
     - 'License': 'license.md'
