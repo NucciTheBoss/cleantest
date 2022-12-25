@@ -143,7 +143,7 @@ class Snap(BasePackage, SnapdSupport):
         dangerous (bool): Install unsigned snaps (Default: False).
         connections (List[Connection]): List of connections to set up after snap is installed
             (Default: None).
-        aliases (List[Alias]): List alias to create after snap is installed (Default: None).
+        aliases (List[Alias]): List aliases to create after snap is installed (Default: None).
 
     Raises:
         SnapPackageError: Raised if class creation fails.
