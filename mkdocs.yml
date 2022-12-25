@@ -29,10 +29,11 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
 
 nav:
-  - Home: 'index.md'
+  - Home: 'home/index.md'
   - 'User Guide':
     - 'Installation': 'user-guide/installation.md'
     - 'Getting started': 'user-guide/getting-started.md'
+    - 'Test environment providers': 'user-guide/test-env-providers.md'
     - 'Using hooks': 'user-guide/hooks.md'
     - 'Working with packages':
         - 'Charm libraries': 'user-guide/packages/charmlib.md'
@@ -41,6 +42,8 @@ nav:
     - 'Working with artifacts':
         - 'Directories': 'user-guide/artifacts/directory.md'
         - 'Files': 'user-guide/artifacts/file.md'
+    - 'Using different Linux distributions': 'user-guide/using-diff-linux-distro.md'
     - 'Parallel testing': 'user-guide/parallelization.md'
+  - Examples: 'examples/coming-soon.md'
   - About:
-    - 'License': 'license.md'
+    - 'License': 'about/license.md'

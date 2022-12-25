@@ -24,5 +24,5 @@ exa-scale high-performance computing cluster. It provides tools to work with pop
 for pushing or pulling artifacts, and ways to test code across multiple Linux distributions. It also enables you to 
 simulate high-performance computing clusters to test software deployments and installation scripts.
 
-If you are interested in learning more, then head on over to [installation](./user-guide/installation.md) page of this 
+If you are interested in learning more, then head on over to [installation](../user-guide/installation.md) page of this 
 documentation!
