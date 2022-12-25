@@ -1,4 +1,6 @@
 site_name: cleantest
+site_description: |
+  Documentation for cleantest - a testing framework for developers who need clean testing environments in a hurry.
 repo_name: NucciTheBoss/cleantest
 repo_url: https://github.com/NucciTheBoss/cleantest
 
@@ -10,12 +12,14 @@ theme:
     primary: black
   features:
     - navigation.expand
+    - navigation.tabs
 
 markdown_extensions:
+  - admonition
+  - def_list
+  - pymdownx.details
   - pymdownx.highlight:
       anchor_linenums: true
-  - admonition
-  - pymdownx.details
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
