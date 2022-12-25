@@ -4,11 +4,11 @@ Directories can be uploaded to and downloaded from test environment instances as
 
 ## Dir class
 
-The `Dir` class represents a directory. Its constructor accepts arguments:
+The `Dir` class represents a directory. Its constructor accepts three arguments:
 
 * `src (str)`: File path to load directory from.
 * `dest (str)`: File path for where to dump directory.
-* `overwrite (str)`: Overwrite the directory if it already exists at `dest`. Defaults to _False_.
+* `overwrite (bool)`: Overwrite the directory if it already exists at _dest_. Defaults to _False_.
 
 ???+ info "`Dir` versus `File`"
 
@@ -69,7 +69,9 @@ config.register_hook(start_hook, stop_hook)
 def work_on_artifacts():
     import os
     import pathlib
+    import sys
 
+    print(pathlib.Path("/root/dump").is_dir(), file=sys.stdout)
     os.mkdir("/root/dump")
     pathlib.Path("/root/dump/dump_1.txt").write_text("Oh I have been dumped again!")
 
