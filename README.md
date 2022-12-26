@@ -14,7 +14,7 @@ Below is an outline of currently supported operating systems, Python versions, a
 
 |||
 | :--- | :---: |
-| Supported operating systems | ![Linux - yes](https://img.shields.io/badge/Linux-yes-green) ![Windows - ot tested](https://img.shields.io/badge/Windows-not%20tested-red) ![Mac - not tested](https://img.shields.io/badge/Mac-not%20tested-red) |
+| Supported operating systems | ![Linux - yes](https://img.shields.io/badge/Linux-yes-green) ![Windows - not tested](https://img.shields.io/badge/Windows-not%20tested-red) ![Mac - not tested](https://img.shields.io/badge/Mac-not%20tested-red) |
 | Supported python versions | ![Python 3.8, 3.9, and 3.10](https://img.shields.io/pypi/pyversions/cleantest) ![Wheel - yes](https://img.shields.io/pypi/wheel/cleantest)|
 | Supported hypervisors | ![LXD - yes](https://img.shields.io/badge/LXD-yes-green) |
 
@@ -129,7 +129,6 @@ Here are my (NucciTheBoss's) goals to get cleantest to release version 1.0.0:
   * ~~Pip~~
   * ~~Charm libraries~~
   * Debs, Rpms, Pacs, etc.
-  * Apptainer
+  * ~~Apptainer~~
 * Robust hook mechanism -> i.e. an actual specification for hooks.
-* Destructive (local) test environment provider
 * Comprehensive documentation

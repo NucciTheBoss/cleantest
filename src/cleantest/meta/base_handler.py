@@ -12,9 +12,12 @@ from typing import Any, Dict, List
 
 
 class BaseHandlerError(Exception):
+    """Base error for test environment handlers."""
+
     ...
 
 
+# Base result class that should be used by all test environments.
 Result = namedtuple("Result", ["exit_code", "stdout", "stderr"])
 
 
@@ -26,6 +29,7 @@ class BaseEntrypoint(ABC):
 
     @abstractmethod
     def run(self) -> Dict[str, Result]:
+        """Run handler for test environment."""
         ...
 
 

@@ -19,10 +19,19 @@ from ._mixins import SnapdSupport
 
 
 class CharmlibPackageError(BasePackageError):
+    """Base error for Charmlib package handler."""
+
     ...
 
 
 class Charmlib(BasePackage, SnapdSupport):
+    """Represents `charmcraft fetch-lib`. See: https://juju.is/docs/sdk/charm-libraries.
+
+    Args:
+        auth_token_path (pathlib.Path): Path to authentication token for Charmhub.
+        charmlibs (List[str]): List of charmlibs to install.
+    """
+
     def __init__(
         self,
         auth_token_path: str,
@@ -39,16 +48,23 @@ class Charmlib(BasePackage, SnapdSupport):
             raise CharmlibPackageError("No charm libraries specified.")
 
     def _run(self) -> None:
+        """Run Charmlib package handler."""
         self._setup()
         self._handle_charm_lib_install()
         print(json.dumps({"PYTHONPATH": "/root/lib"}), file=sys.stdout)
 
     def _setup(self) -> None:
+        """Set up and install dependencies needed for charm libraries."""
         self._install_snapd()
         if which("charmcraft") is None:
             snap.install("charmcraft", classic=True)
 
     def _handle_charm_lib_install(self) -> None:
+        """Install charm libraries inside test environment.
+
+        Raises:
+            CharmlibPackageError: Raised if charm library fails to install.
+        """
         for charm in self.charmlibs:
             cmd = ["/snap/bin/charmcraft", "fetch-lib", charm]
             try:
@@ -69,6 +85,14 @@ class Charmlib(BasePackage, SnapdSupport):
                 )
 
     def _dump(self) -> InjectableData:
+        """Dump Charmlib package handler object.
+
+        Raises:
+            FileNotFoundError: Raised if authentication token is not found.
+
+        Returns:
+            (InjectableData): Path to dumped object and verification hash.
+        """
         if not self.auth_token_path.exists() or not self.auth_token_path.is_file():
             raise FileNotFoundError(f"Could not find authentication token {self.auth_token_path}")
 
@@ -77,6 +101,15 @@ class Charmlib(BasePackage, SnapdSupport):
         return super()._dump()
 
     def __injectable__(self, path: str, verification_hash: str) -> str:
+        """Generate injectable script that will be used to install charm libraries.
+
+        Args:
+            path (str): Path to pickled object inside the test environment.
+            verification_hash: Hash to verify authenticity of pickled object.
+
+        Returns:
+            (str): Injectable script.
+        """
         return textwrap.dedent(
             f"""
             #!/usr/bin/env python3

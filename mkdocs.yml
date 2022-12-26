@@ -1,9 +1,49 @@
-site_name: Cleantest Framework
+site_name: cleantest
+site_description: |
+  Documentation for cleantest - a testing framework for developers who need clean testing environments in a hurry.
+repo_name: NucciTheBoss/cleantest
+repo_url: https://github.com/NucciTheBoss/cleantest
+
+theme:
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    primary: black
+  features:
+    - navigation.expand
+    - navigation.tabs
+
+markdown_extensions:
+  - admonition
+  - def_list
+  - pymdownx.details
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
 nav:
-  - Home: 'index.md'
+  - Home: 'home/index.md'
   - 'User Guide':
     - 'Installation': 'user-guide/installation.md'
-    - 'Getting Started': 'user-guide/getting-started.md'
+    - 'Getting started': 'user-guide/getting-started.md'
+    - 'Test environment providers': 'user-guide/test-env-providers.md'
+    - 'Using hooks': 'user-guide/hooks.md'
+    - 'Working with packages':
+        - 'Charm libraries': 'user-guide/packages/charmlib.md'
+        - 'Pip': 'user-guide/packages/pip.md'
+        - 'Snaps': 'user-guide/packages/snaps.md'
+    - 'Working with artifacts':
+        - 'Directories': 'user-guide/artifacts/directory.md'
+        - 'Files': 'user-guide/artifacts/file.md'
+    - 'Using different Linux distributions': 'user-guide/using-diff-linux-distro.md'
+    - 'Parallel testing': 'user-guide/parallelization.md'
+  - Examples: 'examples/coming-soon.md'
   - About:
-    - 'License': 'license.md'
-theme: readthedocs
+    - 'License': 'about/license.md'

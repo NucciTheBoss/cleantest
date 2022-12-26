@@ -10,6 +10,8 @@ from .injectable import Injectable
 
 
 class BasePackageError(Exception):
+    """Base error for package handlers."""
+
     ...
 
 

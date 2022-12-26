@@ -15,10 +15,23 @@ from cleantest.utils import detect_os_variant
 
 
 class PipPackageError(BasePackageError):
+    """Base error for Pip package handler."""
+
     ...
 
 
 class Pip(BasePackage):
+    """Represents `pip install`.
+
+    Args:
+        packages (List[str]): List of packages to install (Default: None).
+        requirements (List[str]): List of paths to requirements.txt files (Default: None).
+        constraints (List[str]): List of paths to constraints.txt files (Default: None).
+
+    Raises:
+        PipPackageError: Raised if lint rule fails at class creation.
+    """
+
     def __init__(
         self,
         packages: Union[str, List[str]] = None,
@@ -48,10 +61,18 @@ class Pip(BasePackage):
                 )
 
     def _run(self) -> None:
+        """Run Pip package handler."""
         self._setup()
         self._handle_pip_install()
 
     def _setup(self) -> None:
+        """Set up and install dependencies needed by pip.
+
+        Raises:
+            PipPackageError: Raised if an error is encountered when installing pip.
+            NotImplementedError: Raised if unsupported operating system is
+                being used for a test environment.
+        """
         os_variant = detect_os_variant()
 
         if which("pip") is None:
@@ -71,6 +92,11 @@ class Pip(BasePackage):
                 )
 
     def _handle_pip_install(self) -> None:
+        """Install packages inside test environment using pip.
+
+        Raises:
+            PipPackageError: Raised if error is encountered when installing packages with pip.
+        """
         if self.packages is not None:
             cmd = ["python3", "-m", "pip", "install", " ".join(self.packages)]
             try:
@@ -129,6 +155,14 @@ class Pip(BasePackage):
                     )
 
     def _dump(self) -> InjectableData:
+        """Dump Pip package handler object.
+
+        Raises:
+            FileNotFoundError: Raised if a requirements or constraints file is not found.
+
+        Returns:
+            (InjectableData): Path to dumped object and verification hash.
+        """
         if self.requirements is not None:
             for requirement in self.requirements:
                 fin = pathlib.Path(requirement)
@@ -140,12 +174,21 @@ class Pip(BasePackage):
             for constraint in self.constraints:
                 fin = pathlib.Path(constraint)
                 if not fin.exists() or not fin.is_file():
-                    raise FileNotFoundError(f"Could not find requirements file {constraint}.")
+                    raise FileNotFoundError(f"Could not find constraints file {constraint}.")
                 self._constraints_store.append(fin.read_text())
 
         return super()._dump()
 
     def __injectable__(self, path: str, verification_hash: str) -> str:
+        """Generate injectable script that will be used to install packages with pip.
+
+        Args:
+            path (str): Path to pickled object inside the test environment.
+            verification_hash: Hash to verify authenticity of pickled object.
+
+        Returns:
+            (str): Injectable script.
+        """
         return textwrap.dedent(
             f"""
             #!/usr/bin/env python3

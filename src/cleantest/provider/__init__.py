@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2022 Canonical Ltd.
+# Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
 # See LICENSE file for licensing details.
 
-from .local import local
 from .lxd import lxd
