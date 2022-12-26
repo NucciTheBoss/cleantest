@@ -1,18 +1,26 @@
 #!/usr/bin/env python3
-# Copyright 2022 Canonical Ltd.
+# Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
 # See LICENSE file for licensing details.
 
-from setuptools import setup, find_packages
+import pathlib
+
+from setuptools import find_packages, setup
+
+top_dir = pathlib.Path(__file__).parent
+long_description = top_dir.joinpath("README.md").read_text()
 
 
 setup(
     name="cleantest",
-    version="0.2.0",
+    version="0.3.0",
     description="Clean tests for developers in a hurry",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     author="Jason C. Nucciarone",
     author_email="jason.nucciarone@canonical.com",
     license="Apache-2.0",
-    python_requires=">=3.8",
+    url="https://github.com/NucciTheBoss/cleantest",
+    python_requires=">=3.6",
     packages=find_packages(
         where="src",
         include=["cleantest*"],
@@ -32,6 +40,8 @@ setup(
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: Apache Software License",
         "Operating System :: POSIX :: Linux",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
