@@ -158,7 +158,7 @@ included in the project:
    # Navigate to the newly cloned directory
    cd cleantest
    # Assign the original repo to a remote called "upstream"
-   git remote add upstream https://github.com/NucciTheBoss/jespipe.git
+   git remote add upstream https://github.com/NucciTheBoss/cleantest.git
    ```
 
 2. If you cloned a while ago, pull the latest changes from the upstream cleantest repository:
