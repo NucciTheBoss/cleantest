@@ -32,7 +32,7 @@ class lxd:
         image_config (List[Dict[str, Any]]): Configuration to use for LXD image (Default: None).
         client_config (LXDClientConfig): Configuration to use for LXD client (Default: None).
         parallel (bool): Run test environments in parallel (Default: False).
-        num_threads (bool): Number of threads to use when running
+        num_threads (int): Number of threads to use when running
             test environments in parallel (Default: None).
     """
 
