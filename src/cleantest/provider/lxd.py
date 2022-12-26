@@ -77,6 +77,7 @@ class lxd:
 
     def __call__(self, func: Callable) -> Callable:
         """Callable for lxd decorator."""
+
         def wrapper(*args, **kwargs) -> Dict[str, Result]:
             handler = (
                 LXDProvider.parallel(self, func)

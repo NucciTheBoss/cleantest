@@ -296,6 +296,7 @@ class Parallel(BaseEntrypoint, LXDHandler):
         attr (Dict[str, Any]): Attributes from lxd decorator to mount.
         func (Callable): Testlet to inject inside LXD test environment instances.
     """
+
     def __init__(self, attr: Dict[str, Any], func: Callable) -> None:
         [setattr(self, k, v) for k, v in attr.items()]
         self._func = inspect.getsource(func)
