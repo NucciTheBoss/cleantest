@@ -16,7 +16,7 @@
     
     
       
-        <title>Getting started - cleantest</title>
+        <title>Test environment providers - cleantest</title>
       
     
     
@@ -69,7 +69,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#getting-started-with-cleantest" class="md-skip">
+        <a href="#test-environment-providers" class="md-skip">
           Skip to content
         </a>
       
@@ -102,7 +102,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Getting started
+              Test environment providers
             
           </span>
         </div>
@@ -336,6 +336,20 @@
               
   
   
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        Getting started
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
     
   
   
@@ -348,12 +362,12 @@
       
       
         <label class="md-nav__link md-nav__link--active" for="__toc">
-          Getting started
+          Test environment providers
           <span class="md-nav__icon md-icon"></span>
         </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
-        Getting started
+        Test environment providers
       </a>
       
         
@@ -372,37 +386,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#some-background" class="md-nav__link">
-    Some background
+  <a href="#lxd" class="md-nav__link">
+    LXD
+  </a>
+  
+    <nav class="md-nav" aria-label="LXD">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-usage" class="md-nav__link">
+    Example usage
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#defining-a-testlet" class="md-nav__link">
-    Defining a testlet
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#writing-a-test-suite" class="md-nav__link">
-    Writing a test suite
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#bringing-it-all-together" class="md-nav__link">
-    Bringing it all together
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
-    Next steps
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -410,20 +409,6 @@
   
 </nav>
       
-    </li>
-  
-
-            
-          
-            
-              
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../test-env-providers/" class="md-nav__link">
-        Test environment providers
-      </a>
     </li>
   
 
@@ -703,37 +688,22 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#some-background" class="md-nav__link">
-    Some background
+  <a href="#lxd" class="md-nav__link">
+    LXD
+  </a>
+  
+    <nav class="md-nav" aria-label="LXD">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-usage" class="md-nav__link">
+    Example usage
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#defining-a-testlet" class="md-nav__link">
-    Defining a testlet
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#writing-a-test-suite" class="md-nav__link">
-    Writing a test suite
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#bringing-it-all-together" class="md-nav__link">
-    Bringing it all together
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#next-steps" class="md-nav__link">
-    Next steps
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -751,106 +721,102 @@
                 
                   
 
-  <a href="https://github.com/NucciTheBoss/cleantest/edit/master/docs/user-guide/getting-started.md" title="Edit this page" class="md-content__button md-icon">
+  <a href="https://github.com/NucciTheBoss/cleantest/edit/master/docs/user-guide/test-env-providers.md" title="Edit this page" class="md-content__button md-icon">
     
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
   </a>
 
 
-<h1 id="getting-started-with-cleantest">Getting started with cleantest</h1>
-<p>Now that you have the cleantest framework installed on your system, let's get you introduced to writing some basic 
-tests. This example assumes that you have LXD installed and configured, and cleantest is installed correctly on 
-your system. If not, please revisit the <a href="../installation/">installation</a> documentation.</p>
-<p>Also, you will need to have <a href="https://docs.pytest.org/en/7.1.x/">pytest</a> installed on your system as well. 
-You can install it using the following command:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip install pytest
+<h1 id="test-environment-providers">Test environment providers</h1>
+<p>Test environment providers are the backbone of cleantest; they provide the containers or virtual machines that
+cleantest injects the testlets into. Test environment providers can be thought of as hypervisors that can be
+controlled from Python. To control test environment providers, cleantest uses Python decorators. These decorators
+accept arguments from the user and capture the body of the testlet.</p>
+<p>The following is a list of all the supported test environment providers in cleantest and how to control them.</p>
+<h2 id="lxd">LXD</h2>
+<p>The <code>lxd</code> decorator handles running testlets inside of containers and/or virtual machines controlled by the LXD
+hypervisor. The decorator accepts the following arguments:</p>
+<ul>
+<li><code>name (str)</code>: Prefix to use in name of test environment instances. Defaults to <em>"test"</em>.</li>
+<li><code>image (List[str])</code>: List of LXD images to use for created test environments. Defaults to <em>["jammy-amd64"]</em>.</li>
+<li><code>preserve (bool)</code>: Preserve test environment after testlet has completed. Defaults to <em>True</em>.</li>
+<li><code>env (EnvDataStore)</code>: Environment to use in test environment. Defaults to base instance of <em>EnvDataStore</em>.</li>
+<li><code>data (LXDDataStore)</code>: Data necessary for LXD hypervisor. Defaults to base instance of <em>LXDDataStore</em>.</li>
+<li><code>image_config (List[Dict[str, Any]])</code>: List of image configurations to add to <em>LXDDataStore</em>.</li>
+<li><code>client_config (LXDClientConfig)</code>: Configuration to use for LXD client. Defaults to <em>None</em>.</li>
+<li><code>parallel (bool)</code>: Run test environments in parallel. Defaults to <code>False</code>.</li>
+<li><code>num_threads (int)</code>: Number of threads to use when running test environment in parallel. Defaults to <em>None</em>.</li>
+</ul>
+<h3 id="example-usage">Example usage</h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="ch">#!/usr/bin/env python3</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="sd">&quot;&quot;&quot;Example usage of LXD test environment provider.&quot;&quot;&quot;</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="kn">import</span> <span class="nn">os</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="kn">from</span> <span class="nn">cleantest</span> <span class="kn">import</span> <span class="n">Configure</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="kn">from</span> <span class="nn">cleantest.hooks</span> <span class="kn">import</span> <span class="n">StartEnvHook</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="kn">from</span> <span class="nn">cleantest.pkg</span> <span class="kn">import</span> <span class="n">Charmlib</span><span class="p">,</span> <span class="n">Pip</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="kn">from</span> <span class="nn">cleantest.provider</span> <span class="kn">import</span> <span class="n">lxd</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="c1"># Define the hooks and register them.</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="n">root</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="n">config</span> <span class="o">=</span> <span class="n">Configure</span><span class="p">()</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="n">start_hook</span> <span class="o">=</span> <span class="n">StartEnvHook</span><span class="p">(</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;my_start_hook&quot;</span><span class="p">,</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="n">packages</span><span class="o">=</span><span class="p">[</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>        <span class="n">Charmlib</span><span class="p">(</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>            <span class="n">auth_token_path</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;charmhub.secret&quot;</span><span class="p">),</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>            <span class="n">charmlibs</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;charms.operator_libs_linux.v0.apt&quot;</span><span class="p">],</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>        <span class="p">),</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>        <span class="n">Pip</span><span class="p">(</span><span class="n">requirements</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;requirements.txt&quot;</span><span class="p">)),</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    <span class="p">],</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="p">)</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="n">config</span><span class="o">.</span><span class="n">register_hook</span><span class="p">(</span><span class="n">start_hook</span><span class="p">)</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="c1"># Define the testlets.</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="nd">@lxd</span><span class="p">(</span><span class="n">image</span><span class="o">=</span><span class="s2">&quot;jammy-amd64&quot;</span><span class="p">,</span> <span class="n">preserve</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="k">def</span> <span class="nf">install_snapd</span><span class="p">():</span>
+<a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>    <span class="kn">import</span> <span class="nn">sys</span>
+<a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>
+<a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>    <span class="kn">import</span> <span class="nn">charms.operator_libs_linux.v0.apt</span> <span class="k">as</span> <span class="nn">apt</span>
+<a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>
+<a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>        <span class="n">apt</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+<a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>        <span class="n">apt</span><span class="o">.</span><span class="n">add_package</span><span class="p">(</span><span class="s2">&quot;snapd&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;snapd installed.&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+<a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>    <span class="k">except</span> <span class="n">apt</span><span class="o">.</span><span class="n">PackageNotFoundError</span><span class="p">:</span>
+<a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Package could not be found in cache or system.&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+<a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>    <span class="k">except</span> <span class="n">apt</span><span class="o">.</span><span class="n">PackageError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+<a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not install package. Reason: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+<a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a>
+<a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a>        <span class="n">snapd</span> <span class="o">=</span> <span class="n">apt</span><span class="o">.</span><span class="n">DebianPackage</span><span class="o">.</span><span class="n">from_installed_package</span><span class="p">(</span><span class="s2">&quot;snapd&quot;</span><span class="p">)</span>
+<a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;snapd version </span><span class="si">{</span><span class="n">snapd</span><span class="o">.</span><span class="n">fullversion</span><span class="si">}</span><span class="s2"> is installed.&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+<a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a>    <span class="k">except</span> <span class="n">apt</span><span class="o">.</span><span class="n">PackageNotFoundError</span><span class="p">:</span>
+<a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Snapd failed to install.&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+<a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a>        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a>
+<a id="__codelineno-0-53" name="__codelineno-0-53" href="#__codelineno-0-53"></a>    <span class="k">try</span><span class="p">:</span>
+<a id="__codelineno-0-54" name="__codelineno-0-54" href="#__codelineno-0-54"></a>        <span class="kn">from</span> <span class="nn">tabulate</span> <span class="kn">import</span> <span class="n">tabulate</span>
+<a id="__codelineno-0-55" name="__codelineno-0-55" href="#__codelineno-0-55"></a>
+<a id="__codelineno-0-56" name="__codelineno-0-56" href="#__codelineno-0-56"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;tabulate is installed.&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+<a id="__codelineno-0-57" name="__codelineno-0-57" href="#__codelineno-0-57"></a>    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+<a id="__codelineno-0-58" name="__codelineno-0-58" href="#__codelineno-0-58"></a>        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Failed to import tabulate package.&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+<a id="__codelineno-0-59" name="__codelineno-0-59" href="#__codelineno-0-59"></a>        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<a id="__codelineno-0-60" name="__codelineno-0-60" href="#__codelineno-0-60"></a>
+<a id="__codelineno-0-61" name="__codelineno-0-61" href="#__codelineno-0-61"></a>    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<a id="__codelineno-0-62" name="__codelineno-0-62" href="#__codelineno-0-62"></a>
+<a id="__codelineno-0-63" name="__codelineno-0-63" href="#__codelineno-0-63"></a>
+<a id="__codelineno-0-64" name="__codelineno-0-64" href="#__codelineno-0-64"></a><span class="k">class</span> <span class="nc">TestLocalLXD</span><span class="p">:</span>
+<a id="__codelineno-0-65" name="__codelineno-0-65" href="#__codelineno-0-65"></a>    <span class="k">def</span> <span class="nf">test_local_lxd</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-0-66" name="__codelineno-0-66" href="#__codelineno-0-66"></a>        <span class="n">results</span> <span class="o">=</span> <span class="n">install_snapd</span><span class="p">()</span>
+<a id="__codelineno-0-67" name="__codelineno-0-67" href="#__codelineno-0-67"></a>        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<a id="__codelineno-0-68" name="__codelineno-0-68" href="#__codelineno-0-68"></a>            <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span>
 </code></pre></div>
-<h2 id="some-background">Some background</h2>
-<p>The goal of the cleantest framework is to provide an easy way to bring up clean testing environments without a 
-hassle. A "clean test" is a test written with cleantest that can drop on top of a pre-existing testing framework 
-such as pytest or unittest. These "clean tests" can be broken down into three parts: </p>
-<ol>
-<li>Configuration statements</li>
-<li>A collection of Testlets</li>
-<li>One or more Test Suites</li>
-</ol>
-<p><em>Configuration statements</em> control the state and flow of cleantest, <em>testlets</em> are the tests to be run in the testing environment, and the <em>test suites</em> define the order in which the testlets are executed.</p>
-<h2 id="defining-a-testlet">Defining a testlet</h2>
-<p>A <em>testlet</em> is essentially an entire Python script encapsulated in a function; it contains all the imports, 
-definitions, and logic a program needs to run. Here is an example of a testlet below:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span> <span class="nn">cleantest.provider</span> <span class="kn">import</span> <span class="n">lxd</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="nd">@lxd</span><span class="p">()</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">def</span> <span class="nf">do_something</span><span class="p">():</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="kn">import</span> <span class="nn">sys</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>        <span class="kn">import</span> <span class="nn">urllib</span>
-<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-</code></pre></div>
-<p>An important thing to note about testlets is that they are not run in the same Python interpreter as the test suite. 
-The testlets are actually picked up by the interpreter and run somewhere else, and a <code>Result</code> object is returned 
-containing an exit code, stdout, and stderr. Therefore, you should always import the Python modules and assets you 
-need within the body of the testlet, not in the main test files.</p>
-<h2 id="writing-a-test-suite">Writing a test suite</h2>
-<p>To evaluate the results of a testlet, you need a <em>test suite</em>. This part should be invoked by your testing framework 
-of choice. In our case, we used <strong>pytest</strong>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">class</span> <span class="nc">TestSuite</span><span class="p">:</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="k">def</span> <span class="nf">test_do_something</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>        <span class="n">results</span> <span class="o">=</span> <span class="n">do_something</span><span class="p">()</span>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>            <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span>
-</code></pre></div>
-<p>The test suite should be focused solely on launching testlets and evaluating the results. You should never define 
-testlets inside a test suite. They should always be a top-level, globally accessible function.</p>
-<h2 id="bringing-it-all-together">Bringing it all together</h2>
-<p>To bring it all together, combine the testlet and test suite combined into a single Python file:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="ch">#!/usr/bin/env python3</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="sd">&quot;&quot;&quot;A basic test.&quot;&quot;&quot;</span>
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
-<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="kn">from</span> <span class="nn">cleantest.provider</span> <span class="kn">import</span> <span class="n">lxd</span>
-<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
-<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>
-<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="nd">@lxd</span><span class="p">(</span><span class="n">preserve</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="k">def</span> <span class="nf">do_something</span><span class="p">():</span>
-<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    <span class="kn">import</span> <span class="nn">sys</span>
-<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>
-<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>    <span class="k">try</span><span class="p">:</span>
-<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>        <span class="kn">import</span> <span class="nn">urllib</span>
-<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>
-<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>
-<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a><span class="k">class</span> <span class="nc">TestSuite</span><span class="p">:</span>
-<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>    <span class="k">def</span> <span class="nf">test_do_something</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>        <span class="n">results</span> <span class="o">=</span> <span class="n">do_something</span><span class="p">()</span>
-<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>            <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span>
-</code></pre></div>
-<p>Now use <strong>pytest</strong> to run the test:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pytest my_cleantest.py
-</code></pre></div>
-<p>You should see the following output from your test:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>=========== test session starts ===========
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>platform linux -- Python 3.10.4, pytest-7.1.3, pluggy-1.0.0
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>rootdir: /mnt/d/scratch
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>collected 1 item                                                                                                                                                                                                  
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>basic_test.py .                                                                                                                                                                                             [100%]
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>=========== 1 passed in 8.95s ===========
-</code></pre></div>
-<p>Congrats, you have written your first clean test!</p>
-<h2 id="next-steps">Next steps</h2>
-<p>Now that you have taken your first introductory steps with cleantest, you should now go through the rest of the
-documentation and examples to learn about all the things that you can do with cleantest! Of course, learning
-through trial and error also works.</p>
 
 
 
@@ -871,7 +837,7 @@ through trial and error also works.</p>
     <nav class="md-footer__inner md-grid" aria-label="Footer" >
       
         
-        <a href="../installation/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Installation" rel="prev">
+        <a href="../getting-started/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Getting started" rel="prev">
           <div class="md-footer__button md-icon">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
           </div>
@@ -880,20 +846,20 @@ through trial and error also works.</p>
               <span class="md-footer__direction">
                 Previous
               </span>
-              Installation
+              Getting started
             </div>
           </div>
         </a>
       
       
         
-        <a href="../test-env-providers/" class="md-footer__link md-footer__link--next" aria-label="Next: Test environment providers" rel="next">
+        <a href="../hooks/" class="md-footer__link md-footer__link--next" aria-label="Next: Using hooks" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Test environment providers
+              Using hooks
             </div>
           </div>
           <div class="md-footer__button md-icon">
