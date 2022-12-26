@@ -17,8 +17,9 @@ cd cleantest
 python3 -m pip install .
 ```
 
-__Important:__ Before you can start writing tests using the `cleantest` framework, you also need to set up a 
-testing environment provider.
+???+ warning
+
+    Before you can start writing tests using cleantest, you must also set up a test environment provider.
 
 ## Setting up testing environment providers
 
@@ -26,7 +27,7 @@ You can use the following instructions to set up a supported test environment pr
 `cleantest`. Note that __you do not need to install every testing environment provider listed below__; you only 
 need to install the providers you wish to use for testing.
 
-???+ note "Important note about supported test environment providers"
+???+ info "About supported test environment providers"
 
     LXD is currently the only supported test environment provider. For the best experience, I encourage you to use LXD on
     Ubuntu. You can connect to the LXD server from other machines such as Mac, Windows, and Linux* using the LXC client. 
@@ -39,7 +40,7 @@ need to install the providers you wish to use for testing.
 ### LXD
 
 To use [LXD](https://ubuntu.com/lxd) as a test environment provider with `cleantest`, you will need to have the
-[__snap__](https://snapcraft.io/about) package manager and __snapd__ installed on your host system. Once you have 
+[snap](https://snapcraft.io/about) package manager and snapd service installed on your host system. Once you have 
 snapd and the snap package manager on your host system, use the following command to install LXD:
 
 ```text

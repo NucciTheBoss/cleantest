@@ -1,10 +1,10 @@
 # Getting started with cleantest
 
-Now that you have the `cleantest` framework installed on your system, let's get you introduced to writing some basic 
-tests. This example assumes that you have LXD installed and configured, and `cleantest` is installed correctly on 
+Now that you have the cleantest framework installed on your system, let's get you introduced to writing some basic 
+tests. This example assumes that you have LXD installed and configured, and cleantest is installed correctly on 
 your system. If not, please revisit the [installation](./installation.md) documentation.
 
-Also, you will need to have [__pytest__](https://docs.pytest.org/en/7.1.x/) installed on your system as well. 
+Also, you will need to have [pytest](https://docs.pytest.org/en/7.1.x/) installed on your system as well. 
 You can install it using the following command:
 
 ```text
@@ -13,15 +13,15 @@ pip install pytest
 
 ## Some background
 
-The goal of the `cleantest` framework is to provide an easy way to bring up clean testing environments without a 
-hassle. A "clean test" is a test written with `cleantest` that can drop on top of a pre-existing testing framework 
-such as __pytest__ or __unittest__. These "clean tests" can be broken down into three parts: 
+The goal of the cleantest framework is to provide an easy way to bring up clean testing environments without a 
+hassle. A "clean test" is a test written with cleantest that can drop on top of a pre-existing testing framework 
+such as pytest or unittest. These "clean tests" can be broken down into three parts: 
 
 1. Configuration statements
 2. A collection of Testlets
 3. One or more Test Suites
 
-*Configuration statements* control the state and flow of `cleantest`, *testlets* are the tests to be run in the testing environment, and the *test suites* define the order in which the testlets are executed.
+*Configuration statements* control the state and flow of cleantest, _testlets_ are the tests to be run in the testing environment, and the *test suites* define the order in which the testlets are executed.
 
 ## Defining a testlet
 
@@ -71,7 +71,7 @@ To bring it all together, combine the testlet and test suite combined into a sin
 ```python
 #!/usr/bin/env python3
 
-"""A basic test"""
+"""A basic test."""
 
 from cleantest.provider import lxd
 
@@ -119,5 +119,6 @@ Congrats, you have written your first clean test!
 
 ## Next steps
 
-Now that you have taken your first introductory steps with `cleantest`, let's start learning how to control the
-test environments [using hooks](./hooks.md).
+Now that you have taken your first introductory steps with cleantest, you should now go through the rest of the
+documentation and examples to learn about all the things that you can do with cleantest! Of course, learning
+through trial and error also works.
