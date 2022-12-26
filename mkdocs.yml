@@ -1,8 +1,10 @@
 site_name: cleantest
+site_url: https://nuccitheboss.github.io/cleantest/
 site_description: |
   Documentation for cleantest - a testing framework for developers who need clean testing environments in a hurry.
 repo_name: NucciTheBoss/cleantest
 repo_url: https://github.com/NucciTheBoss/cleantest
+edit_uri: blob/main/docs
 
 theme:
   name: material
@@ -29,7 +31,7 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
 
 nav:
-  - Home: 'home/index.md'
+  - Home: 'index.md'
   - 'User Guide':
     - 'Installation': 'user-guide/installation.md'
     - 'Getting started': 'user-guide/getting-started.md'
