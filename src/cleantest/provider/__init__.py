@@ -2,4 +2,5 @@
 # Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
 # See LICENSE file for licensing details.
 
-from .lxd import lxd
+from .lxd.lxd import lxd
+from .lxd.lxd_config import InstancePost, InstanceSource
