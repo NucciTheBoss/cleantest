@@ -102,8 +102,8 @@ class InstanceSource:
             setattr(self, "source", source)
 
 
-class InstancePost(DictOps):
-    """Define an LXD instance to bring up.
+class InstanceConfig(DictOps):
+    """Define an LXD instance that can be brought up for test environments.
 
     Args:
         name (str): Name to use for container or virtual machine.
@@ -178,4 +178,10 @@ class InstancePost(DictOps):
         config = self._deconstruct(new_config)
         for i in checks:
             if i not in config:
-                raise BadLXDConfigError(new_config)
+                raise BadLXDConfigError(
+                    (
+                        f"Bad instance configuration: {new_config}. "
+                        "Please ensure instance configuration has the "
+                        f"following values set: {checks}."
+                    )
+                )
