@@ -29,7 +29,9 @@ class LXDConfigurer(BaseConfigurer):
         if not hasattr(cls, "instance"):
             cls.instance = super(LXDConfigurer, cls).__new__(cls)
             [
-                cls._configs.add(InstanceConfig(name=name.lower(), source=source))
+                cls._configs.add(
+                    InstanceConfig(name=name.replace("_", "-").lower(), source=source)
+                )
                 for name, source in LXDDefaultSources.items()
             ]
         return cls.instance
