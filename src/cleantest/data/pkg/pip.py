@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
+# Copyright 2023 Jason C. Nucciarone, Canonical Ltd.
 # See LICENSE file for licensing details.
 
 """Manager for installing pip packages inside remote processes."""
@@ -11,13 +11,11 @@ from shutil import which
 from typing import List, Union
 
 from cleantest.meta import BasePackage, BasePackageError, InjectableData
-from cleantest.utils import detect_os_variant
+from cleantest.meta.utils import detect_os_variant
 
 
 class PipPackageError(BasePackageError):
     """Base error for Pip package handler."""
-
-    ...
 
 
 class Pip(BasePackage):

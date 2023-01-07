@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
+# Copyright 2023 Jason C. Nucciarone, Canonical Ltd.
 # See LICENSE file for licensing details.
 
 """Handler for installing and managing snap packages inside a remote instance."""
@@ -26,8 +26,6 @@ ansi_filter = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
 class SnapHandlerError(Exception):
     """Raised when snap handler encounters any errors."""
-
-    ...
 
 
 class SnapAPIError(Exception):
