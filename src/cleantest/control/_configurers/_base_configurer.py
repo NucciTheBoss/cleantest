@@ -8,7 +8,7 @@ import copy
 from collections import deque
 from typing import Deque, Union
 
-from cleantest.hooks import StartEnvHook, StopEnvHook
+from cleantest.control.hooks import StartEnvHook, StopEnvHook
 
 
 class DuplicateHookNameError(Exception):
