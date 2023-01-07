@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
-# Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
+# Copyright 2023 Jason C. Nucciarone, Canonical Ltd.
 # See LICENSE file for licensing details.
 
 """Environment variable management for test providers."""
 
 import os
-from typing import Any, Dict, Union
+from typing import Any, Dict, Optional
 
 
-class EnvDataStore:
+class Env:
     """Manage environment data for test environments."""
 
     _env = {}
 
-    def __new__(cls) -> object:
+    def __new__(cls) -> "Env":
         if not hasattr(cls, "instance"):
-            cls.instance = super(EnvDataStore, cls).__new__(cls)
+            cls.instance = super(Env, cls).__new__(cls)
         return cls.instance
 
     def add(self, env_mapping: Dict[str, Any]) -> None:
@@ -26,14 +26,25 @@ class EnvDataStore:
         """
         self._env.update(env_mapping)
 
-    def get(self, env_var: str) -> Union[Any, None]:
+    def remove(self, env_var: str) -> None:
+        """Remove an environment variable from store.
+
+        Does nothing if environment variable does not exist in store.
+
+        Args:
+            env_var (str): Environment variable to Remove from the store.
+        """
+        if env_var in self._env.keys():
+            del self._env[env_var]
+
+    def get(self, env_var: str) -> Optional[Any]:
         """Retrieve environment variable from store.
 
         Args:
             env_var (str): Environment variable to retrieve.
 
         Returns:
-            (Union[Any, None]): Environment variable value.
+            (Optional[Any]): Environment variable value.
                 Returns None if variable is not in store.
         """
         try:
