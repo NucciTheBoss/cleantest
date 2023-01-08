@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
+# Copyright 2023 Jason C. Nucciarone, Canonical Ltd.
 # See LICENSE file for licensing details.
 
 """Common operations needed by classes to support snapd and snap."""
@@ -7,7 +7,7 @@
 import subprocess
 from shutil import which
 
-from cleantest.utils import detect_os_variant
+from cleantest.meta.utils import detect_os_variant
 
 
 class SnapdSupportError(Exception):
