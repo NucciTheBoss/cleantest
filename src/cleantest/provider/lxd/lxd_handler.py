@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
+# Copyright 2023 Jason C. Nucciarone, Canonical Ltd.
 # See LICENSE file for licensing details.
 
 """Handler for LXD test environments."""
@@ -51,16 +51,16 @@ class LXDHandler(BaseHandler):
         Returns:
             (Client): Connection to LXD API socket.
         """
-        if self._client_config is None:
+        if self._lxd_client_config is None:
             return Client(project="default")
         else:
             return Client(
-                endpoint=self._client_config.endpoint,
-                version=self._client_config.version,
-                cert=self._client_config.cert,
-                verify=self._client_config.verify,
-                timeout=self._client_config.timeout,
-                project=self._client_config.project,
+                endpoint=self._lxd_client_config.endpoint,
+                version=self._lxd_client_config.version,
+                cert=self._lxd_client_config.cert,
+                verify=self._lxd_client_config.verify,
+                timeout=self._lxd_client_config.timeout,
+                project=self._lxd_client_config.project,
             )
 
     @property
@@ -79,7 +79,7 @@ class LXDHandler(BaseHandler):
             instance (InstanceMetadata): Instance to build.
         """
         if instance.exists is False:
-            config = self._data.get_config(instance.image)
+            config = self._lxd_provider_config.get_instance_config(instance.image)
             config.name = instance.name
             self._client.instances.create(config.dict(), wait=True)
             instance = self._client.instances.get(instance.name)
@@ -161,7 +161,7 @@ class LXDHandler(BaseHandler):
         Args:
             instance (InstanceMetadata): Instance to run start env hooks in.
         """
-        start_env_hooks = self._clean_config.get_start_env_hooks()
+        start_env_hooks = self._lxd_provider_config.startenv_hooks
         while start_env_hooks:
             hook = start_env_hooks.pop()
             instance = self._client.instances.get(instance.name)
@@ -178,7 +178,7 @@ class LXDHandler(BaseHandler):
         Args:
             instance (InstanceMetadata): Instance to run stop env hooks in.
         """
-        stop_env_hooks = self._clean_config.get_stop_env_hooks()
+        stop_env_hooks = self._lxd_provider_config.stopenv_hooks
         while stop_env_hooks:
             hook = stop_env_hooks.pop()
             instance = self._client.instances.get(instance.name)
@@ -358,7 +358,7 @@ class LXDProvider:
 
     @staticmethod
     def parallel(lxd, func: Callable) -> "Parallel":
-        """Return entrypint for running tests in parallel using LXD.
+        """Return entrypoint for running tests in parallel using LXD.
 
         Args:
             lxd (lxd): LXD decorator.
