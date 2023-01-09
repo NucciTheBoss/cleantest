@@ -8,6 +8,7 @@ import subprocess
 from shutil import which
 
 from cleantest.meta.utils import detect_os_variant
+from cleantest.utils import apt
 
 
 class SnapdSupportError(Exception):
@@ -35,15 +36,7 @@ class SnapdSupport:
 
         if which("snap") is None:
             if os_variant == "ubuntu":
-                cmd = ["apt", "install", "-y", "snapd"]
-                try:
-                    subprocess.run(
-                        cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True
-                    )
-                except subprocess.CalledProcessError:
-                    raise SnapdSupportError(
-                        f"Failed to install snapd using the following command: {' '.join(cmd)}."
-                    )
+                apt.install("snapd")
             else:
                 raise NotImplementedError(
                     f"Support for {os_variant.capitalize()} not available yet."

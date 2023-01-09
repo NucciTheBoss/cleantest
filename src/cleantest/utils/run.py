@@ -27,7 +27,7 @@ def run(
         cwd (Optional[str]): Directory to execute commands inside (Default: None).
 
     Yields:
-        (Iterable[Result]): Captured result of executed command. None if capture_result = False.
+        (Iterable[Result]): Captured results of executed commands.
     """
     if len(commands) == 0:
         raise CommandExecutionError("No commands passed.")

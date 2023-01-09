@@ -12,6 +12,7 @@ from typing import List, Union
 
 from cleantest.meta import BasePackage, BasePackageError, InjectableData
 from cleantest.meta.utils import detect_os_variant
+from cleantest.utils import apt
 
 
 class PipPackageError(BasePackageError):
@@ -75,15 +76,7 @@ class Pip(BasePackage):
 
         if which("pip") is None:
             if os_variant == "ubuntu":
-                cmd = ["apt", "install", "-y", "python3-pip"]
-                try:
-                    subprocess.run(
-                        cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True
-                    )
-                except subprocess.CalledProcessError:
-                    raise PipPackageError(
-                        f"Failed to install pip using the following command: {' '.join(cmd)}"
-                    )
+                apt.install("python3-pip")
             else:
                 raise NotImplementedError(
                     f"Support for {os_variant.capitalize()} not available yet."
