@@ -7,7 +7,7 @@
 from enum import Enum
 from typing import Any, List, Tuple
 
-from cleantest.provider.lxd import InstanceSource
+from .lxd.lxd_config import InstanceSource
 
 
 class EnhancedEnum(Enum):

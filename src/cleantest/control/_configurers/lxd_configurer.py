@@ -6,9 +6,8 @@
 
 from typing import Dict
 
-from cleantest.provider.lxd import InstanceConfig
-
 from .._sources import LXDDefaultSources
+from ..lxd.lxd_config import InstanceConfig
 from ._base_configurer import BaseConfigurer
 
 

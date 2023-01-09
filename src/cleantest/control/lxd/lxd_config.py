@@ -4,13 +4,48 @@
 
 """Classes to assist with LXD instance configuration."""
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from cleantest.meta.mixins import DictOps
 
 
 class BadLXDConfigError(Exception):
     """Raised when the newly entered configuration fails the lint check."""
+
+
+class ClientConfig:
+    def __init__(
+        self,
+        endpoint: Optional[str] = None,
+        version: str = "1.0",
+        cert: Optional[Tuple[str, str]] = None,
+        verify: bool = True,
+        timeout: Optional[Union[float, Tuple[float, float]]] = None,
+        project: Optional[str] = None,
+    ) -> None:
+        """Define an LXD client connection.
+
+        Args:
+            endpoint (Optional[str]): Endpoint can be an HTTP endpoint or
+                a path to a unix socket (Default: None).
+            version (str): API version string to use with LXD
+            cert (Optional[Tuple[str, str]]): A tuple of (cert, key) to use with
+                the HTTP socket for client authentication (Default: "1.0").
+            verify (bool): Either a boolean, in which case it controls
+                whether we verify the server's TLS certificate, or a string, in
+                which case it must be a path to a CA bundle to use.
+                (Default: True).
+            timeout (Optional[Union[float, Tuple[float, float]]]):
+                How long to wait for the server to send data before giving up, as a float, or a
+                (connect timeout, read timeout) tuple.
+            project (Optional[str]): Name of the LXD project to interact with (Default: None).
+        """
+        self.endpoint = endpoint
+        self.version = version
+        self.cert = cert
+        self.verify = verify
+        self.timeout = timeout
+        self.project = project
 
 
 class InstanceSource:
