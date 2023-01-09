@@ -36,8 +36,8 @@ def run(
         try:
             res = subprocess.run(
                 command.split(" "),
-                env=(env if env is not None else None),
-                cwd=(cwd if cwd is not None else None),
+                env=(env if env else None),
+                cwd=(cwd if cwd else None),
                 check=True,
                 capture_output=True,
                 text=True,
