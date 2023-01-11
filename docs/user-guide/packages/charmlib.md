@@ -34,7 +34,7 @@ charmcraft login --export charmhub.secret
 ```
 
 After authenticating with Charmhub (you may need to create an Ubuntu One account), you can now use the example
-test script below: 
+test script below:
 
 ```python
 #!/usr/bin/env python3
@@ -44,8 +44,8 @@ test script below:
 import os
 
 from cleantest import Configure
-from cleantest.hooks import StartEnvHook
-from cleantest.pkg import Charmlib
+from cleantest.control.hooks import StartEnvHook
+from cleantest.data.pkg import Charmlib
 from cleantest.provider import lxd
 
 root = os.path.dirname(os.path.realpath(__file__))
@@ -88,7 +88,7 @@ def install_snapd():
 
     sys.exit(0)
 
-    
+
 class TestCharmlib:
     def test_charmlib(self) -> None:
         results = install_snapd()

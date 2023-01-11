@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-# Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
+# Copyright 2023 Jason C. Nucciarone, Canonical Ltd.
 # See LICENSE file for licensing details.
 
 """Common operations needed by classes that aim to emulate dictionaries."""
 
-from typing import Dict
+from typing import Any, Dict, List
 
 
 class DictOps:
@@ -35,3 +35,21 @@ class DictOps:
                 result.update({key: value})
 
         return result
+
+    def _deconstruct(self, d: Dict[str, Any]) -> List[str]:
+        """Recursively deconstruct a dictionary to get all of its keys.
+
+        Args:
+            d (Dict[str, Any]): Dictionary to deconstruct.
+
+        Returns:
+            (List[str]): Keys of deconstructed dictionary.
+        """
+        config = []
+        for k in d.keys():
+            if isinstance(d[k], dict):
+                config.extend(self._deconstruct(d[k]))
+            else:
+                config.append(k)
+
+        return config

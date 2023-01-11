@@ -6,16 +6,16 @@
 
 import os
 
-from cleantest import Configure
-from cleantest.hooks import StartEnvHook
-from cleantest.pkg import Charmlib, Pip
+from cleantest.control import Configure
+from cleantest.control.hooks import StartEnvHook
+from cleantest.data.pkg import Charmlib, Pip
 from cleantest.provider import lxd
 
 # Define the hooks and register them.
 root = os.path.dirname(os.path.realpath(__file__))
-cleanconfig = Configure()
-startenvhook = StartEnvHook(
-    name="my_start_hook",
+lxd_provider_config = Configure("lxd")
+startenv_hook = StartEnvHook(
+    name="setup_deps",
     packages=[
         Charmlib(
             auth_token_path=os.path.join(root, "charmhub.secret"),
@@ -24,11 +24,11 @@ startenvhook = StartEnvHook(
         Pip(requirements=os.path.join(root, "requirements.txt")),
     ],
 )
-cleanconfig.register_hook(startenvhook)
+lxd_provider_config.register_hook(startenv_hook)
 
 
 # Define the testlets.
-@lxd(image="jammy-amd64", preserve=False)
+@lxd(image="ubuntu-jammy-amd64", preserve=False)
 def install_snapd():
     import sys
 

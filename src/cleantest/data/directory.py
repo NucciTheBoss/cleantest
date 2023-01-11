@@ -11,7 +11,7 @@ import tempfile
 from io import BytesIO
 from typing import Iterable
 
-from .file import File
+from cleantest.data.file import File
 
 
 class DirectoryError(Exception):

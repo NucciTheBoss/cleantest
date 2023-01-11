@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
+# Copyright 2023 Jason C. Nucciarone, Canonical Ltd.
 # See LICENSE file for licensing details.
 
 """Manager for installing snap packages inside remote processes."""
@@ -10,15 +10,12 @@ from enum import Enum
 from typing import List, Union
 
 from cleantest.meta import BasePackage, BasePackageError, InjectableData
-from cleantest.pkg.handler import snap
-
-from ._mixins import SnapdSupport
+from cleantest.meta.mixins import SnapdSupport
+from cleantest.utils import snap
 
 
 class SnapPackageError(BasePackageError):
     """Base error for Snap package handler."""
-
-    ...
 
 
 class Confinement(Enum):
