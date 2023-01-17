@@ -38,9 +38,10 @@ def run(
                 command.split(" "),
                 env=(env if env else None),
                 cwd=(cwd if cwd else None),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
                 check=True,
-                capture_output=True,
-                text=True,
             )
         except subprocess.CalledProcessError as e:
             raise CommandExecutionError(f"Failed to execute command {command}. Reason: {e}.")
