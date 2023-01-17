@@ -8,9 +8,9 @@ import os
 import pathlib
 import tempfile
 
-from cleantest import Configure
-from cleantest.hooks import StartEnvHook, StopEnvHook
-from cleantest.hooks.data import Dir, File
+from cleantest.control import Configure
+from cleantest.control.hooks import StartEnvHook, StopEnvHook
+from cleantest.data import Dir, File
 from cleantest.provider import lxd
 
 root = os.path.dirname(os.path.realpath(__file__))
@@ -32,7 +32,7 @@ stop_hook = StopEnvHook(
 config.register_hook(start_hook, stop_hook)
 
 
-@lxd(image="jammy-amd64", preserve=True)
+@lxd(image="ubuntu-jammy-amd64", preserve=True)
 def work_on_artifacts():
     import os
     import pathlib

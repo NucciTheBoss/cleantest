@@ -6,9 +6,9 @@
 
 import os
 
-from cleantest import Configure
-from cleantest.hooks import StartEnvHook
-from cleantest.pkg import Connection, Plug, Slot, Snap
+from cleantest.control import Configure
+from cleantest.control.hooks import StartEnvHook
+from cleantest.data.pkg import Connection, Plug, Slot, Snap
 from cleantest.provider import lxd
 
 root = os.path.dirname(os.path.realpath(__file__))
@@ -28,7 +28,7 @@ start_hook = StartEnvHook(
 config.register_hook(start_hook)
 
 
-@lxd(image="jammy-amd64", preserve=False)
+@lxd(image="ubuntu-jammy-amd64", preserve=False)
 def functional_snaps():
     import sys
     from shutil import which

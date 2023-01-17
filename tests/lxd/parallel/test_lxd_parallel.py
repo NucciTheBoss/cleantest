@@ -4,9 +4,9 @@
 
 """Test parallel testing capabilities of LXD provider using local LXD cluster."""
 
-from cleantest import Configure
-from cleantest.hooks import StartEnvHook
-from cleantest.pkg import Pip
+from cleantest.control import Configure
+from cleantest.control.hooks import StartEnvHook
+from cleantest.data.pkg import Pip
 from cleantest.provider import lxd
 
 cleantest_config = Configure()
@@ -15,7 +15,7 @@ cleantest_config.register_hook(start_hook)
 
 
 @lxd(
-    image=["jammy-amd64", "focal-amd64", "bionic-amd64"],
+    image=["ubuntu-jammy-amd64", "ubuntu-focal-amd64", "ubuntu-bionic-amd64"],
     preserve=False,
     parallel=True,
     num_threads=2,
