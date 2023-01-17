@@ -1,23 +1,24 @@
 #!/usr/bin/env python3
-# Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
+# Copyright 2023 Jason C. Nucciarone
 # See LICENSE file for licensing details.
 
 """Metaclass for retrieving information about cleantest."""
 
+import base64
 import csv
+import hashlib
 import os
 import pathlib
 import tarfile
 import tempfile
-import textwrap
 from concurrent.futures import ProcessPoolExecutor
-from typing import Dict
+from typing import Dict, Iterable, Tuple
 
 import pkg_resources
 
 
 class CleantestInfo:
-    """Metaclass for getting information about cleantest module."""
+    """Metaclass for getting information about the cleantest library."""
 
     def __new__(cls) -> "CleantestInfo":
         if not hasattr(cls, "instance"):
@@ -25,78 +26,104 @@ class CleantestInfo:
         return cls.instance
 
     @property
-    def src(self) -> Dict[str, bytes]:
-        """Source code of cleantest module.
+    def _src(self) -> Dict[str, bytes]:
+        """Retrieve the source code of cleantest.
 
         Returns:
-            (Dict[str, bytes]): Name and source code of cleantest module.
+            (Dict[str, bytes]): Name and base64 encoded source code of cleantest module.
         """
-        old_dir = os.getcwd()
+        _ = os.getcwd()
         os.chdir(pkg_resources.get_distribution("cleantest").location)
-        tar_path = pathlib.Path(tempfile.gettempdir()).joinpath("cleantest")
-        with tarfile.open(tar_path, "w:gz") as tar:
-            tar.add("cleantest")
-        os.chdir(old_dir)
-
-        return {"cleantest": tar_path.read_bytes()}
+        with pathlib.Path(tempfile.NamedTemporaryFile().name) as fout:
+            with tarfile.open(fout, "w:gz") as tar:
+                tar.add("cleantest")
+            os.chdir(_)
+            return {"cleantest": fout.read_bytes()}
 
     @property
-    def dependencies(self) -> Dict[str, bytes]:
-        """Source code for dependencies of cleantest module.
+    def _dependencies(self) -> Iterable[Tuple[str, bytes]]:
+        """Retrieve the source code of cleantest's dependencies.
 
-        Returns:
+        Yields:
             (Dict[str, bytes]): Name and source code of dependencies.
         """
-        result = {}
         with ProcessPoolExecutor(max_workers=os.cpu_count()) as pool:
             pool_results = pool.map(
-                self._get_dependencies,
+                self._dependency_processor,
                 pkg_resources.working_set.resolve(
                     pkg_resources.working_set.by_key["cleantest"].requires()
                 ),
             )
             for res in pool_results:
-                [result.update({key: value}) for key, value in res.items()]
+                for k, v in res.items():
+                    yield k, v
 
-        return result
-
-    def _get_dependencies(self, dependency: pkg_resources.Distribution) -> Dict[str, bytes]:
+    def _dependency_processor(self, dependency: pkg_resources.Distribution) -> Dict[str, bytes]:
         """Collect source code of cleantest dependency.
 
         Args:
             dependency (pkg_resources.Distribution): Dependency of cleantest.
 
         Returns:
-            (Dict[str, bytes]): Name and source code of dependency.
+            (Dict[str, bytes]): Name and base64 encoded source code of dependency.
         """
         os.chdir(dependency.location)
-        tar_path = pathlib.Path(tempfile.gettempdir()).joinpath(dependency.key)
-        with tarfile.open(tar_path, "w:gz") as tar:
-            with pathlib.Path(
+        with pathlib.Path(tempfile.NamedTemporaryFile().name) as fout:
+            with tarfile.open(fout, "w:gz") as tar, pathlib.Path(
                 f"{dependency.key.replace('-', '_')}-{dependency.version}.dist-info"
             ).joinpath("RECORD").open(mode="rt") as fin:
                 for row in csv.reader(fin):
                     tar.add(row[0])
 
-        return {dependency.key: tar_path.read_bytes()}
+            return {dependency.key: fout.read_bytes()}
 
-    def make_pkg_injectable(self, pkg_path: str) -> str:
-        """Generate injectable script to install cleantest packages inside test environment.
+    def _injectable(self, checksum: str, data: str) -> str:
+        """Generate injectable script to install packages inside the test instance.
 
         Args:
-            pkg_path (str): Path to package inside test environment.
+            checksum (str): Checksum to verify base64 encoded object.
+            data (str): Base64 encode tar archive containing source code for cleantest.
 
         Returns:
             (str): Injectable script.
         """
-        return textwrap.dedent(
-            f"""
-            #!/usr/bin/env python3
-            import site
-            import tarfile
+        with tempfile.TemporaryFile(mode="w+t") as fout:
+            fout.writelines(
+                [
+                    "#!/usr/bin/env python3\n",
+                    "import base64\n",
+                    "import hashlib\n",
+                    "import site\n",
+                    "import tarfile\n",
+                    "from io import BytesIO\n",
+                    f"_ = base64.b64decode('{data}')\n",
+                    f"if '{checksum}' != hashlib.sha224(_).hexdigest():\n"
+                    "\traise Exception('Hashes do not match')\n",
+                    "tar = tarfile.open(fileobj=BytesIO(_), mode='r:gz')\n",
+                    "tar.extractall(site.getsitepackages()[0])\n",
+                    "tar.close()\n",
+                ]
+            )
+            fout.seek(0)
+            return fout.read()
 
-            site.getsitepackages()[0]
-            tarball = tarfile.open("{pkg_path}", "r:gz")
-            tarball.extractall(site.getsitepackages()[0])
-            """
-        ).strip("\n")
+    def dump(self) -> Iterable[Tuple[str, Dict[str, str]]]:
+        """Prepare cleantest for injection into test environment instance.
+
+        Yields:
+            (Iterable[Tuple[str, Dict[str, str]]]):
+                name (str): Name of library being injected.
+                checksum (str): Checksum to verify authenticity of archive.
+                data (str): Base64 encoded tarball containing source code.
+                injectable (str): Injectable to run inside remote instance.
+        """
+        packages = self._src
+        packages.update(dict(self._dependencies))
+        for k, v in packages.items():
+            checksum = hashlib.sha224(v).hexdigest()
+            data = base64.b64encode(v).decode()
+            yield k, {
+                "checksum": checksum,
+                "data": data,
+                "injectable": self._injectable(checksum, data),
+            }

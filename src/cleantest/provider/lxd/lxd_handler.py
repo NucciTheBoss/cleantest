@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
-# Copyright 2023 Jason C. Nucciarone, Canonical Ltd.
+# Copyright 2023 Jason C. Nucciarone
 # See LICENSE file for licensing details.
 
 """Handler for LXD test environments."""
 
 import inspect
 import json
-import pathlib
 import re
 import tempfile
 from concurrent.futures import ProcessPoolExecutor
@@ -96,14 +95,13 @@ class LXDHandler(BaseHandler):
             instance (Any): Instance to initialize.
         """
         meta = CleantestInfo()
-        instance.execute(["mkdir", "-p", "/root/init"])
-        for module, src in {**meta.src, **meta.dependencies}.items():
-            instance.files.put(f"/root/init/{module}.tar.gz", src)
+        instance.execute(["mkdir", "-p", "/root/init/cleantest"])
+        for name, data in meta.dump():
             instance.files.put(
-                f"/root/init/install_{module}",
-                meta.make_pkg_injectable(f"/root/init/{module}.tar.gz"),
+                f"/root/init/cleantest/install_{name}",
+                data["injectable"],
             )
-            instance.execute(["python3", f"/root/init/install_{module}"])
+            instance.execute(["python3", f"/root/init/cleantest/install_{name}"])
 
     def _execute(self, test: str, instance: InstanceMetadata) -> Any:
         """Execute a testlet inside an LXD test environment instance.
