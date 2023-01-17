@@ -196,13 +196,8 @@ class LXDHandler(BaseHandler):
         dispatch = {"charmlib": lambda x: self._env.add(json.loads(x))}
 
         dump_data = pkg._dump()
-        data_path = pathlib.Path(dump_data.path)
         instance.execute(["mkdir", "-p", "/root/init/pkg"])
-        instance.files.put(f"/root/init/pkg/{data_path.name}", data_path.read_bytes())
-        instance.files.put(
-            "/root/init/pkg/install",
-            pkg.__injectable__(f"/root/init/pkg/{data_path.name}", dump_data.hash),
-        )
+        instance.files.put("/root/init/pkg/install", dump_data["injectable"])
         result = instance.execute(["python3", "/root/init/pkg/install"])
 
         if pkg.__class__.__name__.lower() in dispatch:
@@ -216,16 +211,9 @@ class LXDHandler(BaseHandler):
             artifact (Injectable): Artifact to upload.
         """
         artifact.load()
-        dump_data = artifact._dump()
-        data_path = pathlib.Path(dump_data.path)
+        dump_data = artifact._dump(mode="push")
         instance.execute(["mkdir", "-p", "/root/init/data"])
-        instance.files.put(f"/root/init/data/{data_path.name}", data_path.read_bytes())
-        instance.files.put(
-            "/root/init/data/dump",
-            artifact.__injectable__(
-                f"/root/init/data/{data_path.name}", dump_data.hash, mode="upload"
-            ),
-        )
+        instance.files.put("/root/init/data/dump", dump_data["injectable"])
         instance.execute(["python3", "/root/init/data/dump"])
 
     def _handle_artifact_download(self, instance: Any, artifact: Injectable) -> None:
@@ -235,22 +223,15 @@ class LXDHandler(BaseHandler):
             instance (Any): Instance to download artifact from.
             artifact (Injectable): Artifact to download.
         """
-        dump_data = artifact._dump()
-        data_path = pathlib.Path(dump_data.path)
+        dump_data = artifact._dump(mode="pull")
         instance.execute(["mkdir", "-p", "/root/post/data"])
-        instance.files.put(f"/root/post/data/{data_path.name}", data_path.read_bytes())
         instance.files.put(
             "/root/post/data/load",
-            artifact.__injectable__(
-                f"/root/post/data/{data_path.name}", dump_data.hash, mode="download"
-            ),
+            dump_data["injectable"],
         )
         result = json.loads(instance.execute(["python3", "/root/post/data/load"]).stdout)
-        data = instance.files.get(result["path"])
         with tempfile.NamedTemporaryFile() as fout:
-            handler = pathlib.Path(fout.name)
-            handler.write_bytes(data)
-            holder = artifact.__class__._load(str(handler), result["hash"])
+            holder = artifact.__class__._load(result["checksum"], result["data"])
             holder.dump()
 
 

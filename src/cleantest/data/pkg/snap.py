@@ -7,9 +7,9 @@
 import pathlib
 import textwrap
 from enum import Enum
-from typing import List, Union
+from typing import Dict, List, Union
 
-from cleantest.meta import BasePackage, BasePackageError, InjectableData
+from cleantest.meta import BasePackage, BasePackageError
 from cleantest.meta.mixins import SnapdSupport
 from cleantest.utils import snap
 
@@ -213,14 +213,17 @@ class Snap(BasePackage, SnapdSupport):
             for alias in self.aliases:
                 alias.alias()
 
-    def _dump(self) -> InjectableData:
-        """Dump Snap package handler object.
+    def _dump(self) -> Dict[str, str]:
+        """Prepare Snap object for injection.
 
         Raises:
             FileNotFoundError: Raised if local snap package is not found.
 
         Returns:
-            (InjectableData): Path to dumped object and verification hash.
+            (Dict[str, str]):
+                checksum (str): Checksum to verify authenticity of serialized Snap object.
+                data (str): Base64 encoded string containing serialized Snap object.
+                injectable (str): Injectable to run inside remote environment.
         """
         if self.local_snaps is not None:
             for local_snap in self.local_snaps:
@@ -231,12 +234,13 @@ class Snap(BasePackage, SnapdSupport):
 
         return super()._dump()
 
-    def __injectable__(self, path: str, verification_hash: str) -> str:
+    def _injectable(self, data: Dict[str, str], **kwargs) -> str:
         """Generate injectable script that will be used to install snap packages.
 
         Args:
-            path (str): Path to pickled object inside the test environment.
-            verification_hash: Hash to verify authenticity of pickled object.
+            data (Dict[str, str]): Data that needs to be in injectable script.
+                - checksum (str): SHA224 checksum to verify authenticity of Snap object.
+                - data (str): Base64 encoded Snap object to inject.
 
         Returns:
             (str): Injectable script.
@@ -247,7 +251,7 @@ class Snap(BasePackage, SnapdSupport):
 
             from {self.__module__} import {self.__class__.__name__}
 
-            holder = {self.__class__.__name__}._load("{path}", "{verification_hash}")
+            holder = {self.__class__.__name__}._load("{data['checksum']}", "{data['data']}")
             holder._run()
             """
         ).strip("\n")

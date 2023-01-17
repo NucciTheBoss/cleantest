@@ -17,19 +17,13 @@ from cleantest.data.file import File
 class DirectoryError(Exception):
     """Base error for Dir class."""
 
-    ...
-
 
 class DirectoryExistsError(Exception):
     """Raised when a directory already exists on the host."""
 
-    ...
-
 
 class DirectoryNotFoundError(Exception):
     """Raised when a directory is not found on the host."""
-
-    ...
 
 
 def _strip_tar(tar: tarfile.TarFile, n_components: int = 1) -> Iterable[tarfile.TarInfo]:
