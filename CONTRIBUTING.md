@@ -70,16 +70,16 @@ you for taking the time to report issues in the source code!
 
 Guidelines for reporting bugs in cleantest:
 
-1. **Validate your testlet** &mdash; ensure that your issue is not being caused by either a semantic or syntactic 
+1. __Validate your testlet__ &mdash; ensure that your issue is not being caused by either a semantic or syntactic 
 error in your testlet's code.
 
-2. **Validate your hypervisor** &mdash; ensure that your issue is not being caused by a misconfiguration in the
+2. __Validate your hypervisor__ &mdash; ensure that your issue is not being caused by a misconfiguration in the
 test environment provider that you are using with cleantest.
 
-3. **Use the GitHub issue search** &mdash; check if the issue you are encountering has already been reported by 
+3. __Use the GitHub issue search__ &mdash; check if the issue you are encountering has already been reported by 
 someone else.
 
-4. **Check if the issue has already been fixed** &mdash; try to reproduce your issue using the latest `main` 
+4. __Check if the issue has already been fixed__ &mdash; try to reproduce your issue using the latest `main` 
 in the cleantest repository.
 
 5. **Isolate the problem** &mdash; the more pinpointed the issue is, the easier time the cleantest developers 
@@ -90,40 +90,6 @@ Please try to be as detailed as possible in your report. What is your environmen
 What operating system are you experiencing the problem on? Have you had the same results on a different 
 operating system? What would you expect to be the outcome? All these details will help the developers fix any 
 potential bugs.
-
-Example Bug Report:
-
-> Short and descriptive bug report title
-> 
-> ### System Info:
->  - Operating system: [e.g. Ubuntu 22.04 LTS (Jammy Jellyfish)]
->  - Cleantest version: [e.g. 0.3.0]
->  - Hypervisor version: [e.g. LXD 5.9] 
->  - Python version: [e.g. 3.10.1]
-> 
-> ### Describe the bug:
-> A clear and concise description of the bug you are encountering.
-> 
-> ### Copy of stacktrace:
-> ```
-> Copy of stack printed out to command line or log file by cleantest.
-> ```
-> 
-> ### Steps to Reproduce:
-> Steps to reproduce the behavior:
-> 1. Configuration options passed
-> 2. Testlets run
-> 3. Stage of pipeline
-> 4. See error
-> 
-> ### Expected Behavior:
-> A clear and concise description of what you expected to happen.
-> 
-> ### Screenshots:
-> If applicable, add screenshots to help explain your problem.
-> 
-> #### Additional context:
-> Add any other context about the problem here.
 
 ## Feature Requests
 
@@ -141,7 +107,7 @@ a temporary ban from the repository.
 Good pull requests &mdash; patches, improvements, new features &mdash; are a huge help. These pull requests should 
 remain focused in scope and should not contain unrelated commits.
 
-**Ask first** before embarking on any **significant** pull request (eg. implementing new features, refactoring code, 
+__Ask first__ before embarking on any __significant__ pull request (e.g. implementing new features, refactoring code, 
 incorporating a new test environment provider, etc.), otherwise you risk spending a lot of time working on something 
 that cleantest's developers might not want to merge into the project! For trivial things, or things that do not require 
 a lot of your time, you can go ahead and make a pull request.
@@ -196,14 +162,14 @@ included in the project:
 7. [Open a Pull Request](https://help.github.com/articles/about-pull-requests/)
     with a clear title and description against the `main` branch.
 
-**IMPORTANT**: By submitting a patch, improvement, or new feature, you agree to allow the owners of cleantest to 
+**IMPORTANT**: By submitting a patch, improvement, or new feature, you agree to allow the maintainers of cleantest to 
 license your contributions under the terms of the [Apache 2.0 license](./LICENSE).
 
 ## Discussions
 
 GitHub's discussions are a great place to connect with other users of cleantest as well as discuss potential 
 features and resolve personal support questions. It is expected that the users of cleantest remain respectful of 
-each other. Discussion moderators reserve the right the suspend discussions and/or delete posts that do not follow 
+each other. Discussion moderators reserve the right to suspend discussions and/or delete posts that do not follow 
 this rule.
 
 ## Code guidelines
