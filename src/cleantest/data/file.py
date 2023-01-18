@@ -74,13 +74,13 @@ class File(Injectable):
         if self.src.is_dir():
             raise FileError(f"{self.src} is a directory. Use Dir class instead.")
 
-        old_dir = os.getcwd()
+        _ = os.getcwd()
         os.chdir(os.sep.join(str(self.src).split(os.sep)[:-1]))
-        archive_path = pathlib.Path(tempfile.gettempdir()).joinpath(self.src.name)
-        with tarfile.open(archive_path, "w:gz") as tar:
-            tar.add(self.src.name)
-        os.chdir(old_dir)
-        self._data = archive_path.read_bytes()
+        with tempfile.NamedTemporaryFile() as fin:
+            with tarfile.open(fin.name, "w:gz") as tar:
+                tar.add(self.src.name)
+            self._data = pathlib.Path(fin.name).read_bytes()
+        os.chdir(_)
 
     def _injectable(self, data: Dict[str, str], **kwargs) -> str:
         """Generate injectable script that will be run inside the test environment.

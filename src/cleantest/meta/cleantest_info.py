@@ -34,11 +34,11 @@ class CleantestInfo:
         """
         _ = os.getcwd()
         os.chdir(pkg_resources.get_distribution("cleantest").location)
-        with pathlib.Path(tempfile.NamedTemporaryFile().name) as fout:
-            with tarfile.open(fout, "w:gz") as tar:
+        with tempfile.NamedTemporaryFile() as fin:
+            with tarfile.open(fin.name, "w:gz") as tar:
                 tar.add("cleantest")
             os.chdir(_)
-            return {"cleantest": fout.read_bytes()}
+            return {"cleantest": pathlib.Path(fin.name).read_bytes()}
 
     @property
     def _dependencies(self) -> Iterable[Tuple[str, bytes]]:
@@ -68,14 +68,14 @@ class CleantestInfo:
             (Dict[str, bytes]): Name and base64 encoded source code of dependency.
         """
         os.chdir(dependency.location)
-        with pathlib.Path(tempfile.NamedTemporaryFile().name) as fout:
-            with tarfile.open(fout, "w:gz") as tar, pathlib.Path(
+        with tempfile.NamedTemporaryFile() as fin:
+            with tarfile.open(fin.name, "w:gz") as tar, pathlib.Path(
                 f"{dependency.key.replace('-', '_')}-{dependency.version}.dist-info"
-            ).joinpath("RECORD").open(mode="rt") as fin:
-                for row in csv.reader(fin):
+            ).joinpath("RECORD").open(mode="rt") as dist_info_fin:
+                for row in csv.reader(dist_info_fin):
                     tar.add(row[0])
 
-            return {dependency.key: fout.read_bytes()}
+            return {dependency.key: pathlib.Path(fin.name).read_bytes()}
 
     def _injectable(self, checksum: str, data: str) -> str:
         """Generate injectable script to install packages inside the test instance.
