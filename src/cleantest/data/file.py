@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
+# Copyright 2023 Jason C. Nucciarone
 # See LICENSE file for licensing details.
 
 """Abstractions for uploading and downloading files from test environments."""
@@ -10,6 +10,7 @@ import tarfile
 import tempfile
 import textwrap
 from io import BytesIO
+from typing import Dict
 
 from cleantest.meta import Injectable
 
@@ -17,13 +18,9 @@ from cleantest.meta import Injectable
 class FileError(Exception):
     """Base error for File class."""
 
-    ...
-
 
 class InjectableModeError(Exception):
-    """Raised when an invalid injection mode has been passed to __injectable__()."""
-
-    ...
+    """Raised when an invalid injection mode has been passed to `_injectable`."""
 
 
 class File(Injectable):
@@ -77,23 +74,23 @@ class File(Injectable):
         if self.src.is_dir():
             raise FileError(f"{self.src} is a directory. Use Dir class instead.")
 
-        old_dir = os.getcwd()
+        _ = os.getcwd()
         os.chdir(os.sep.join(str(self.src).split(os.sep)[:-1]))
-        archive_path = pathlib.Path(tempfile.gettempdir()).joinpath(self.src.name)
-        with tarfile.open(archive_path, "w:gz") as tar:
-            tar.add(self.src.name)
-        os.chdir(old_dir)
-        self._data = archive_path.read_bytes()
+        with tempfile.NamedTemporaryFile() as fin:
+            with tarfile.open(fin.name, "w:gz") as tar:
+                tar.add(self.src.name)
+            self._data = pathlib.Path(fin.name).read_bytes()
+        os.chdir(_)
 
-    def __injectable__(self, path: str, verification_hash: str, mode: str) -> str:
+    def _injectable(self, data: Dict[str, str], **kwargs) -> str:
         """Generate injectable script that will be run inside the test environment.
 
         Args:
-            path (str): Path to pickled object inside the test environment.
-            verification_hash (str): Hash to verify authenticity of pickled object.
-            mode (str):
-                "upload" - Uploading artifact into test environment.
-                "download" - Downloading artifact from the test environment.
+            data (Dict[str, str]): Data that needs to be in injectable script.
+                - checksum (str): SHA224 checksum to verify authenticity of object.
+                - data (str): Base64 encoded object to inject.
+            **kwargs:
+                mode (str): "push" or "pull" object to/from test environment instance.
 
         Raises:
             InjectableModeError: Raised if invalid mode has been passed.
@@ -101,18 +98,21 @@ class File(Injectable):
         Returns:
             (str): Injectable script.
         """
-        if mode == "upload":
+        _ = kwargs.get("mode", None)
+        if _ not in {"push", "pull"}:
+            InjectableModeError(f"Invalid mode: {_}. Please set mode to either 'push' or 'pull'.")
+        elif _ == "push":
             return textwrap.dedent(
                 f"""
                 #!/usr/bin/env python3
                 
                 from {self.__module__} import {self.__class__.__name__}
                 
-                holder = {self.__class__.__name__}._load("{path}", "{verification_hash}")
-                holder.dump()
+                _ = {self.__class__.__name__}._load("{data['checksum']}", "{data['data']}")
+                _.dump()
                 """
             ).strip("\n")
-        elif mode == "download":
+        else:
             return textwrap.dedent(
                 f"""
                 #!/usr/bin/env python3
@@ -121,12 +121,8 @@ class File(Injectable):
                 
                 from {self.__module__} import {self.__class__.__name__}
                 
-                holder = {self.__class__.__name__}._load("{path}", "{verification_hash}")
-                holder.load()
-                print(json.dumps(holder._dump()._asdict()), file=sys.stdout)
+                _ = {self.__class__.__name__}._load("{data['checksum']}", "{data['data']}")
+                _.load()
+                print(json.dumps(_._dump()), file=sys.stdout)
                 """
             ).strip("\n")
-        else:
-            InjectableModeError(
-                f"Invalid mode: {mode}. Please set mode to either 'upload' or 'download'."
-            )

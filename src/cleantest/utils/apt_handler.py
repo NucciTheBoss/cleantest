@@ -6,12 +6,14 @@
 
 # Note: Support for third-party repositories is not implemented yet.
 
+import os
 import pathlib
 import re
 import subprocess
 from shutil import which
-from typing import Any, Iterable, List, Optional, Union
+from typing import Iterable, List, Optional, Union
 
+from cleantest.meta import Result
 from cleantest.meta.utils import detect_os_variant
 
 
@@ -36,22 +38,33 @@ def _is_apt_available() -> None:
 
 def _apt(
     command: str, packages: Union[str, List[str]], optargs: Optional[List[str]] = None
-) -> Union[subprocess.CompletedProcess[Any], subprocess.CompletedProcess[str]]:
+) -> Result:
     """Wrap package management commands from Debian/Ubuntu commands.
 
     Args:
         command (str): Command to execute.
         packages (Union[str, List[str]]): Names of packages to operate on.
         optargs (Optional[List[str]]): Optional arguments to pass to apt.
+
+    Raises:
+        AptHandlerError: Raised if executed command fails.
+
+    Returns:
+        (Result): Captured exit code, stdout, and stderr.
     """
     packages = [packages] if type(packages) == str else packages
     optargs = optargs if optargs is not None else []
     _cmd = ["apt", "-y", *optargs, command, *packages]
     try:
-        res = subprocess.run(
-            _cmd, env={"DEBIAN_FRONTEND": "noninteractive"}, capture_output=True, text=True
+        process = subprocess.run(
+            _cmd,
+            env={"DEBIAN_FRONTEND": "noninteractive", "PATH": os.getenv("PATH")},
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
         )
-        return res
+        return Result(process.returncode, process.stdout, process.stderr)
+
     except subprocess.CalledProcessError:
         raise AptHandlerError(
             f"Could not perform command {_cmd} on the following packages: {', '.join(packages)}"

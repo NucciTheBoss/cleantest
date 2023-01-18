@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
+# Copyright 2023 Jason C. Nucciarone
 # See LICENSE file for licensing details.
 
 """Abstractions for uploading and downloading directories from test environments."""
@@ -17,19 +17,13 @@ from cleantest.data.file import File
 class DirectoryError(Exception):
     """Base error for Dir class."""
 
-    ...
-
 
 class DirectoryExistsError(Exception):
     """Raised when a directory already exists on the host."""
 
-    ...
-
 
 class DirectoryNotFoundError(Exception):
     """Raised when a directory is not found on the host."""
-
-    ...
 
 
 def _strip_tar(tar: tarfile.TarFile, n_components: int = 1) -> Iterable[tarfile.TarInfo]:
@@ -93,10 +87,10 @@ class Dir(File):
         if self.src.is_file():
             raise NotADirectoryError(f"{self.src} is a file. Use File class instead.")
 
-        old_dir = os.getcwd()
+        _ = os.getcwd()
         os.chdir(os.sep.join(str(self.src).split(os.sep)[:-1]))
-        archive_path = pathlib.Path(tempfile.gettempdir()).joinpath(self.src.name)
-        with tarfile.open(archive_path, "w:gz") as tar:
-            tar.add(self.src.name)
-        os.chdir(old_dir)
-        self._data = archive_path.read_bytes()
+        with tempfile.NamedTemporaryFile() as fin:
+            with tarfile.open(fin.name, "w:gz") as tar:
+                tar.add(self.src.name)
+            self._data = pathlib.Path(fin.name).read_bytes()
+        os.chdir(_)

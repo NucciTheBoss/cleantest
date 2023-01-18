@@ -31,7 +31,7 @@ The [Discussions](#discussions) page is a better place to get help for personal 
 * Please **do not** derail or troll issues. Keep the discussion on track and have respect for the other 
 users/contributors of cleantest.
 
-* Please **do not** post comments consisting soley of "+1", ":thumbsup:", or something similar. 
+* Please **do not** post comments consisting solely of "+1", ":thumbsup:", or something similar. 
 Use [GitHub's "reactions" feature](https://blog.github.com/2016-03-10-add-reactions-to-pull-requests-issues-and-comments/) 
 instead.
   * The maintainers of cleantest reserve the right to delete comments that violate this rule.

@@ -8,9 +8,9 @@ import pathlib
 import subprocess
 import textwrap
 from shutil import which
-from typing import List, Union
+from typing import Dict, List, Union
 
-from cleantest.meta import BasePackage, BasePackageError, InjectableData
+from cleantest.meta import BasePackage, BasePackageError
 from cleantest.meta.utils import detect_os_variant
 from cleantest.utils import apt
 
@@ -145,14 +145,17 @@ class Pip(BasePackage):
                         )
                     )
 
-    def _dump(self) -> InjectableData:
-        """Dump Pip package handler object.
+    def _dump(self) -> Dict[str, str]:
+        """Prepare Pip object for injection.
 
         Raises:
             FileNotFoundError: Raised if a requirements or constraints file is not found.
 
         Returns:
-            (InjectableData): Path to dumped object and verification hash.
+            (Dict[str, str]):
+                checksum (str): Checksum to verify authenticity of serialized Pip object.
+                data (str): Base64 encoded string containing serialized Pip object.
+                injectable (str): Injectable to run inside remote environment.
         """
         if self.requirements is not None:
             for requirement in self.requirements:
@@ -170,12 +173,13 @@ class Pip(BasePackage):
 
         return super()._dump()
 
-    def __injectable__(self, path: str, verification_hash: str) -> str:
+    def _injectable(self, data: Dict[str, str], **kwargs) -> str:
         """Generate injectable script that will be used to install packages with pip.
 
         Args:
-            path (str): Path to pickled object inside the test environment.
-            verification_hash: Hash to verify authenticity of pickled object.
+            data (Dict[str, str]): Data that needs to be in injectable script.
+                - checksum (str): SHA224 checksum to verify authenticity of Pip object.
+                - data (str): Base64 encoded Pip object to inject.
 
         Returns:
             (str): Injectable script.
@@ -186,7 +190,7 @@ class Pip(BasePackage):
 
             from {self.__module__} import {self.__class__.__name__}
 
-            holder = {self.__class__.__name__}._load("{path}", "{verification_hash}")
+            holder = {self.__class__.__name__}._load("{data['checksum']}", "{data['data']}")
             holder._run()
             """
         ).strip("\n")
