@@ -1,0 +1,70 @@
+# Copyright 2023 Jason C. Nucciarone
+# See LICENSE file for licensing details.
+
+name: Bug Report
+description: File a bug report for cleantest
+title: "[Bug]: "
+labels: ["Type: Bug", "Type: Triage"]
+assignees:
+  - NucciTheBoss
+body:
+  - type: markdown
+    attributes:
+      value: >
+        Thank you for taking the time to fill out this bug report against cleantest!
+        Please be sure to fill out the following sections.
+  - type: textarea
+    id: description-of-bug
+    attributes:
+      label: Describe the bug you encountered using cleantest
+      description: Also, please describe what you expected to happen.
+      placeholder: Tell me what you see!
+    validations:
+      required: true
+  - type: textarea
+    id: system-info
+    attributes:
+      label: System Info
+      description: |
+        examples:
+          - __operating system__: Ubuntu 22.04 LTS
+          - __cleantest version__: 0.3.0
+          - __test environment provider__: LXD 5.9
+          - __Python version__: 3.10.6
+      value: |
+          - operating system:
+          - cleantest version:
+          - test environment provider:
+          - Python version:
+      render: markdown
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Please provide the steps to reproduce the error.
+      placeholder: |
+        1. With this test environment provider...
+        2. With this testlet...
+        3. Run...
+        4. See error...
+  - type: textarea
+    id: additional-information
+    attributes:
+      label: Any additional information that you would like to share with me?
+      description: |
+        Links? References? Anything that will give me more context about the bug you are encountering!
+
+        Tip: You can attach images or log files by clicking this area to highlight it and then dragging files in.
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Code of Conduct
+      description: >
+        By filing this bug report, you agree to follow cleantest's 
+        [Code of Conduct](../../CODE_OF_CONDUCT.md) when interacting
+        with the project maintainers.
+      options:
+        - label: I agree to follow cleantest's Code of Conduct
+          required: true
