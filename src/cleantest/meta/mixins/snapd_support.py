@@ -4,7 +4,6 @@
 
 """Common operations needed by classes to support snapd and snap."""
 
-import subprocess
 from shutil import which
 
 from cleantest.meta.utils import detect_os_variant

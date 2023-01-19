@@ -228,7 +228,7 @@ class LXDHandler(BaseHandler):
             dump_data["injectable"],
         )
         result = json.loads(instance.execute(["python3", "/root/post/data/load"]).stdout)
-        with tempfile.NamedTemporaryFile() as fout:
+        with tempfile.NamedTemporaryFile():
             holder = artifact.__class__._load(result["checksum"], result["data"])
             holder.dump()
 

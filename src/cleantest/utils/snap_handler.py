@@ -850,7 +850,7 @@ def _wrap_snap_operations(
 
     if len(snaps["failed"]):
         raise SnapHandlerError(
-            f"Failed to install or refresh snap(s): {', '.join([s for s in snaps['failed']])}"
+            f"Failed to install or refresh snap(s): {', '.join(list(snaps['failed']))}"
         )
 
     return snaps["success"] if len(snaps["success"]) > 1 else snaps["success"][0]

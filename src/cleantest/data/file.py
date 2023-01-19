@@ -53,7 +53,7 @@ class File(Injectable):
             )
 
         if self._data is None:
-            raise FileError(f"Nothing to write.")
+            raise FileError("Nothing to write.")
 
         with tarfile.open(
             fileobj=BytesIO(self._data), mode="r:gz"

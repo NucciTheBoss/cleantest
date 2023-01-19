@@ -4,7 +4,6 @@
 
 """Information needed by LXD test environment provider."""
 
-from typing import Dict
 
 from .._sources import LXDDefaultSources
 from ..lxd.lxd_config import InstanceConfig
