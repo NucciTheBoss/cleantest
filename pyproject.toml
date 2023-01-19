@@ -33,9 +33,10 @@ extend-ignore = [
     "D408",
     "D409",
     "D413",
+    "N802",
 ]
 ignore = ["E501", "D107"]
-extend-exclude = ["__pycache__", "*.egg_info"]
+extend-exclude = ["__pycache__", "*.egg_info", "__init__.py", "tests/*"]
 per-file-ignores = {"tests/*" = ["D100","D101","D102","D103","D104"]}
 
 [tool.ruff.mccabe]
