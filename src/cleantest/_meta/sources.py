@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2023 Jason C. Nucciarone, Canonical Ltd.
+# Copyright 2023 Jason C. Nucciarone
 # See LICENSE file for licensing details.
 
 """Default sources for test environment providers."""
@@ -7,7 +7,7 @@
 from enum import Enum
 from typing import Any, List, Tuple
 
-from .lxd.lxd_config import InstanceSource
+from cleantest.control.lxd import InstanceSource
 
 
 class EnhancedEnum(Enum):
@@ -23,7 +23,7 @@ class LXDDefaultSources(EnhancedEnum):
     """Default sources for LXD test environment provider."""
 
     ALMALINUX_8_AMD64 = InstanceSource(
-        alias="almalinux/8",
+        alias="almalinux/8/amd64",
         mode="pull",
         protocol="simplestreams",
         server="https://images.linuxcontainers.org",
@@ -39,7 +39,7 @@ class LXDDefaultSources(EnhancedEnum):
     )
 
     ALMALINUX_9_AMD64 = InstanceSource(
-        alias="almalinux/9",
+        alias="almalinux/9/amd64",
         mode="pull",
         protocol="simplestreams",
         server="https://images.linuxcontainers.org",
@@ -55,7 +55,7 @@ class LXDDefaultSources(EnhancedEnum):
     )
 
     ARCHLINUX_AMD64 = InstanceSource(
-        alias="archlinux",
+        alias="archlinux/amd64",
         mode="pull",
         protocol="simplestreams",
         server="https://images.linuxcontainers.org",
@@ -71,7 +71,7 @@ class LXDDefaultSources(EnhancedEnum):
     )
 
     CENTOS_8_STREAM_AMD64 = InstanceSource(
-        alias="centos/8-Stream",
+        alias="centos/8-Stream/amd64",
         mode="pull",
         protocol="simplestreams",
         server="https://images.linuxcontainers.org",
@@ -87,7 +87,7 @@ class LXDDefaultSources(EnhancedEnum):
     )
 
     CENTOS_9_STREAM_AMD64 = InstanceSource(
-        alias="centos/9-Stream",
+        alias="centos/9-Stream/amd64",
         mode="pull",
         protocol="simplestreams",
         server="https://images.linuxcontainers.org",
@@ -103,7 +103,7 @@ class LXDDefaultSources(EnhancedEnum):
     )
 
     DEBIAN_10_AMD64 = InstanceSource(
-        alias="debian/10",
+        alias="debian/10/amd64",
         mode="pull",
         protocol="simplestreams",
         server="https://images.linuxcontainers.org",
@@ -119,7 +119,7 @@ class LXDDefaultSources(EnhancedEnum):
     )
 
     DEBIAN_11_AMD64 = InstanceSource(
-        alias="debian/11",
+        alias="debian/11/amd64",
         mode="pull",
         protocol="simplestreams",
         server="https://images.linuxcontainers.org",
@@ -135,7 +135,7 @@ class LXDDefaultSources(EnhancedEnum):
     )
 
     DEBIAN_12_AMD64 = InstanceSource(
-        alias="debian/12",
+        alias="debian/12/amd64",
         mode="pull",
         protocol="simplestreams",
         server="https://images.linuxcontainers.org",
@@ -151,7 +151,7 @@ class LXDDefaultSources(EnhancedEnum):
     )
 
     FEDORA_35_AMD64 = InstanceSource(
-        alias="fedora/35",
+        alias="fedora/35/amd64",
         mode="pull",
         protocol="simplestreams",
         server="https://images.linuxcontainers.org",
@@ -167,7 +167,7 @@ class LXDDefaultSources(EnhancedEnum):
     )
 
     FEDORA_36_AMD64 = InstanceSource(
-        alias="fedora/36",
+        alias="fedora/36/amd64",
         mode="pull",
         protocol="simplestreams",
         server="https://images.linuxcontainers.org",
@@ -183,7 +183,7 @@ class LXDDefaultSources(EnhancedEnum):
     )
 
     FEDORA_37_AMD64 = InstanceSource(
-        alias="fedora/37",
+        alias="fedora/37/amd64",
         mode="pull",
         protocol="simplestreams",
         server="https://images.linuxcontainers.org",
@@ -199,7 +199,7 @@ class LXDDefaultSources(EnhancedEnum):
     )
 
     ROCKYLINUX_8_AMD64 = InstanceSource(
-        alias="rockylinux/8",
+        alias="rockylinux/8/amd64",
         mode="pull",
         protocol="simplestreams",
         server="https://images.linuxcontainers.org",
@@ -215,7 +215,7 @@ class LXDDefaultSources(EnhancedEnum):
     )
 
     ROCKYLINUX_9_AMD64 = InstanceSource(
-        alias="rockylinux/9",
+        alias="rockylinux/9/amd64",
         mode="pull",
         protocol="simplestreams",
         server="https://images.linuxcontainers.org",
@@ -231,7 +231,7 @@ class LXDDefaultSources(EnhancedEnum):
     )
 
     UBUNTU_JAMMY_AMD64 = InstanceSource(
-        alias="ubuntu/jammy",
+        alias="ubuntu/jammy/amd64",
         mode="pull",
         protocol="simplestreams",
         server="https://images.linuxcontainers.org",
@@ -247,7 +247,7 @@ class LXDDefaultSources(EnhancedEnum):
     )
 
     UBUNTU_FOCAL_AMD64 = InstanceSource(
-        alias="ubuntu/focal",
+        alias="ubuntu/focal/amd64",
         mode="pull",
         protocol="simplestreams",
         server="https://images.linuxcontainers.org",
@@ -263,7 +263,7 @@ class LXDDefaultSources(EnhancedEnum):
     )
 
     UBUNTU_BIONIC_AMD64 = InstanceSource(
-        alias="ubuntu/18.04",
+        alias="ubuntu/18.04/amd64",
         mode="pull",
         protocol="simplestreams",
         server="https://images.linuxcontainers.org",

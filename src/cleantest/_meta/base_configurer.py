@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2023 Jason C. Nucciarone, Canonical Ltd.
+# Copyright 2023 Jason C. Nucciarone
 # See LICENSE file for licensing details.
 
 """Base tooling needed by configurer classes."""
@@ -13,8 +13,6 @@ from cleantest.control.hooks import StartEnvHook, StopEnvHook
 
 class DuplicateHookNameError(Exception):
     """Raised when more than one hook of the same type have the same name."""
-
-    ...
 
 
 class HookRegistry:
