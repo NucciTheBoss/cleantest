@@ -25,7 +25,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Install dependencies
-        run: python3 -m pip install tox==3.27.1
+        run: python3 -m pip install tox==4.3.5
       - name: Run linters
         run: tox -e lint
 
@@ -37,8 +37,9 @@ jobs:
         uses: actions/checkout@v3
       - name: Install dependencies
         run: |
-          python3 -m pip install tox==3.27.1
-          echo "$CHARMCRAFT_AUTH_TOKEN" > tests/functional/lxd/local/charmhub.secret
+          python3 -m pip install tox==4.3.5
+          python3 -m pip install .
+          echo "$CHARMCRAFT_AUTH_TOKEN" >> tests/functional/lxd/local/charmhub.secret
           snap download marktext --stable; bash -c "mv marktext_*.snap tests/functional/packages/snap/marktext.snap"
         env:
           CHARMCRAFT_AUTH_TOKEN: ${{ secrets.CHARMCRAFT_AUTH_TOKEN }}
