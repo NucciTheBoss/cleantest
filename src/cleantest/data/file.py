@@ -59,7 +59,9 @@ class File(Injectable):
             fileobj=BytesIO(self._data), mode="r:gz"
         ) as tar, tempfile.TemporaryDirectory() as tmp_dir:
             tar.extractall(tmp_dir)
-            self.dest.write_bytes(pathlib.Path(tmp_dir).joinpath(self.src.name).read_bytes())
+            self.dest.write_bytes(
+                pathlib.Path(tmp_dir).joinpath(self.src.name).read_bytes()
+            )
 
     def load(self) -> None:
         """Load file from specified source.
@@ -100,7 +102,9 @@ class File(Injectable):
         """
         _ = kwargs.get("mode", None)
         if _ not in {"push", "pull"}:
-            InjectableModeError(f"Invalid mode: {_}. Please set mode to either 'push' or 'pull'.")
+            InjectableModeError(
+                f"Invalid mode: {_}. Please set mode to either 'push' or 'pull'."
+            )
         elif _ == "push":
             return textwrap.dedent(
                 f"""

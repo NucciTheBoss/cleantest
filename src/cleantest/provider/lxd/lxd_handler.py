@@ -69,7 +69,9 @@ class LXDHandler(BaseHandler):
         Returns:
             (List[InstanceMetadata]): List of metaclasses.
         """
-        return [InstanceMetadata(name=f"{self._name}-{i}", image=i) for i in self._image]
+        return [
+            InstanceMetadata(name=f"{self._name}-{i}", image=i) for i in self._image
+        ]
 
     def _build(self, instance: InstanceMetadata) -> None:
         """Build LXD test environment instance.
@@ -137,7 +139,9 @@ class LXDHandler(BaseHandler):
         Returns:
             (Result): Processed result.
         """
-        return Result(exit_code=result.exit_code, stdout=result.stdout, stderr=result.stderr)
+        return Result(
+            exit_code=result.exit_code, stdout=result.stdout, stderr=result.stderr
+        )
 
     def _exists(self, instance: InstanceMetadata) -> InstanceMetadata:
         """Check whether an instance exists.
@@ -227,7 +231,9 @@ class LXDHandler(BaseHandler):
             "/root/post/data/load",
             dump_data["injectable"],
         )
-        result = json.loads(instance.execute(["python3", "/root/post/data/load"]).stdout)
+        result = json.loads(
+            instance.execute(["python3", "/root/post/data/load"]).stdout
+        )
         with tempfile.NamedTemporaryFile():
             holder = artifact.__class__._load(result["checksum"], result["data"])
             holder.dump()
@@ -257,7 +263,9 @@ class Serial(BaseEntrypoint, LXDHandler):
             self._build(self._exists(i))
             self._handle_start_env_hooks(i)
             result = self._execute(
-                self._make_testlet(self._func, self._func_name, [re.compile(r"^@lxd\(([^)]+)\)")]),
+                self._make_testlet(
+                    self._func, self._func_name, [re.compile(r"^@lxd\(([^)]+)\)")]
+                ),
                 i,
             )
             self._handle_stop_env_hooks(i)
@@ -309,7 +317,9 @@ class Parallel(BaseEntrypoint, LXDHandler):
         self._build(self._exists(i))
         self._handle_start_env_hooks(i)
         result = self._execute(
-            self._make_testlet(self._func, self._func_name, [re.compile(r"^@lxd\(([^)]+)\)")]),
+            self._make_testlet(
+                self._func, self._func_name, [re.compile(r"^@lxd\(([^)]+)\)")]
+            ),
             i,
         )
         self._handle_stop_env_hooks(i)

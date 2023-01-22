@@ -44,6 +44,8 @@ def run(
                 check=True,
             )
         except subprocess.CalledProcessError as e:
-            raise CommandExecutionError(f"Failed to execute command {command}. Reason: {e}.")
+            raise CommandExecutionError(
+                f"Failed to execute command {command}. Reason: {e}."
+            )
 
         yield Result(res.returncode, res.stdout, res.stderr)

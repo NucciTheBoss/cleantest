@@ -49,7 +49,9 @@ class lxd:
         if (type(num_threads) != int or num_threads < 1) and self._parallel is True:
             env_var = os.getenv("CLEANTEST_NUM_THREADS")
             self._num_threads = (
-                env_var if env_var is not None and type(env_var) == int else os.cpu_count()
+                env_var
+                if env_var is not None and type(env_var) == int
+                else os.cpu_count()
             )
         elif type(num_threads) == int and self._parallel is True:
             self._num_threads = num_threads

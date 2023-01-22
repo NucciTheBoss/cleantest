@@ -37,8 +37,12 @@ class Injectable(ABC):
             raise InjectionError("Hashes do not match. Will not load untrusted object.")
 
         _ = pickle.loads(_)
-        posargs = [value for key, value in _.__dict__.items() if not key.startswith("_")]
-        hiddenargs = {key: value for key, value in _.__dict__.items() if key.startswith("_")}
+        posargs = [
+            value for key, value in _.__dict__.items() if not key.startswith("_")
+        ]
+        hiddenargs = {
+            key: value for key, value in _.__dict__.items() if key.startswith("_")
+        }
         new_cls = cls(*posargs)
         [setattr(new_cls, key, value) for key, value in hiddenargs.items()]
         return new_cls
@@ -58,7 +62,9 @@ class Injectable(ABC):
         return {
             "checksum": checksum,
             "data": data,
-            "injectable": self._injectable({"checksum": checksum, "data": data}, **kwargs),
+            "injectable": self._injectable(
+                {"checksum": checksum, "data": data}, **kwargs
+            ),
         }
 
     @abstractmethod

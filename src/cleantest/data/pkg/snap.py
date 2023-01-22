@@ -77,7 +77,11 @@ class Connection:
                 f"Invalid plug: {self._plug.__dict__}. "
                 "Plug must have an associated snap and name."
             )
-        if self._slot is not None and self._slot.snap is None and self._slot.name is None:
+        if (
+            self._slot is not None
+            and self._slot.snap is None
+            and self._slot.name is None
+        ):
             raise SnapPackageError(
                 f"Invalid slot: {self._slot.__dict__}. "
                 "Slot must at least have an associated snap or name."
@@ -107,7 +111,9 @@ class Alias:
         SnapPackageError: Raised if lint rule fails.
     """
 
-    def __init__(self, snap_name: str, app_name: str, alias_name: str, wait: bool = True) -> None:
+    def __init__(
+        self, snap_name: str, app_name: str, alias_name: str, wait: bool = True
+    ) -> None:
         self._snap_name = snap_name
         self._app_name = app_name
         self._alias_name = alias_name
@@ -116,9 +122,17 @@ class Alias:
 
     def _lint(self) -> None:
         """Lint inputs passed to class constructor."""
-        if self._snap_name is None or self._app_name is None or self._alias_name is None:
+        if (
+            self._snap_name is None
+            or self._app_name is None
+            or self._alias_name is None
+        ):
             holder = ", ".join(
-                [f"{key} = {value}" for key, value in self.__dict__.items() if value is None]
+                [
+                    f"{key} = {value}"
+                    for key, value in self.__dict__.items()
+                    if value is None
+                ]
             )
             raise SnapPackageError(f"Invalid alias: {holder} cannot be None.")
 
@@ -229,7 +243,9 @@ class Snap(BasePackage, SnapdSupport):
             for local_snap in self.local_snaps:
                 snap_path = pathlib.Path(local_snap)
                 if not snap_path.exists() or not snap_path.is_file():
-                    raise FileNotFoundError(f"Could not find local snap package {snap_path}")
+                    raise FileNotFoundError(
+                        f"Could not find local snap package {snap_path}"
+                    )
                 self._cached_local_snaps.add(snap_path.read_bytes())
 
         return super()._dump()
