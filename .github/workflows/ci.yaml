@@ -7,6 +7,17 @@ on:
   pull_request:
 
 jobs:
+  inclusive-naming:
+    name: Inclusive naming check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Run tests
+        uses: get-woke/woke-action@v0
+        with:
+          fail-on-error: true
+
   lint:
     name: Lint checks
     runs-on: ubuntu-latest
@@ -25,7 +36,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Install dependencies
-        run: python3 -m pip install tox
+        run: |
+          python3 -m pip install tox
+          echo "$CHARMCRAFT_AUTH_TOKEN" > tests/functional/lxd/local/charmhub.secret
+          snap download marktext --stable; bash -c "mv marktext_*.snap tests/functional/packages/snap/marktext.snap"
+        env:
+          CHARMCRAFT_AUTH_TOKEN: ${{ secrets.CHARMCRAFT_AUTH_TOKEN }}
       - name: Setup LXD test environment provider
         uses: canonical/setup-lxd@v0.1.0
         with:
