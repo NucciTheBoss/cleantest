@@ -9,10 +9,6 @@ from cleantest.control.hooks import StartEnvHook
 from cleantest.data.pkg import Pip
 from cleantest.provider import lxd
 
-cleantest_config = Configure()
-start_hook = StartEnvHook(name="pip_injection", packages=[Pip(packages="tabulate")])
-cleantest_config.register_hook(start_hook)
-
 
 @lxd(
     image=["ubuntu-jammy-amd64", "ubuntu-focal-amd64", "ubuntu-bionic-amd64"],
@@ -34,11 +30,13 @@ def install_tabulate():
     sys.exit(0)
 
 
-class TestParallelLXD:
-    def test_parallel_lxd(self) -> None:
-        results = install_tabulate()
-        for name, result in results.items():
-            try:
-                assert result.exit_code == 0
-            except AssertionError:
-                raise Exception(f"{name} failed. Result: {result}")
+def test_parallel_lxd(clean_slate) -> None:
+    config = Configure("lxd")
+    start_hook = StartEnvHook(name="pip_injection", packages=[Pip(packages="tabulate")])
+    config.register_hook(start_hook)
+    results = install_tabulate()
+    for name, result in results.items():
+        try:
+            assert result.exit_code == 0
+        except AssertionError:
+            raise Exception(f"{name} failed. Result: {result}")
