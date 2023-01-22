@@ -39,7 +39,9 @@ class Charmlib(BasePackage, SnapdSupport):
         self._auth_token = None
 
         if auth_token_path is None:
-            raise CharmlibPackageError("No authentication token for Charmhub specified.")
+            raise CharmlibPackageError(
+                "No authentication token for Charmhub specified."
+            )
 
         if charmlibs is None:
             raise CharmlibPackageError("No charm libraries specified.")
@@ -94,7 +96,9 @@ class Charmlib(BasePackage, SnapdSupport):
                 injectable (str): Injectable to run inside remote environment.
         """
         if not self.auth_token_path.exists() or not self.auth_token_path.is_file():
-            raise FileNotFoundError(f"Could not find authentication token {self.auth_token_path}")
+            raise FileNotFoundError(
+                f"Could not find authentication token {self.auth_token_path}"
+            )
 
         self._auth_token = self.auth_token_path.read_text()
 

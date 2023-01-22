@@ -26,7 +26,9 @@ class DirectoryNotFoundError(Exception):
     """Raised when a directory is not found on the host."""
 
 
-def _strip_tar(tar: tarfile.TarFile, n_components: int = 1) -> Iterable[tarfile.TarInfo]:
+def _strip_tar(
+    tar: tarfile.TarFile, n_components: int = 1
+) -> Iterable[tarfile.TarInfo]:
     """Strip components from a tarfile to a specified level.
 
     Args:

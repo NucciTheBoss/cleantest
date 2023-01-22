@@ -58,7 +58,9 @@ class CleantestInfo:
                 for k, v in res.items():
                     yield k, v
 
-    def _dependency_processor(self, dependency: pkg_resources.Distribution) -> Dict[str, bytes]:
+    def _dependency_processor(
+        self, dependency: pkg_resources.Distribution
+    ) -> Dict[str, bytes]:
         """Collect source code of cleantest dependency.
 
         Args:

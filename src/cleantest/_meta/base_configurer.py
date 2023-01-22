@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2023 Jason C. Nucciarone, Canonical Ltd.
+# Copyright 2023 Jason C. Nucciarone
 # See LICENSE file for licensing details.
 
 """Base tooling needed by configurer classes."""
@@ -8,16 +8,15 @@ import copy
 from collections import deque
 from typing import Deque, Union
 
+from cleantest._meta.mixins import Resettable
 from cleantest.control.hooks import StartEnvHook, StopEnvHook
 
 
 class DuplicateHookNameError(Exception):
     """Raised when more than one hook of the same type have the same name."""
 
-    ...
 
-
-class HookRegistry:
+class HookRegistry(Resettable):
     """Centrally store hooks for use by test environment providers."""
 
     metadata = set()
@@ -25,21 +24,37 @@ class HookRegistry:
     stopenv = deque()
 
     def __new__(cls) -> "HookRegistry":
-        if not hasattr(cls, "instance"):
+        if not hasattr(cls, "_instance"):
             cls._instance = super(HookRegistry, cls).__new__(cls)
         return cls._instance
 
+    @classmethod
+    def reset(cls) -> None:
+        """Reset metadata and hook queues."""
+        cls.metadata = set()
+        cls.startenv = deque()
+        cls.stopenv = deque()
+
     def lint(self, hook: Union[StartEnvHook, StopEnvHook]) -> None:
         """Lint hooks to ensure they compliant with set restrictions."""
-        lint = [h for h in self.metadata if hook.name == h[0] and hook.__class__.__name__ == h[1]]
+        lint = [
+            h
+            for h in self.metadata
+            if hook.name == h[0] and hook.__class__.__name__ == h[1]
+        ]
         if len(lint) > 0:
             raise DuplicateHookNameError(
                 f"Hook type {hook.__class__.__name__} with name {hook.name} already exists."
             )
 
 
-class BaseConfigurer:
+class BaseConfigurer(Resettable):
     """Base configure mixin for configurers."""
+
+    @classmethod
+    def reset(cls) -> None:
+        """Reset the hook registry."""
+        HookRegistry().reset()
 
     def register_hook(self, *hooks: Union[StartEnvHook, StopEnvHook]) -> None:
         """Register hooks in the hook registry.
@@ -69,7 +84,11 @@ class BaseConfigurer:
         for name in hook_names:
             for hook in HookRegistry().metadata:
                 if name == hook[0]:
-                    [dispatch[hook[1]].remove(i) for i in dispatch[hook[1]] if i.name == name]
+                    [
+                        dispatch[hook[1]].remove(i)
+                        for i in dispatch[hook[1]]
+                        if i.name == name
+                    ]
                     HookRegistry().metadata.remove(hook)
 
     @property

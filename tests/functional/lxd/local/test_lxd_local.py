@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2022 Canonical Ltd.
+# Copyright 2023 Jason C. Nucciarone
 # See LICENSE file for licensing details.
 
 """Test LXD environment capabilities using local LXD cluster."""
@@ -11,23 +11,7 @@ from cleantest.control.hooks import StartEnvHook
 from cleantest.data.pkg import Charmlib, Pip
 from cleantest.provider import lxd
 
-# Define the hooks and register them.
-root = os.path.dirname(os.path.realpath(__file__))
-lxd_provider_config = Configure("lxd")
-startenv_hook = StartEnvHook(
-    name="setup_deps",
-    packages=[
-        Charmlib(
-            auth_token_path=os.path.join(root, "charmhub.secret"),
-            charmlibs=["charms.operator_libs_linux.v0.apt"],
-        ),
-        Pip(requirements=os.path.join(root, "requirements.txt")),
-    ],
-)
-lxd_provider_config.register_hook(startenv_hook)
 
-
-# Define the testlets.
 @lxd(image="ubuntu-jammy-amd64", preserve=False)
 def install_snapd():
     import sys
@@ -63,9 +47,20 @@ def install_snapd():
     sys.exit(0)
 
 
-# Run the tests through pytest.
-class TestLocalLXD:
-    def test_local_lxd(self) -> None:
-        results = install_snapd()
-        for name, result in results.items():
-            assert result.exit_code == 0
+def test_local_lxd(clean_slate) -> None:
+    root = os.path.dirname(os.path.realpath(__file__))
+    config = Configure("lxd")
+    start_hook = StartEnvHook(
+        name="setup_deps",
+        packages=[
+            Charmlib(
+                auth_token_path=os.path.join(root, "charmhub.secret"),
+                charmlibs=["charms.operator_libs_linux.v0.apt"],
+            ),
+            Pip(requirements=os.path.join(root, "requirements.txt")),
+        ],
+    )
+    config.register_hook(start_hook)
+    results = install_snapd()
+    for name, result in results.items():
+        assert result.exit_code == 0

@@ -38,7 +38,9 @@ class Pip(BasePackage):
         constraints: Union[str, List[str]] = None,
     ) -> None:
         self.packages = [packages] if type(packages) == str else packages
-        self.requirements = [requirements] if type(requirements) == str else requirements
+        self.requirements = (
+            [requirements] if type(requirements) == str else requirements
+        )
         self._requirements_store = []
         self.constraints = [constraints] if type(constraints) == str else constraints
         self._constraints_store = []
@@ -92,7 +94,10 @@ class Pip(BasePackage):
             cmd = ["python3", "-m", "pip", "install", " ".join(self.packages)]
             try:
                 subprocess.run(
-                    cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True
+                    cmd,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                    check=True,
                 )
             except subprocess.CalledProcessError:
                 raise PipPackageError(
@@ -101,7 +106,9 @@ class Pip(BasePackage):
                 )
 
         if self._constraints_store:
-            for requirement, constraint in zip(self._requirements_store, self._constraints_store):
+            for requirement, constraint in zip(
+                self._requirements_store, self._constraints_store
+            ):
                 requirement_file = pathlib.Path.home().joinpath("requirements.txt")
                 requirement_file.write_text(requirement)
                 constraint_file = pathlib.Path.home().joinpath("constraints.txt")
@@ -118,7 +125,10 @@ class Pip(BasePackage):
                 ]
                 try:
                     subprocess.run(
-                        cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True
+                        cmd,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                        check=True,
                     )
                 except subprocess.CalledProcessError:
                     raise PipPackageError(
@@ -130,12 +140,17 @@ class Pip(BasePackage):
                     )
         else:
             for requirement in self._requirements_store:
-                requirement_file = pathlib.Path(pathlib.Path.home().joinpath("requirements.txt"))
+                requirement_file = pathlib.Path(
+                    pathlib.Path.home().joinpath("requirements.txt")
+                )
                 requirement_file.write_text(requirement)
                 cmd = ["python3", "-m", "pip", "install", "-r", str(requirement_file)]
                 try:
                     subprocess.run(
-                        cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=True
+                        cmd,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                        check=True,
                     )
                 except subprocess.CalledProcessError:
                     raise PipPackageError(
@@ -161,14 +176,18 @@ class Pip(BasePackage):
             for requirement in self.requirements:
                 fin = pathlib.Path(requirement)
                 if not fin.exists() or not fin.is_file():
-                    raise FileNotFoundError(f"Could not find requirements file {requirement}.")
+                    raise FileNotFoundError(
+                        f"Could not find requirements file {requirement}."
+                    )
                 self._requirements_store.append(fin.read_text())
 
         if self.constraints is not None:
             for constraint in self.constraints:
                 fin = pathlib.Path(constraint)
                 if not fin.exists() or not fin.is_file():
-                    raise FileNotFoundError(f"Could not find constraints file {constraint}.")
+                    raise FileNotFoundError(
+                        f"Could not find constraints file {constraint}."
+                    )
                 self._constraints_store.append(fin.read_text())
 
         return super()._dump()

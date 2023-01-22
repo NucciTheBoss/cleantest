@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
-# Copyright 2023 Jason C. Nucciarone, Canonical Ltd.
+# Copyright 2023 Jason C. Nucciarone
 # See LICENSE file for licensing details.
 
 """Information needed by LXD test environment provider."""
 
-from typing import Dict
+import copy
 
-from .._sources import LXDDefaultSources
-from ..lxd.lxd_config import InstanceConfig
-from ._base_configurer import BaseConfigurer
+from cleantest._meta import BaseConfigurer, LXDDefaultSources
+from cleantest.control.lxd import InstanceConfig
 
 
 class DuplicateLXDInstanceConfigError(Exception):
@@ -16,7 +15,7 @@ class DuplicateLXDInstanceConfigError(Exception):
 
 
 class LXDInstanceConfigNotFoundError(Exception):
-    """Raised when the configuration for an LXD instance is not found in the registry."""
+    """Raised when LXD instance configuration is not found in the registry."""
 
 
 class LXDConfigurer(BaseConfigurer):
@@ -25,15 +24,22 @@ class LXDConfigurer(BaseConfigurer):
     _configs = set()
 
     def __new__(cls) -> "LXDConfigurer":
-        if not hasattr(cls, "instance"):
-            cls.instance = super(LXDConfigurer, cls).__new__(cls)
-            [
-                cls._configs.add(
-                    InstanceConfig(name=name.replace("_", "-").lower(), source=source)
-                )
-                for name, source in LXDDefaultSources.items()
-            ]
-        return cls.instance
+        if not hasattr(cls, "_instance"):
+            cls._instance = super(LXDConfigurer, cls).__new__(cls)
+            cls.reset()
+        return cls._instance
+
+    @classmethod
+    def reset(cls) -> None:
+        """Reset LXD test environment provider to default configuration."""
+        cls._configs = set()
+        [
+            cls._configs.add(
+                InstanceConfig(name=name.replace("_", "-").lower(), source=source)
+            )
+            for name, source in LXDDefaultSources.items()
+        ]
+        super().reset()
 
     def add_instance_config(self, *new_config: InstanceConfig) -> None:
         """Add a new LXD instance configuration to the registry.
@@ -81,6 +87,6 @@ class LXDConfigurer(BaseConfigurer):
         """
         for config in self._configs:
             if config.name == name:
-                return config
+                return copy.deepcopy(config)
 
         raise LXDInstanceConfigNotFoundError(f"Could not find instance {name}.")

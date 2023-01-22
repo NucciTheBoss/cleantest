@@ -80,7 +80,9 @@ def update() -> None:
     _is_apt_available()
     try:
         subprocess.check_call(
-            ["apt", "-y", "update"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+            ["apt", "-y", "update"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
         )
     except subprocess.CalledProcessError as e:
         raise AptHandlerError(f"Failed to update apt cache. Reason: {e}.")
@@ -111,7 +113,9 @@ def install(*packages: str, version: Optional[str] = None) -> None:
             optargs=["--option=Dpkg::Options::=--force-confold"],
         )
     else:
-        _apt("install", [*packages], optargs=["--option=Dpkg::Options::=--force-confold"])
+        _apt(
+            "install", [*packages], optargs=["--option=Dpkg::Options::=--force-confold"]
+        )
 
 
 def install_local(*package_paths: str) -> None:
@@ -122,7 +126,9 @@ def install_local(*package_paths: str) -> None:
     for path in package_paths:
         if not pathlib.Path(path).exists():
             raise FileNotFoundError(f"Could not locate deb archive {path}.")
-        _apt("install", path, optargs=["--option=Dpkg::Options::=--force-confold", "-f"])
+        _apt(
+            "install", path, optargs=["--option=Dpkg::Options::=--force-confold", "-f"]
+        )
 
 
 def remove(*packages: str) -> None:

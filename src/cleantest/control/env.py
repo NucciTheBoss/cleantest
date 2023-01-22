@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2023 Jason C. Nucciarone, Canonical Ltd.
+# Copyright 2023 Jason C. Nucciarone
 # See LICENSE file for licensing details.
 
 """Environment variable management for test providers."""
@@ -7,16 +7,23 @@
 import os
 from typing import Any, Dict, Optional
 
+from cleantest._meta.mixins import Resettable
 
-class Env:
+
+class Env(Resettable):
     """Manage environment data for test environments."""
 
     _env = {}
 
     def __new__(cls) -> "Env":
-        if not hasattr(cls, "instance"):
-            cls.instance = super(Env, cls).__new__(cls)
-        return cls.instance
+        if not hasattr(cls, "_instance"):
+            cls._instance = super(Env, cls).__new__(cls)
+        return cls._instance
+
+    @classmethod
+    def reset(cls) -> None:
+        """Reset environment information."""
+        cls._env = {}
 
     def add(self, env_mapping: Dict[str, Any]) -> None:
         """Add new values to environment.
