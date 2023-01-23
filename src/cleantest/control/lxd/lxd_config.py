@@ -14,6 +14,24 @@ class BadLXDConfigError(Exception):
 
 
 class ClientConfig:
+    """Define an LXD client connection.
+
+    Args:
+        endpoint (Optional[str]): Endpoint can be an HTTP endpoint or
+            a path to a unix socket (Default: None).
+        version (str): API version string to use with LXD
+        cert (Optional[Tuple[str, str]]): A tuple of (cert, key) to use with
+            the HTTP socket for client authentication (Default: "1.0").
+        verify (bool): Either a boolean, in which case it controls
+            whether we verify the server's TLS certificate, or a string, in
+            which case it must be a path to a CA bundle to use.
+            (Default: True).
+        timeout (Optional[Union[float, Tuple[float, float]]]):
+            How long to wait for the server to send data before giving up, as a float,
+            or a (connect timeout, read timeout) tuple.
+        project (Optional[str]): Name of the LXD project to interact with (Default: None).
+    """
+
     def __init__(
         self,
         endpoint: Optional[str] = None,
@@ -23,23 +41,6 @@ class ClientConfig:
         timeout: Optional[Union[float, Tuple[float, float]]] = None,
         project: Optional[str] = None,
     ) -> None:
-        """Define an LXD client connection.
-
-        Args:
-            endpoint (Optional[str]): Endpoint can be an HTTP endpoint or
-                a path to a unix socket (Default: None).
-            version (str): API version string to use with LXD
-            cert (Optional[Tuple[str, str]]): A tuple of (cert, key) to use with
-                the HTTP socket for client authentication (Default: "1.0").
-            verify (bool): Either a boolean, in which case it controls
-                whether we verify the server's TLS certificate, or a string, in
-                which case it must be a path to a CA bundle to use.
-                (Default: True).
-            timeout (Optional[Union[float, Tuple[float, float]]]):
-                How long to wait for the server to send data before giving up, as a float, or a
-                (connect timeout, read timeout) tuple.
-            project (Optional[str]): Name of the LXD project to interact with (Default: None).
-        """
         self.endpoint = endpoint
         self.version = version
         self.cert = cert

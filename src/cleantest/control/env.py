@@ -16,6 +16,11 @@ class Env(Resettable):
     _env = {}
 
     def __new__(cls) -> "Env":
+        """Create new Env object instance.
+
+        Returns:
+            (Env): New object instance.
+        """
         if not hasattr(cls, "_instance"):
             cls._instance = super(Env, cls).__new__(cls)
         return cls._instance
@@ -29,7 +34,8 @@ class Env(Resettable):
         """Add new values to environment.
 
         Args:
-            (Dict[str, Any]): Key, value mapping to add to the environment store.
+            env_mapping (Dict[str, Any]):
+                Key, value mapping to add to the environment store.
         """
         self._env.update(env_mapping)
 

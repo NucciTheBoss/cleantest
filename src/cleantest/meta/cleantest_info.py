@@ -21,6 +21,11 @@ class CleantestInfo:
     """Metaclass for getting information about the cleantest library."""
 
     def __new__(cls) -> "CleantestInfo":
+        """Create new CleantestInfo object instance.
+
+        Returns:
+            (CleantestInfo): New object instance.
+        """
         if not hasattr(cls, "instance"):
             cls.instance = super(CleantestInfo, cls).__new__(cls)
         return cls.instance

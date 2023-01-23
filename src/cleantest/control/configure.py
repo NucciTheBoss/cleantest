@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2023 Jason C. Nucciarone, Canonical Ltd.
+# Copyright 2023 Jason C. Nucciarone
 # See LICENSE file for licensing details.
 
 """Configure the flow of cleantest based on the test environment provider used."""
@@ -11,7 +11,7 @@ class UnknownConfigurerError(Exception):
     """Raised when an unknown configurer option is passed to Configure."""
 
 
-def Configure(configurer: str = "lxd") -> LXDConfigurer:
+def Configure(configurer: str = "lxd") -> LXDConfigurer:  # noqa N802
     """Configure cleantest based on the test environment provider being used.
 
     Args:

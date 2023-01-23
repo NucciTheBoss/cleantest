@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2023 Jason C. Nucciarone, Canonical Ltd.
+# Copyright 2023 Jason C. Nucciarone
 # See LICENSE file for licensing details.
 
 """Common operations needed by classes to support snapd and snap."""
@@ -13,14 +13,9 @@ from cleantest.utils import apt
 class SnapdSupportError(Exception):
     """Base error for SnapdSupport mixin."""
 
-    ...
-
 
 class SnapdSupport:
-    """
-    Mixin that provides methods needed by pkg classes that
-    require snapd to be installed inside the test environment.
-    """
+    """Mixin for classes that need snapd support."""
 
     @staticmethod
     def _install_snapd() -> None:
