@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2023 Jason C. Nucciarone, Canonical Ltd.
+# Copyright 2023 Jason C. Nucciarone
 # See LICENSE file for licensing details.
 
 """LXD test environment provider functions and utilities."""
@@ -7,15 +7,14 @@
 import os
 from typing import Callable, Dict, List, Optional, Union
 
-from cleantest.control.configure import Configure
-from cleantest.control.env import Env
-from cleantest.control.lxd.lxd_config import ClientConfig
+from cleantest.control import Configure, Env
+from cleantest.control.lxd import ClientConfig
 from cleantest.meta import Result
 
 from .lxd_handler import LXDProvider
 
 
-class lxd:
+class lxd:  # noqa N801
     """LXD test environment provider.
 
     Args:
