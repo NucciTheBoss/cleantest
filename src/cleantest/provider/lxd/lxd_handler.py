@@ -41,7 +41,7 @@ class InstanceMetadata:
 
 
 class LXDHandler(BaseHandler):
-    """Handler mixin for running tests that use LXD as the test environment provider."""
+    """Mixin for controlling the LXD hypervisor via its unix socket."""
 
     @property
     def _client(self) -> Client:
@@ -73,11 +73,11 @@ class LXDHandler(BaseHandler):
             InstanceMetadata(name=f"{self._name}-{i}", image=i) for i in self._image
         ]
 
-    def _build(self, instance: InstanceMetadata) -> None:
-        """Build LXD test environment instance.
+    def init(self, instance: InstanceMetadata) -> None:
+        """Initialize LXD test environment instance.
 
         Args:
-            instance (InstanceMetadata): Instance to build.
+            instance (InstanceMetadata): Instance to initialize.
         """
         if instance.exists is False:
             config = self._lxd_provider_config.get_instance_config(instance.image)
@@ -85,27 +85,19 @@ class LXDHandler(BaseHandler):
             self._client.instances.create(config.dict(), wait=True)
             instance = self._client.instances.get(instance.name)
             instance.start(wait=True)
-            self._init(instance)
+            meta = CleantestInfo()
+            instance.execute(["mkdir", "-p", "/root/init/cleantest"])
+            for name, data in meta.dump():
+                instance.files.put(
+                    f"/root/init/cleantest/install_{name}",
+                    data["injectable"],
+                )
+                instance.execute(["python3", f"/root/init/cleantest/install_{name}"])
         else:
             if self._client.instances.get(instance.name).status.lower() == "stopped":
                 self._client.instances.get(instance.name).start(wait=True)
 
-    def _init(self, instance: Any) -> None:
-        """Initialize LXD test environment instance after it has been built.
-
-        Args:
-            instance (Any): Instance to initialize.
-        """
-        meta = CleantestInfo()
-        instance.execute(["mkdir", "-p", "/root/init/cleantest"])
-        for name, data in meta.dump():
-            instance.files.put(
-                f"/root/init/cleantest/install_{name}",
-                data["injectable"],
-            )
-            instance.execute(["python3", f"/root/init/cleantest/install_{name}"])
-
-    def _execute(self, test: str, instance: InstanceMetadata) -> Any:
+    def execute(self, test: str, instance: InstanceMetadata) -> Any:
         """Execute a testlet inside an LXD test environment instance.
 
         Args:
@@ -118,9 +110,12 @@ class LXDHandler(BaseHandler):
         instance = self._client.instances.get(instance.name)
         instance.files.put("/root/test", test)
         instance.execute(["chmod", "+x", "/root/test"])
-        return instance.execute(["/root/test"], environment=self._env.dump())
+        result = instance.execute(["/root/test"], environment=self._env.dump())
+        return Result(
+            exit_code=result.exit_code, stdout=result.stdout, stderr=result.stderr
+        )
 
-    def _teardown(self, instance: InstanceMetadata) -> None:
+    def teardown(self, instance: InstanceMetadata) -> None:
         """Teardown an LXD test environment instance after the testing has completed.
 
         Args:
@@ -130,20 +125,7 @@ class LXDHandler(BaseHandler):
         instance.stop(wait=True)
         instance.delete(wait=True)
 
-    def _process(self, result: Any) -> Result:
-        """Process returned result by testlet.
-
-        Args:
-            result (Any): Raw result to process.
-
-        Returns:
-            (Result): Processed result.
-        """
-        return Result(
-            exit_code=result.exit_code, stdout=result.stdout, stderr=result.stderr
-        )
-
-    def _exists(self, instance: InstanceMetadata) -> InstanceMetadata:
+    def exists(self, instance: InstanceMetadata) -> InstanceMetadata:
         """Check whether an instance exists.
 
         Args:
@@ -259,19 +241,19 @@ class Serial(BaseEntrypoint, LXDHandler):
             (Dict[str, Result]): Aggregated results of all LXD test environment instances.
         """
         results = {}
-        for i in self._instance_metadata:
-            self._build(self._exists(i))
-            self._handle_start_env_hooks(i)
-            result = self._execute(
+        for instance in self._instance_metadata:
+            self.init(self.exists(instance))
+            self._handle_start_env_hooks(instance)
+            result = self.execute(
                 self._make_testlet(
                     self._func, self._func_name, [re.compile(r"^@lxd\(([^)]+)\)")]
                 ),
-                i,
+                instance,
             )
-            self._handle_stop_env_hooks(i)
+            self._handle_stop_env_hooks(instance)
             if self._preserve is False:
-                self._teardown(i)
-            results.update({i.name: self._process(result)})
+                self.teardown(instance)
+            results.update({instance.name: result})
 
         return results
 
@@ -305,32 +287,32 @@ class Parallel(BaseEntrypoint, LXDHandler):
 
         return results
 
-    def _target(self, i: InstanceMetadata) -> Dict[str, Result]:
+    def _target(self, instance: InstanceMetadata) -> Dict[str, Result]:
         """Target function run inside the parallel process pool.
 
         Args:
-            i (InstanceMetadata): Instance to operate on.
+            instance (InstanceMetadata): Instance to operate on.
 
         Returns:
             (Dict[str, Result]): Result of test run inside LXD test environment instance.
         """
-        self._build(self._exists(i))
-        self._handle_start_env_hooks(i)
-        result = self._execute(
+        self.init(self.exists(instance))
+        self._handle_start_env_hooks(instance)
+        result = self.execute(
             self._make_testlet(
                 self._func, self._func_name, [re.compile(r"^@lxd\(([^)]+)\)")]
             ),
-            i,
+            instance,
         )
-        self._handle_stop_env_hooks(i)
+        self._handle_stop_env_hooks(instance)
         if self._preserve is False:
-            self._teardown(i)
+            self.teardown(instance)
 
-        return {i.name: self._process(result)}
+        return {instance.name: result}
 
 
 class LXDProvider:
-    """Return LXD test environment provider based on passed parameters from lxd decorator."""
+    """Get either serial or parallel entrypoint."""
 
     @staticmethod
     def serial(lxd, func: Callable) -> "Serial":
