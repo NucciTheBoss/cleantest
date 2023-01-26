@@ -12,6 +12,10 @@ from typing import Any, Dict, List
 from .result import Result
 
 
+class BaseEntrypointError(Exception):
+    """Base error for test run entrypoints."""
+
+
 class BaseHandlerError(Exception):
     """Base error for test environment handlers."""
 
@@ -34,19 +38,19 @@ class BaseHandler(ABC):
     """
 
     @abstractmethod
-    def exists(self) -> bool:
+    def _exists(self) -> bool:
         """Check if test environment already exists."""
 
     @abstractmethod
-    def init(self) -> None:
+    def _init(self) -> None:
         """Build and initialize test environment instance."""
 
     @abstractmethod
-    def execute(self) -> Result:
+    def _execute(self) -> Result:
         """Execute testlet inside test environment instance."""
 
     @abstractmethod
-    def teardown(self) -> None:
+    def _teardown(self) -> None:
         """Destroy test environments if not told to preserve."""
 
     @abstractmethod

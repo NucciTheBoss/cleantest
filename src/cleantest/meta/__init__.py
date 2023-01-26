@@ -7,7 +7,12 @@
 You can use these modules for developing third-party plugins.
 """
 
-from .base_handler import BaseEntrypoint, BaseHandler, BaseHandlerError
+from .base_handler import (
+    BaseEntrypoint,
+    BaseEntrypointError,
+    BaseHandler,
+    BaseHandlerError,
+)
 from .base_package import BasePackage, BasePackageError
 from .cleantest_info import CleantestInfo
 from .injectable import Injectable
