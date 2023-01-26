@@ -4,14 +4,15 @@
 
 """LXD test environment provider functions and utilities."""
 
+import functools
 import os
-from typing import Callable, Dict, List, Optional, Union
+from typing import Callable, Iterable, List, Optional, Tuple, Union
 
 from cleantest.control import Configure, Env
 from cleantest.control.lxd import ClientConfig
 from cleantest.meta import Result
 
-from .lxd_handler import LXDProvider
+from .lxd_handler import LXDProviderEntrypoint
 
 
 class lxd:  # noqa N801
@@ -58,12 +59,47 @@ class lxd:  # noqa N801
     def __call__(self, func: Callable) -> Callable:
         """Callable for lxd decorator."""
 
-        def wrapper(*args, **kwargs) -> Dict[str, Result]:
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs) -> Iterable[Tuple[str, Result]]:
             handler = (
-                LXDProvider.parallel(self, func)
+                LXDProviderEntrypoint(strategy="parallel", func=func, **self.__dict__)
                 if self._parallel is True
-                else LXDProvider.serial(self, func)
+                else LXDProviderEntrypoint(
+                    strategy="serial", func=func, **self.__dict__
+                )
             )
             return handler.run()
 
         return wrapper
+
+    @classmethod
+    def target(
+        cls,
+        *instances: str,
+        lxd_client_config: Optional[ClientConfig] = None,
+        parallel: bool = False,
+        num_threads: Optional[int] = None,
+    ) -> Callable:
+        """Target specific LXD test environment instances by name.
+
+        Args:
+            *instances (str): Test environment instance name.
+            lxd_client_config (ClientConfig):
+                Configuration to use for LXD client (Default: None).
+            parallel (bool):
+                Run test environment instances in parallel (Default: False).
+            num_threads (int): Number of threads to use when running
+                test environment instances in parallel (Default: None).
+
+        Returns:
+            (Callable): Wrapped function.
+        """
+
+        def decorator(func: Callable) -> Callable:
+            @functools.wraps(func)
+            def wrapper(*args, **kwargs) -> Iterable[Tuple[str, Result]]:
+                ...
+
+            return wrapper
+
+        return decorator

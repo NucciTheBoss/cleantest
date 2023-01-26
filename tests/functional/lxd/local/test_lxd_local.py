@@ -61,6 +61,5 @@ def test_local_lxd(clean_slate) -> None:
         ],
     )
     config.register_hook(start_hook)
-    results = install_snapd()
-    for name, result in results.items():
+    for name, result in install_snapd():
         assert result.exit_code == 0

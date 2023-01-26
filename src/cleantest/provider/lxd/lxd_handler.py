@@ -2,19 +2,20 @@
 # Copyright 2023 Jason C. Nucciarone
 # See LICENSE file for licensing details.
 
-"""Handler for LXD test environments."""
+"""Handler for LXD test environment provider and instances."""
 
 import inspect
 import json
 import re
 import tempfile
 from concurrent.futures import ProcessPoolExecutor
-from typing import Any, Callable, Dict, List
+from typing import Any, Callable, Iterable, List, Literal, Optional, Tuple
 
 from pylxd import Client
 
 from cleantest.meta import (
     BaseEntrypoint,
+    BaseEntrypointError,
     BaseHandler,
     BasePackage,
     CleantestInfo,
@@ -23,21 +24,36 @@ from cleantest.meta import (
 )
 
 
+class LXDEntrypointError(BaseEntrypointError):
+    """Raise if error is encountered when starting test run with LXD."""
+
+
 class InstanceMetadata:
     """Metaclass to track key information about LXD test environments.
 
     Args:
         name (str): Name of the test environment instance.
-        image (str): Name of image being used for the test environment instance.
+        image (Optional[str]):
+            Name of image being used for the test environment instance
+            (Default: None).
         exists (bool): Bool representing whether test environment exists.
             True - test environment instance exists.
             False - test environment instance does not exist (Default: False).
     """
 
-    def __init__(self, name: str, image: str, exists: bool = False) -> None:
+    def __init__(
+        self, name: str, image: Optional[str] = None, exists: bool = False
+    ) -> None:
         self.name = name
         self.image = image
         self.exists = exists
+
+    def __repr__(self) -> str:
+        """String representation of InstanceMetadata."""
+        return (
+            f"{self.__class__.__name__}(name={self.name}, "
+            f"image={self.image}, exists={self.exists})"
+        )
 
 
 class LXDHandler(BaseHandler):
@@ -73,7 +89,21 @@ class LXDHandler(BaseHandler):
             InstanceMetadata(name=f"{self._name}-{i}", image=i) for i in self._image
         ]
 
-    def init(self, instance: InstanceMetadata) -> None:
+    def _exists(self, instance: InstanceMetadata) -> InstanceMetadata:
+        """Check whether an instance exists.
+
+        Args:
+            instance (InstanceMetadata): Instance to check the existence of.
+
+        Returns:
+            (InstanceMetadata): Update instance metadata.
+        """
+        if self._client.instances.exists(instance.name):
+            instance.exists = True
+
+        return instance
+
+    def _init(self, instance: InstanceMetadata) -> None:
         """Initialize LXD test environment instance.
 
         Args:
@@ -97,7 +127,7 @@ class LXDHandler(BaseHandler):
             if self._client.instances.get(instance.name).status.lower() == "stopped":
                 self._client.instances.get(instance.name).start(wait=True)
 
-    def execute(self, test: str, instance: InstanceMetadata) -> Any:
+    def _execute(self, test: str, instance: InstanceMetadata) -> Any:
         """Execute a testlet inside an LXD test environment instance.
 
         Args:
@@ -115,7 +145,7 @@ class LXDHandler(BaseHandler):
             exit_code=result.exit_code, stdout=result.stdout, stderr=result.stderr
         )
 
-    def teardown(self, instance: InstanceMetadata) -> None:
+    def _teardown(self, instance: InstanceMetadata) -> None:
         """Teardown an LXD test environment instance after the testing has completed.
 
         Args:
@@ -124,20 +154,6 @@ class LXDHandler(BaseHandler):
         instance = self._client.instances.get(instance.name)
         instance.stop(wait=True)
         instance.delete(wait=True)
-
-    def exists(self, instance: InstanceMetadata) -> InstanceMetadata:
-        """Check whether an instance exists.
-
-        Args:
-            instance (InstanceMetadata): Instance to check the existence of.
-
-        Returns:
-            (InstanceMetadata): Update instance metadata.
-        """
-        if self._client.instances.exists(instance.name):
-            instance.exists = True
-
-        return instance
 
     def _handle_start_env_hooks(self, instance: InstanceMetadata) -> None:
         """Handle start env hooks.
@@ -221,84 +237,111 @@ class LXDHandler(BaseHandler):
             holder.dump()
 
 
-class Serial(BaseEntrypoint, LXDHandler):
-    """Entrypoint for running tests in serial using LXD.
+class LXDProviderEntrypoint(BaseEntrypoint, LXDHandler):
+    """Entrypoint to running testlets with LXD test environment provider.
 
     Args:
-        attr (Dict[str, Any]): Attributes from lxd decorator to mount.
-        func (Callable): Testlet to inject inside LXD test environment instances.
+        strategy (Literal["serial", "serial_target", "parallel", "parallel_target"]):
+        func (Callable):
+        **kwargs (Any):
     """
 
-    def __init__(self, attr: Dict[str, Any], func: Callable) -> None:
-        [setattr(self, k, v) for k, v in attr.items()]
-        self._func = inspect.getsource(func)
-        self._func_name = func.__name__
-
-    def run(self) -> Dict[str, Result]:
-        """Run LXD tests in serial.
-
-        Returns:
-            (Dict[str, Result]): Aggregated results of all LXD test environment instances.
-        """
-        results = {}
-        for instance in self._instance_metadata:
-            self.init(self.exists(instance))
-            self._handle_start_env_hooks(instance)
-            result = self.execute(
-                self._make_testlet(
-                    self._func, self._func_name, [re.compile(r"^@lxd\(([^)]+)\)")]
-                ),
-                instance,
+    def __init__(
+        self,
+        strategy: Literal["serial", "serial_target", "parallel", "parallel_target"],
+        func: Callable,
+        **kwargs: Any,
+    ) -> None:
+        strategy_options = {
+            "serial": self._serial_entrypoint,
+            "serial_target": self._serial_target_entrypoint,
+            "parallel": self._parallel_entrypoint,
+            "parallel_target": self._parallel_target_entrypoint,
+        }
+        if strategy not in strategy_options.keys():
+            raise LXDEntrypointError(
+                (
+                    f"{strategy} is not a valid strategy. "
+                    f"Your options are {strategy_options}."
+                )
             )
-            self._handle_stop_env_hooks(instance)
-            if self._preserve is False:
-                self.teardown(instance)
-            results.update({instance.name: result})
-
-        return results
-
-
-class Parallel(BaseEntrypoint, LXDHandler):
-    """Entrypoint for running tests in parallel using LXD.
-
-    Args:
-        attr (Dict[str, Any]): Attributes from lxd decorator to mount.
-        func (Callable): Testlet to inject inside LXD test environment instances.
-    """
-
-    def __init__(self, attr: Dict[str, Any], func: Callable) -> None:
-        [setattr(self, k, v) for k, v in attr.items()]
+        setattr(self, "run", strategy_options[strategy])
+        [setattr(self, k, v) for k, v in kwargs.items()]
         self._func = inspect.getsource(func)
         self._func_name = func.__name__
 
-    def run(self) -> Dict[str, Result]:
-        """Run LXD tests in parallel.
+    def run(self) -> Iterable[Tuple[str, Result]]:
+        """Method behavior is defined by passed strategy."""
 
-        Returns:
-            (Dict[str, Any]): Aggregated results of all LXD test environment instances.
+    def _serial_entrypoint(self) -> Iterable[Tuple[str, Result]]:
+        """Run testlets in serial. LXD instances will be created as needed.
+
+        Yields:
+            (Iterable[Tuple[str, Result]]):
+                Aggregated results of testlet runs from each instance.
         """
-        results = {}
-        with ProcessPoolExecutor(
-            max_workers=self._num_threads,
-        ) as pool:
-            pool_results = pool.map(self._target, self._instance_metadata)
-            for res in pool_results:
-                [results.update({key: value}) for key, value in res.items()]
+        for instance in self._instance_metadata:
+            yield self._run(instance)
 
-        return results
+    def _serial_target_entrypoint(self) -> Iterable[Tuple[str, Result]]:
+        """Run testlets in serial inside pre-existing test environment instance.
 
-    def _target(self, instance: InstanceMetadata) -> Dict[str, Result]:
-        """Target function run inside the parallel process pool.
+        Yields:
+            (Iterable[Tuple[str, Result]]):
+                Aggregated results of testlet runs from each instance.
+        """
+        for instance in [
+            self._exists(InstanceMetadata(name=name)) for name in self._target_instances
+        ]:
+            self._exists(instance)
+            if not instance.exists:
+                raise LXDEntrypointError(f"Instance {instance.name} does not exist.")
+            yield self._run_target(instance)
+
+    def _parallel_entrypoint(self) -> Iterable[Tuple[str, Result]]:
+        """Run testlets in parallel inside pre-existing test environment instance.
+
+        Yields:
+            (Iterable[Tuple[str, Result]]):
+                Aggregated results of testlet runs from each instance.
+        """
+        with ProcessPoolExecutor(max_workers=self._num_threads) as pool:
+            results = pool.map(self._run, self._instance_metadata)
+            for result in results:
+                yield result
+
+    def _parallel_target_entrypoint(self) -> Iterable[Tuple[str, Result]]:
+        """Run testlets in parallel. LXD instances already exist.
+
+        Yields:
+            (Iterable[Tuple[str, Result]]):
+                Aggregated results of testlet runs from each instance.
+        """
+        instance_metadata = [
+            self._exists(InstanceMetadata(name=name)) for name in self._target_instances
+        ]
+        for instance in instance_metadata:
+            if not instance.exists:
+                raise LXDEntrypointError(f"Instance {instance.name} does not exist.")
+        with ProcessPoolExecutor(max_workers=self._num_threads) as pool:
+            results = pool.map(self._run_target, instance_metadata)
+            for result in results:
+                yield result
+
+    def _run(self, instance: InstanceMetadata) -> Tuple[str, Result]:
+        """Run testlet inside of test environment instance.
 
         Args:
-            instance (InstanceMetadata): Instance to operate on.
+            instance (InstanceMetadata):
+                Test environment instance to operate on.
 
         Returns:
-            (Dict[str, Result]): Result of test run inside LXD test environment instance.
+            (Tuple[str, Result]):
+                Result of test run inside LXD test environment instance.
         """
-        self.init(self.exists(instance))
+        self._init(self._exists(instance))
         self._handle_start_env_hooks(instance)
-        result = self.execute(
+        result = self._execute(
             self._make_testlet(
                 self._func, self._func_name, [re.compile(r"^@lxd\(([^)]+)\)")]
             ),
@@ -306,36 +349,25 @@ class Parallel(BaseEntrypoint, LXDHandler):
         )
         self._handle_stop_env_hooks(instance)
         if self._preserve is False:
-            self.teardown(instance)
+            self._teardown(instance)
 
-        return {instance.name: result}
+        return instance.name, result
 
-
-class LXDProvider:
-    """Get either serial or parallel entrypoint."""
-
-    @staticmethod
-    def serial(lxd, func: Callable) -> "Serial":
-        """Return entrypoint for running tests in serial using LXD.
+    def _run_target(self, instance: InstanceMetadata) -> Tuple[str, Result]:
+        """Run testlet inside pre-existing test environment instance.
 
         Args:
-            lxd (lxd): LXD decorator.
-            func (Callable): Testlet.
+            instance (InstanceMetadata):
+                Test environment instance to operate on.
 
         Returns:
-            (Serial): Serial entrypoint.
+            (Tuple[str, Result]):
+                Result of test run inside of pre-existing
+                LXD test environment instance.
         """
-        return Serial(lxd.__dict__, func)
-
-    @staticmethod
-    def parallel(lxd, func: Callable) -> "Parallel":
-        """Return entrypoint for running tests in parallel using LXD.
-
-        Args:
-            lxd (lxd): LXD decorator.
-            func (Callable): Testlet.
-
-        Returns:
-            (Parallel): Parallel entrypoint.
-        """
-        return Parallel(lxd.__dict__, func)
+        return instance.name, self._execute(
+            self._make_testlet(
+                self._func, self._func_name, [re.compile(r"^@lxd\(([^)]+)\)")]
+            ),
+            instance,
+        )
