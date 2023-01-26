@@ -34,8 +34,7 @@ def test_parallel_lxd(clean_slate) -> None:
     config = Configure("lxd")
     start_hook = StartEnvHook(name="pip_injection", packages=[Pip(packages="tabulate")])
     config.register_hook(start_hook)
-    results = install_tabulate()
-    for name, result in results.items():
+    for name, result in install_tabulate():
         try:
             assert result.exit_code == 0
         except AssertionError:

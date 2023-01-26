@@ -54,6 +54,8 @@ def test_upload_download(clean_slate) -> None:
         ],
     )
     config.register_hook(start_hook, stop_hook)
-    work_on_artifacts()
-    assert pathlib.Path(tempfile.gettempdir()).joinpath("dump.txt").is_file() is True
-    assert pathlib.Path(tempfile.gettempdir()).joinpath("dump").is_dir() is True
+    for name, result in work_on_artifacts():
+        assert (
+            pathlib.Path(tempfile.gettempdir()).joinpath("dump.txt").is_file() is True
+        )
+        assert pathlib.Path(tempfile.gettempdir()).joinpath("dump").is_dir() is True

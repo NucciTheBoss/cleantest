@@ -47,6 +47,5 @@ def test_snap_package(clean_slate) -> None:
         ],
     )
     config.register_hook(start_hook)
-    results = functional_snaps()
-    for name, result in results.items():
+    for name, result in functional_snaps():
         assert result.exit_code == 0
