@@ -6,4 +6,5 @@
 
 from .dict_ops import DictOps
 from .enhanced_enum import EnhancedEnum
+from .resettable import Resettable
 from .snapd_support import SnapdSupport

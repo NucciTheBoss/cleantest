@@ -6,7 +6,7 @@
 
 import copy
 
-from cleantest._meta import BaseConfigurer
+from cleantest.meta._base_configurer import BaseConfigurer
 
 from .lxd_config import InstanceConfig, _DefaultSources
 

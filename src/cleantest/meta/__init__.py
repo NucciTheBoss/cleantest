@@ -2,10 +2,7 @@
 # Copyright 2023 Jason C. Nucciarone
 # See LICENSE file for licensing details.
 
-"""Public metaclasses used inside cleantest.
-
-You can use these modules for developing third-party plugins.
-"""
+"""Public metaclasses used inside cleantest."""
 
 from .base_harness import (
     BaseEntrypoint,

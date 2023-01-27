@@ -7,7 +7,7 @@
 import os
 from typing import Any, Dict, Optional
 
-from cleantest._meta.mixins import Resettable
+from cleantest.meta.mixins import Resettable
 
 
 class Env(Resettable):

@@ -2,30 +2,30 @@
 # Copyright 2023 Jason C. Nucciarone
 # See LICENSE file for licensing details.
 
-"""Base tooling needed by configurer classes."""
+"""Private metaclass that provides tooling needed by configurer classes."""
 
 import copy
 from collections import deque
 from typing import Deque, Union
 
-from cleantest._meta.mixins import Resettable
 from cleantest.control.hooks import StartEnvHook, StopEnvHook
+from cleantest.meta.mixins import Resettable
 
 
 class DuplicateHookNameError(Exception):
     """Raised when more than one hook of the same type have the same name."""
 
 
-class HookRegistry(Resettable):
+class _HookRegistry(Resettable):
     """Centrally store hooks for use by test environment providers."""
 
     metadata = set()
     startenv = deque()
     stopenv = deque()
 
-    def __new__(cls) -> "HookRegistry":
+    def __new__(cls) -> "_HookRegistry":
         if not hasattr(cls, "_instance"):
-            cls._instance = super(HookRegistry, cls).__new__(cls)
+            cls._instance = super(_HookRegistry, cls).__new__(cls)
         return cls._instance
 
     def reset(self) -> None:
@@ -55,7 +55,7 @@ class BaseConfigurer(Resettable):
 
     def reset(self) -> None:
         """Reset the hook registry."""
-        HookRegistry().reset()
+        _HookRegistry().reset()
 
     def register_hook(self, *hooks: Union[StartEnvHook, StopEnvHook]) -> None:
         """Register hooks in the hook registry.
@@ -64,13 +64,13 @@ class BaseConfigurer(Resettable):
             *hooks (Union[StartEnvHook, StopEnvHook]): Hooks to register.
         """
         dispatch = {
-            StartEnvHook.__name__: HookRegistry().startenv,
-            StopEnvHook.__name__: HookRegistry().stopenv,
+            StartEnvHook.__name__: _HookRegistry().startenv,
+            StopEnvHook.__name__: _HookRegistry().stopenv,
         }
         for hook in hooks:
-            HookRegistry().lint(hook)
+            _HookRegistry().lint(hook)
             dispatch[hook.__class__.__name__].appendleft(hook)
-            HookRegistry().metadata.add((hook.name, hook.__class__.__name__))
+            _HookRegistry().metadata.add((hook.name, hook.__class__.__name__))
 
     def unregister_hook(self, *hook_names: str) -> None:
         """Unregister hooks from the hook registry.
@@ -79,18 +79,18 @@ class BaseConfigurer(Resettable):
             *hook_names (str): Names of hooks to unregister.
         """
         dispatch = {
-            StartEnvHook.__name__: HookRegistry().startenv,
-            StopEnvHook.__name__: HookRegistry().stopenv,
+            StartEnvHook.__name__: _HookRegistry().startenv,
+            StopEnvHook.__name__: _HookRegistry().stopenv,
         }
         for name in hook_names:
-            for hook in HookRegistry().metadata:
+            for hook in _HookRegistry().metadata:
                 if name == hook[0]:
                     [
                         dispatch[hook[1]].remove(i)
                         for i in dispatch[hook[1]]
                         if i.name == name
                     ]
-                    HookRegistry().metadata.remove(hook)
+                    _HookRegistry().metadata.remove(hook)
 
     @property
     def startenv_hooks(self) -> Deque[StartEnvHook]:
@@ -99,7 +99,7 @@ class BaseConfigurer(Resettable):
         Returns:
             (Deque[StartEnvHook]): Deque containing start environment hooks.
         """
-        return copy.deepcopy(HookRegistry().startenv)
+        return copy.deepcopy(_HookRegistry().startenv)
 
     @property
     def stopenv_hooks(self) -> Deque[StopEnvHook]:
@@ -108,4 +108,4 @@ class BaseConfigurer(Resettable):
         Returns:
             (Deque[StopEnvHook]): Deque containing stop environment hooks.
         """
-        return copy.deepcopy(HookRegistry().stopenv)
+        return copy.deepcopy(_HookRegistry().stopenv)
