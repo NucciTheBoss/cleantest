@@ -28,12 +28,11 @@ class HookRegistry(Resettable):
             cls._instance = super(HookRegistry, cls).__new__(cls)
         return cls._instance
 
-    @classmethod
-    def reset(cls) -> None:
+    def reset(self) -> None:
         """Reset metadata and hook queues."""
-        cls.metadata = set()
-        cls.startenv = deque()
-        cls.stopenv = deque()
+        self.metadata = set()
+        self.startenv = deque()
+        self.stopenv = deque()
 
     def lint(self, hook: Union[StartEnvHook, StopEnvHook]) -> None:
         """Lint hooks to ensure they compliant with set restrictions."""
@@ -44,15 +43,17 @@ class HookRegistry(Resettable):
         ]
         if len(lint) > 0:
             raise DuplicateHookNameError(
-                f"Hook type {hook.__class__.__name__} with name {hook.name} already exists."
+                (
+                    f"Hook type {hook.__class__.__name__} with name "
+                    f"{hook.name} already exists."
+                )
             )
 
 
 class BaseConfigurer(Resettable):
     """Base configure mixin for configurers."""
 
-    @classmethod
-    def reset(cls) -> None:
+    def reset(self) -> None:
         """Reset the hook registry."""
         HookRegistry().reset()
 

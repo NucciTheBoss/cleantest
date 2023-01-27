@@ -26,15 +26,13 @@ class LXDConfigurer(BaseConfigurer):
     def __new__(cls) -> "LXDConfigurer":
         if not hasattr(cls, "_instance"):
             cls._instance = super(LXDConfigurer, cls).__new__(cls)
-            cls.reset()
         return cls._instance
 
-    @classmethod
-    def reset(cls) -> None:
+    def reset(self) -> None:
         """Reset LXD test environment provider to default configuration."""
-        cls._configs = set()
+        self._configs = set()
         [
-            cls._configs.add(
+            self._configs.add(
                 InstanceConfig(name=name.replace("_", "-").lower(), source=source)
             )
             for name, source in LXDDefaultSources.items()
