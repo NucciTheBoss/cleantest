@@ -7,11 +7,11 @@
 You can use these modules for developing third-party plugins.
 """
 
-from .base_handler import (
+from .base_harness import (
     BaseEntrypoint,
     BaseEntrypointError,
-    BaseHandler,
-    BaseHandlerError,
+    BaseHarness,
+    BaseHarnessError,
 )
 from .base_package import BasePackage, BasePackageError
 from .cleantest_info import CleantestInfo

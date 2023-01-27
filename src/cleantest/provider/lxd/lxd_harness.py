@@ -16,7 +16,7 @@ from pylxd import Client
 from cleantest.meta import (
     BaseEntrypoint,
     BaseEntrypointError,
-    BaseHandler,
+    BaseHarness,
     BasePackage,
     CleantestInfo,
     Injectable,
@@ -56,7 +56,7 @@ class InstanceMetadata:
         )
 
 
-class LXDHandler(BaseHandler):
+class LXDHarness(BaseHarness):
     """Mixin for controlling the LXD hypervisor via its unix socket."""
 
     @property
@@ -237,7 +237,7 @@ class LXDHandler(BaseHandler):
             holder.dump()
 
 
-class LXDProviderEntrypoint(BaseEntrypoint, LXDHandler):
+class LXDProviderEntrypoint(BaseEntrypoint, LXDHarness):
     """Entrypoint to running testlets with LXD test environment provider.
 
     Args:
