@@ -13,14 +13,11 @@ from typing import Any, Callable, Iterable, List, Literal, Optional, Tuple
 
 from pylxd import Client
 
-from cleantest.meta import (
+from cleantest.meta import BasePackage, CleantestInfo, Injectable, Result
+from cleantest.meta._base_harness import (
     BaseEntrypoint,
     BaseEntrypointError,
     BaseHarness,
-    BasePackage,
-    CleantestInfo,
-    Injectable,
-    Result,
 )
 
 

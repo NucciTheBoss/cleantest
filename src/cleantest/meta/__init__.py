@@ -4,12 +4,6 @@
 
 """Public metaclasses used inside cleantest."""
 
-from .base_harness import (
-    BaseEntrypoint,
-    BaseEntrypointError,
-    BaseHarness,
-    BaseHarnessError,
-)
 from .base_package import BasePackage, BasePackageError
 from .cleantest_info import CleantestInfo
 from .injectable import Injectable
