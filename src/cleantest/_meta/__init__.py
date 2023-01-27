@@ -8,4 +8,3 @@ Do not use these modules outside cleantest.
 """
 
 from .base_configurer import BaseConfigurer
-from .sources import LXDDefaultSources

@@ -2,12 +2,13 @@
 # Copyright 2023 Jason C. Nucciarone
 # See LICENSE file for licensing details.
 
-"""Information needed by LXD test environment provider."""
+"""Configure and control the LXD test environment provider."""
 
 import copy
 
-from cleantest._meta import BaseConfigurer, LXDDefaultSources
-from cleantest.control.lxd import InstanceConfig
+from cleantest._meta import BaseConfigurer
+
+from .lxd_config import InstanceConfig, _DefaultSources
 
 
 class DuplicateLXDInstanceConfigError(Exception):
@@ -24,6 +25,11 @@ class LXDConfigurer(BaseConfigurer):
     _configs = set()
 
     def __new__(cls) -> "LXDConfigurer":
+        """Create new LXDConfigurer instance.
+
+        Returns:
+            (LXDConfigurer): New object instance.
+        """
         if not hasattr(cls, "_instance"):
             cls._instance = super(LXDConfigurer, cls).__new__(cls)
         return cls._instance
@@ -35,7 +41,7 @@ class LXDConfigurer(BaseConfigurer):
             self._configs.add(
                 InstanceConfig(name=name.replace("_", "-").lower(), source=source)
             )
-            for name, source in LXDDefaultSources.items()
+            for name, source in _DefaultSources.items()
         ]
         super().reset()
 
