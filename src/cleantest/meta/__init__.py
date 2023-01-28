@@ -5,6 +5,5 @@
 """Public metaclasses used inside cleantest."""
 
 from .base_package import BasePackage, BasePackageError
-from .cleantest_info import CleantestInfo
 from .injectable import Injectable
 from .result import Result

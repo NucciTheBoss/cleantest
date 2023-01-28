@@ -13,12 +13,13 @@ from typing import Any, Callable, Iterable, List, Literal, Optional, Tuple
 
 from pylxd import Client
 
-from cleantest.meta import BasePackage, CleantestInfo, Injectable, Result
+from cleantest.meta import BasePackage, Injectable, Result
 from cleantest.meta._base_harness import (
     BaseEntrypoint,
     BaseEntrypointError,
     BaseHarness,
 )
+from cleantest.meta._cleantest_info import CleantestInfo
 
 
 class LXDEntrypointError(BaseEntrypointError):
