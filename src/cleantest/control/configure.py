@@ -4,7 +4,7 @@
 
 """Configure the flow of cleantest based on the test environment provider used."""
 
-from .lxd.lxd_configurer import LXDConfigurer
+from .lxd._lxd_configurer import LXDConfigurer
 
 
 class UnknownConfigurerError(Exception):
