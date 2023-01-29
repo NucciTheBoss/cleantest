@@ -4,16 +4,16 @@
 
 """Dataclasses to assist with LXD provider and instance configuration."""
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
-from cleantest.meta.mixins import DictOps, EnhancedEnum
+from cleantest.meta.mixins import DictLike, EnhancedEnum
 
 
 class BadLXDConfigError(Exception):
     """Raised when the newly entered configuration fails the lint check."""
 
 
-class ClientConfig(DictOps):
+class ClientConfig(DictLike):
     """Define an LXD client connection.
 
     Args:
@@ -138,7 +138,7 @@ class InstanceSource:
             setattr(self, "source", source)
 
 
-class InstanceConfig(DictOps):
+class InstanceConfig(DictLike):
     """Define an LXD instance that can be brought up for test environments.
 
     Args:
@@ -199,26 +199,23 @@ class InstanceConfig(DictOps):
         if stateful is not None:
             setattr(self, "stateful", stateful)
 
-        self._lint(self.dict())
+        self.__lint()
 
-    def _lint(self, new_config: Dict[str, Any]) -> None:
+    def __lint(self) -> None:
         """Lint a new LXD instance configuration to ensure that it is valid.
 
-        Args:
-            new_config (Dict[str, Any]): New configuration to lint.
-
         Raises:
-            BadLXDConfigError: Raised if the passed LXD instance configuration is invalid.
+            BadLXDConfigError:
+                Raised if the passed LXD instance configuration is invalid.
         """
         checks = ["name", "server", "alias", "protocol", "type", "mode"]
-        config = self._deconstruct(new_config)
         for i in checks:
-            if i not in config:
+            if i not in self.keys(all_keys=True):
                 raise BadLXDConfigError(
                     (
-                        f"Bad instance configuration: {new_config}. "
+                        f"Bad instance configuration: {self.dict()}. "
                         "Please ensure instance configuration has the "
-                        f"following values set: {checks}."
+                        f"following values set: {', '.join(checks)}."
                     )
                 )
 
