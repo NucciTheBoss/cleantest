@@ -5,44 +5,77 @@
 """Configure and control the LXD test environment provider."""
 
 import copy
+from typing import Any, Dict
 
-from cleantest.meta._base_configurer import BaseConfigurer
+from cleantest.meta._base_configurer import BaseConfigurer, BaseConfigurerError
 
-from .lxd_config import InstanceConfig, _DefaultSources
+from .lxd_config import ClientConfig, InstanceConfig, _DefaultSources
 
 
-class DuplicateLXDInstanceConfigError(Exception):
+class BadClientConfigurationError(BaseConfigurerError):
+    """Raised if given client configuration is bad."""
+
+
+class DuplicateLXDInstanceConfigError(BaseConfigurerError):
     """Raised if two or more instance configurations share the same name."""
 
 
-class LXDInstanceConfigNotFoundError(Exception):
+class LXDInstanceConfigNotFoundError(BaseConfigurerError):
     """Raised when LXD instance configuration is not found in the registry."""
 
 
 class LXDConfigurer(BaseConfigurer):
     """Configurer for LXD test environment provider."""
 
-    _configs = set()
-
     def __new__(cls) -> "LXDConfigurer":
         """Create new LXDConfigurer instance.
 
         Returns:
-            (LXDConfigurer): New object instance.
+            (LXDConfigurer): New LXDConfigurer instance.
         """
-        if not hasattr(cls, "_instance"):
-            cls._instance = super(LXDConfigurer, cls).__new__(cls)
-        return cls._instance
+        if not hasattr(cls, f"_{cls.__name__}__instance"):
+            cls.__instance = super(LXDConfigurer, cls).__new__(cls)
+        return cls.__instance
+
+    def __init__(self) -> None:
+        self.__client_config = ClientConfig()
+        self.__configs = {
+            InstanceConfig(name=name.replace("_", "-").lower(), source=source)
+            for name, source in _DefaultSources.items()
+        }
+
+    @property
+    def client_config(self) -> ClientConfig:
+        """Get LXD client configuration information.
+
+        Returns:
+            (ClientConfig): Current LXD client configuration.
+        """
+        return self.__client_config
+
+    @client_config.setter
+    def client_config(self, new_conf: Dict[str, Any]) -> None:
+        """Set LXD client configuration.
+
+        Raises:
+            BadClientConfigurationError:
+                Raised if new configuration contains invalid configuration option.
+        """
+        valid_config_options = self.__client_config.keys()
+        for k in new_conf.keys():
+            if k not in valid_config_options:
+                raise BadClientConfigurationError(
+                    (
+                        f"Configuration {k} is not a valid client "
+                        f"configuration option. Valid client configuration options are "
+                        f"{', '.join(k for k in valid_config_options)}."
+                    )
+                )
+        self.__client_config = ClientConfig(**new_conf)
 
     def reset(self) -> None:
         """Reset LXD test environment provider to default configuration."""
-        self._configs = set()
-        [
-            self._configs.add(
-                InstanceConfig(name=name.replace("_", "-").lower(), source=source)
-            )
-            for name, source in _DefaultSources.items()
-        ]
+        self.__init__()
         super().reset()
 
     def add_instance_config(self, *new_config: InstanceConfig) -> None:
@@ -57,8 +90,8 @@ class LXDConfigurer(BaseConfigurer):
                 Raised if two or more configs have the same name.
         """
         for config in new_config:
-            if config.name not in [c.name for c in self._configs]:
-                self._configs.add(config)
+            if config.name not in [c.name for c in self.__configs]:
+                self.__configs.add(config)
             raise DuplicateLXDInstanceConfigError(
                 f"Instance configuration with name {config.name} already exists."
             )
@@ -72,9 +105,9 @@ class LXDConfigurer(BaseConfigurer):
             name (str): Names of the instance configurations to delete.
         """
         for config_name in name:
-            for config in self._configs:
+            for config in self.__configs:
                 if config_name == config.name:
-                    self._configs.remove(config)
+                    self.__configs.remove(config)
 
     def get_instance_config(self, name: str) -> InstanceConfig:
         """Return an LXD instance configuration.
@@ -89,7 +122,7 @@ class LXDConfigurer(BaseConfigurer):
         Returns:
             (InstanceConfig): Retrieved LXD image configuration.
         """
-        for config in self._configs:
+        for config in self.__configs:
             if config.name == name:
                 return copy.deepcopy(config)
 

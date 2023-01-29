@@ -64,17 +64,7 @@ class LXDHarness(BaseHarness):
         Returns:
             (Client): Connection to LXD API socket.
         """
-        if self._lxd_client_config is None:
-            return Client(project="default")
-        else:
-            return Client(
-                endpoint=self._lxd_client_config.endpoint,
-                version=self._lxd_client_config.version,
-                cert=self._lxd_client_config.cert,
-                verify=self._lxd_client_config.verify,
-                timeout=self._lxd_client_config.timeout,
-                project=self._lxd_client_config.project,
-            )
+        return Client(**self._lxd_config.client_config.dict())
 
     @property
     def _instance_metadata(self) -> List[InstanceMetadata]:
@@ -108,7 +98,7 @@ class LXDHarness(BaseHarness):
             instance (InstanceMetadata): Instance to initialize.
         """
         if instance.exists is False:
-            config = self._lxd_provider_config.get_instance_config(instance.image)
+            config = self._lxd_config.get_instance_config(instance.image)
             config.name = instance.name
             self._client.instances.create(config.dict(), wait=True)
             instance = self._client.instances.get(instance.name)
@@ -159,7 +149,7 @@ class LXDHarness(BaseHarness):
         Args:
             instance (InstanceMetadata): Instance to run start env hooks in.
         """
-        start_env_hooks = self._lxd_provider_config.startenv_hooks
+        start_env_hooks = self._lxd_config.startenv_hooks
         while start_env_hooks:
             hook = start_env_hooks.pop()
             instance = self._client.instances.get(instance.name)
@@ -176,7 +166,7 @@ class LXDHarness(BaseHarness):
         Args:
             instance (InstanceMetadata): Instance to run stop env hooks in.
         """
-        stop_env_hooks = self._lxd_provider_config.stopenv_hooks
+        stop_env_hooks = self._lxd_config.stopenv_hooks
         while stop_env_hooks:
             hook = stop_env_hooks.pop()
             instance = self._client.instances.get(instance.name)
