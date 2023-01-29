@@ -92,9 +92,10 @@ class LXDConfigurer(BaseConfigurer):
         for config in new_config:
             if config.name not in [c.name for c in self.__configs]:
                 self.__configs.add(config)
-            raise DuplicateLXDInstanceConfigError(
-                f"Instance configuration with name {config.name} already exists."
-            )
+            else:
+                raise DuplicateLXDInstanceConfigError(
+                    f"Instance configuration with name {config.name} already exists."
+                )
 
     def remove_instance_config(self, *name: str) -> None:
         """Remove an instance configuration by name.
