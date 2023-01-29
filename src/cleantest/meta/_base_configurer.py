@@ -12,6 +12,10 @@ from cleantest.control.hooks import StartEnvHook, StopEnvHook
 from cleantest.meta.mixins import Resettable
 
 
+class BaseConfigurerError(Exception):
+    """Base error for all configurer classes."""
+
+
 class DuplicateHookNameError(Exception):
     """Raised when more than one hook of the same type have the same name."""
 
