@@ -10,7 +10,7 @@ import tarfile
 import tempfile
 import textwrap
 from io import BytesIO
-from typing import Dict
+from typing import Dict, Union
 
 from cleantest.meta import Injectable
 
@@ -27,18 +27,23 @@ class File(Injectable):
     """Represents a file that can be shared between host and test environment.
 
     Args:
-        src (pathlib.Path): Where to load file from.
-        dest (pathlib.Path): Where to dump file to.
+        src (Union[str, os.PathLike]): Where to load file from.
+        dest (Union[str, os.PathLike]): Where to dump file to.
         overwrite (bool):
             True - overwrite file if it already exists when dumping.
             False - raise error if file already exists when dumping.
     """
 
-    def __init__(self, src: str, dest: str, overwrite: bool = False) -> None:
-        self.src = pathlib.Path(src)
-        self.dest = pathlib.Path(dest)
+    def __init__(
+        self,
+        src: Union[str, os.PathLike],
+        dest: Union[str, os.PathLike],
+        overwrite: bool = False,
+    ) -> None:
+        self.src = pathlib.Path(src).resolve() if type(src) == str else src
+        self.dest = pathlib.Path(dest).resolve() if type(dest) == str else dest
         self.overwrite = overwrite
-        self._data = None
+        self.__data = None
 
     def dump(self) -> None:
         """Dump directory to specified destination.
@@ -52,16 +57,14 @@ class File(Injectable):
                 f"{self.dest} already exists. Set overwrite = True to overwrite {self.dest}."
             )
 
-        if self._data is None:
+        if self.__data is None:
             raise FileError("Nothing to write.")
 
         with tarfile.open(
-            fileobj=BytesIO(self._data), mode="r:gz"
-        ) as tar, tempfile.TemporaryDirectory() as tmp_dir:
-            tar.extractall(tmp_dir)
-            self.dest.write_bytes(
-                pathlib.Path(tmp_dir).joinpath(self.src.name).read_bytes()
-            )
+            fileobj=BytesIO(self.__data), mode="r:gz"
+        ) as tar, tempfile.TemporaryDirectory() as _:
+            tar.extractall(_)
+            self.dest.write_bytes(pathlib.Path(_).joinpath(self.src.name).read_bytes())
 
     def load(self) -> None:
         """Load file from specified source.
@@ -81,7 +84,7 @@ class File(Injectable):
         with tempfile.NamedTemporaryFile() as fin:
             with tarfile.open(fin.name, "w:gz") as tar:
                 tar.add(self.src.name)
-            self._data = pathlib.Path(fin.name).read_bytes()
+            self.__data = pathlib.Path(fin.name).read_bytes()
         os.chdir(_)
 
     def _injectable(self, data: Dict[str, str], **kwargs) -> str:
@@ -130,3 +133,9 @@ class File(Injectable):
                 print(json.dumps(_._dump()), file=sys.stdout)
                 """
             ).strip("\n")
+
+    def __repr__(self) -> str:
+        return (
+            f"{self.__class__.__name__}"
+            f"({', '.join(f'{k}={v}' for k, v in self.__dict__.items())})"
+        )
