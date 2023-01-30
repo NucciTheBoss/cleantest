@@ -105,7 +105,7 @@ class LXDHarness(BaseHarness):
             instance.start(wait=True)
             meta = CleantestInfo()
             instance.execute(["mkdir", "-p", "/root/init/cleantest"])
-            for name, data in meta.dump():
+            for name, data in meta.dumps():
                 instance.files.put(
                     f"/root/init/cleantest/install_{name}",
                     data["injectable"],

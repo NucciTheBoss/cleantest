@@ -114,7 +114,7 @@ class CleantestInfo:
             fout.seek(0)
             return fout.read()
 
-    def dump(self) -> Iterable[Tuple[str, Dict[str, str]]]:
+    def dumps(self) -> Iterable[Tuple[str, Dict[str, str]]]:
         """Prepare cleantest for injection into test environment instance.
 
         Yields:
