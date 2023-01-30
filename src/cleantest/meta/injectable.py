@@ -19,7 +19,7 @@ class Injectable(ABC):
     """Abstract metaclass that provides core methods needed by all injectable objects."""
 
     @classmethod
-    def _load(cls, checksum: str, data: str) -> object:
+    def _loads(cls, checksum: str, data: str) -> object:
         """Alternative constructor to load previously initialized object.
 
         Args:
@@ -47,7 +47,7 @@ class Injectable(ABC):
         [setattr(new_cls, key, value) for key, value in hiddenargs.items()]
         return new_cls
 
-    def _dump(self, **kwargs) -> Dict[str, str]:
+    def _dumps(self, **kwargs) -> Dict[str, str]:
         """Prepare object for injection.
 
         Returns:

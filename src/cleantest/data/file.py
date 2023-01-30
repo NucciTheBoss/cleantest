@@ -115,7 +115,7 @@ class File(Injectable):
                 
                 from {self.__module__} import {self.__class__.__name__}
                 
-                _ = {self.__class__.__name__}._load("{data['checksum']}", "{data['data']}")
+                _ = {self.__class__.__name__}._loads("{data['checksum']}", "{data['data']}")
                 _.dump()
                 """
             ).strip("\n")
@@ -128,9 +128,9 @@ class File(Injectable):
                 
                 from {self.__module__} import {self.__class__.__name__}
                 
-                _ = {self.__class__.__name__}._load("{data['checksum']}", "{data['data']}")
+                _ = {self.__class__.__name__}._loads("{data['checksum']}", "{data['data']}")
                 _.load()
-                print(json.dumps(_._dump()), file=sys.stdout)
+                print(json.dumps(_._dumps()), file=sys.stdout)
                 """
             ).strip("\n")
 

@@ -227,7 +227,7 @@ class Snap(BasePackage, SnapdSupport):
             for alias in self.aliases:
                 alias.alias()
 
-    def _dump(self) -> Dict[str, str]:
+    def _dumps(self) -> Dict[str, str]:
         """Prepare Snap object for injection.
 
         Raises:
@@ -248,7 +248,7 @@ class Snap(BasePackage, SnapdSupport):
                     )
                 self._cached_local_snaps.add(snap_path.read_bytes())
 
-        return super()._dump()
+        return super()._dumps()
 
     def _injectable(self, data: Dict[str, str], **kwargs) -> str:
         """Generate injectable script that will be used to install snap packages.
@@ -267,7 +267,7 @@ class Snap(BasePackage, SnapdSupport):
 
             from {self.__module__} import {self.__class__.__name__}
 
-            holder = {self.__class__.__name__}._load("{data['checksum']}", "{data['data']}")
+            holder = {self.__class__.__name__}._loads("{data['checksum']}", "{data['data']}")
             holder._run()
             """
         ).strip("\n")

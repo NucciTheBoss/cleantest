@@ -183,7 +183,7 @@ class LXDHarness(BaseHarness):
         """
         dispatch = {"charmlib": lambda x: self._env.add(json.loads(x))}
 
-        dump_data = pkg._dump()
+        dump_data = pkg._dumps()
         instance.execute(["mkdir", "-p", "/root/init/pkg"])
         instance.files.put("/root/init/pkg/install", dump_data["injectable"])
         result = instance.execute(["python3", "/root/init/pkg/install"])
@@ -199,7 +199,7 @@ class LXDHarness(BaseHarness):
             artifact (Injectable): Artifact to upload.
         """
         artifact.load()
-        dump_data = artifact._dump(mode="push")
+        dump_data = artifact._dumps(mode="push")
         instance.execute(["mkdir", "-p", "/root/init/data"])
         instance.files.put("/root/init/data/dump", dump_data["injectable"])
         instance.execute(["python3", "/root/init/data/dump"])
@@ -211,7 +211,7 @@ class LXDHarness(BaseHarness):
             instance (Any): Instance to download artifact from.
             artifact (Injectable): Artifact to download.
         """
-        dump_data = artifact._dump(mode="pull")
+        dump_data = artifact._dumps(mode="pull")
         instance.execute(["mkdir", "-p", "/root/post/data"])
         instance.files.put(
             "/root/post/data/load",
@@ -221,7 +221,7 @@ class LXDHarness(BaseHarness):
             instance.execute(["python3", "/root/post/data/load"]).stdout
         )
         with tempfile.NamedTemporaryFile():
-            holder = artifact.__class__._load(result["checksum"], result["data"])
+            holder = artifact.__class__._loads(result["checksum"], result["data"])
             holder.dump()
 
 
