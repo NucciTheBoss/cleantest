@@ -19,9 +19,7 @@ import pkg_resources
 from cleantest.meta.utils import thread_count
 
 
-def _dependency_processor(
-        dependency: pkg_resources.Distribution
-) -> Dict[str, bytes]:
+def _dependency_processor(dependency: pkg_resources.Distribution) -> Dict[str, bytes]:
     """Collect source code of cleantest dependency.
 
     Args:
@@ -33,7 +31,7 @@ def _dependency_processor(
     os.chdir(dependency.location)
     with tempfile.NamedTemporaryFile() as fin:
         with tarfile.open(fin.name, "w:gz") as tar, pathlib.Path(
-                f"{dependency.key.replace('-', '_')}-{dependency.version}.dist-info"
+            f"{dependency.key.replace('-', '_')}-{dependency.version}.dist-info"
         ).joinpath("RECORD").open(mode="rt") as dist_info_fin:
             for row in csv.reader(dist_info_fin):
                 tar.add(row[0])
