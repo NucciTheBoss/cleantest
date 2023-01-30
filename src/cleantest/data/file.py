@@ -40,8 +40,8 @@ class File(Injectable):
         dest: Union[str, os.PathLike],
         overwrite: bool = False,
     ) -> None:
-        self.src = pathlib.Path(src).resolve() if type(src) == str else src
-        self.dest = pathlib.Path(dest).resolve() if type(dest) == str else dest
+        self.src = pathlib.Path(src) if type(src) == str else src
+        self.dest = pathlib.Path(dest) if type(dest) == str else dest
         self.overwrite = overwrite
         self.__data = None
 
