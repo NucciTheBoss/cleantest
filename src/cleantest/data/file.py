@@ -4,12 +4,11 @@
 
 """Abstractions for uploading and downloading files from test environments."""
 
+import copy
 import os
 import pathlib
-import tarfile
-import tempfile
 import textwrap
-from io import BytesIO
+from io import BytesIO, StringIO
 from typing import Dict, Union
 
 from cleantest.meta import Injectable
@@ -27,7 +26,8 @@ class File(Injectable):
     """Represents a file that can be shared between host and test environment.
 
     Args:
-        src (Union[str, os.PathLike]): Where to load file from.
+        src (Union[str, os.PathLike, StringIO, BytesIO]):
+            Where to load file from.
         dest (Union[str, os.PathLike]): Where to dump file to.
         overwrite (bool):
             True - overwrite file if it already exists when dumping.
@@ -36,12 +36,22 @@ class File(Injectable):
 
     def __init__(
         self,
-        src: Union[str, os.PathLike],
+        src: Union[str, os.PathLike, StringIO, BytesIO],
         dest: Union[str, os.PathLike],
         overwrite: bool = False,
     ) -> None:
-        self.src = pathlib.Path(src) if type(src) == str else src
-        self.dest = pathlib.Path(dest) if type(dest) == str else dest
+        if type(src) == str or isinstance(src, os.PathLike):
+            self.src = pathlib.Path(src)
+        elif isinstance(src, StringIO) or isinstance(src, BytesIO):
+            self.src = src.read().encode() if isinstance(src, StringIO) else src.read()
+        else:
+            raise FileError(
+                (
+                    "Expected type str,os.PathLike, StringIO, or BytesIO, "
+                    f"not {type(src)}."
+                )
+            )
+        self.dest = pathlib.Path(dest)
         self.overwrite = overwrite
         self.__data = None
 
@@ -54,17 +64,16 @@ class File(Injectable):
         """
         if self.dest.exists() and self.overwrite is False:
             raise FileExistsError(
-                f"{self.dest} already exists. Set overwrite = True to overwrite {self.dest}."
+                (
+                    f"{self.dest} already exists. Set overwrite = True to "
+                    f"overwrite {self.dest}."
+                )
             )
 
         if self.__data is None:
             raise FileError("Nothing to write.")
 
-        with tarfile.open(
-            fileobj=BytesIO(self.__data), mode="r:gz"
-        ) as tar, tempfile.TemporaryDirectory() as _:
-            tar.extractall(_)
-            self.dest.write_bytes(pathlib.Path(_).joinpath(self.src.name).read_bytes())
+        self.dest.write_bytes(self.__data)
 
     def load(self) -> None:
         """Load file from specified source.
@@ -73,19 +82,16 @@ class File(Injectable):
             FileNotFoundError: Raised if file is not found.
             FileError: Raised if source is a directory rather than a file.
         """
-        if self.src.exists() is False:
-            raise FileNotFoundError(f"Could not find {self.src}.")
+        if isinstance(self.src, pathlib.Path):
+            if self.src.exists() is False:
+                raise FileNotFoundError(f"Could not find {self.src}.")
 
-        if self.src.is_dir():
-            raise FileError(f"{self.src} is a directory. Use Dir class instead.")
+            if self.src.is_dir():
+                raise FileError(f"{self.src} is a directory. Use Dir class instead.")
 
-        _ = os.getcwd()
-        os.chdir(os.sep.join(str(self.src).split(os.sep)[:-1]))
-        with tempfile.NamedTemporaryFile() as fin:
-            with tarfile.open(fin.name, "w:gz") as tar:
-                tar.add(self.src.name)
-            self.__data = pathlib.Path(fin.name).read_bytes()
-        os.chdir(_)
+            self.__data = self.src.read_bytes()
+        else:
+            self.__data = copy.deepcopy(self.src)
 
     def _injectable(self, data: Dict[str, str], **kwargs) -> str:
         """Generate injectable script that will be run inside the test environment.
@@ -136,7 +142,7 @@ class File(Injectable):
 
     def __repr__(self) -> str:
         """String representation of File."""
-        return (
-            f"{self.__class__.__name__}"
-            f"({', '.join(f'{k}={v}' for k, v in self.__dict__.items())})"
+        attrs = ", ".join(
+            f"{k}={v}" for k, v in self.__dict__.items() if not k.startswith("_")
         )
+        return f"{self.__class__.__name__}({attrs})"
