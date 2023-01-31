@@ -135,6 +135,7 @@ class File(Injectable):
             ).strip("\n")
 
     def __repr__(self) -> str:
+        """String representation of File."""
         return (
             f"{self.__class__.__name__}"
             f"({', '.join(f'{k}={v}' for k, v in self.__dict__.items())})"
