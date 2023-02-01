@@ -27,6 +27,12 @@ class LXDInstanceConfigNotFoundError(BaseConfigurerError):
 class LXDConfigurer(BaseConfigurer):
     """Configurer for LXD test environment provider."""
 
+    __configs = {
+        InstanceConfig(name=name.replace("_", "-").lower(), source=source)
+        for name, source in _DefaultSources.items()
+    }
+    __client_config = ClientConfig()
+
     def __new__(cls) -> "LXDConfigurer":
         """Create new LXDConfigurer instance.
 
@@ -36,13 +42,6 @@ class LXDConfigurer(BaseConfigurer):
         if not hasattr(cls, f"_{cls.__name__}__instance"):
             cls.__instance = super(LXDConfigurer, cls).__new__(cls)
         return cls.__instance
-
-    def __init__(self) -> None:
-        self.__client_config = ClientConfig()
-        self.__configs = {
-            InstanceConfig(name=name.replace("_", "-").lower(), source=source)
-            for name, source in _DefaultSources.items()
-        }
 
     @property
     def client_config(self) -> ClientConfig:
@@ -75,7 +74,11 @@ class LXDConfigurer(BaseConfigurer):
 
     def reset(self) -> None:
         """Reset LXD test environment provider to default configuration."""
-        self.__init__()
+        self.__configs = {
+            InstanceConfig(name=name.replace("_", "-").lower(), source=source)
+            for name, source in _DefaultSources.items()
+        }
+        self.__client_config = ClientConfig()
         super().reset()
 
     def add_instance_config(self, *new_config: InstanceConfig) -> None:
