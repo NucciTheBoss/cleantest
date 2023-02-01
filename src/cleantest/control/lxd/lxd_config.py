@@ -48,6 +48,11 @@ class ClientConfig(DictLike):
         self.timeout = timeout
         self.project = project
 
+    def __repr__(self) -> str:
+        """String representation of ClientConfig."""
+        attrs = ", ".join(f"{k}={v}" for k, v in self.__dict__.items())
+        return f"{self.__class__.__name__}({attrs})"
+
 
 class InstanceSource:
     """Define an LXD instance source to use for a test environment instance.
@@ -137,6 +142,11 @@ class InstanceSource:
         if source is not None:
             setattr(self, "source", source)
 
+    def __repr__(self) -> str:
+        """String representation of InstanceSource."""
+        attrs = ", ".join(f"{k}={v}" for k, v in self.__dict__.items())
+        return f"{self.__class__.__name__}({attrs})"
+
 
 class InstanceConfig(DictLike):
     """Define an LXD instance that can be brought up for test environments.
@@ -218,6 +228,11 @@ class InstanceConfig(DictLike):
                         f"following values set: {', '.join(checks)}."
                     )
                 )
+
+    def __repr__(self) -> str:
+        """String representation of InstanceConfig."""
+        attrs = ", ".join(f"{k}={v}" for k, v in self.__dict__.items())
+        return f"{self.__class__.__name__}({attrs})"
 
 
 class _DefaultSources(EnhancedEnum):
