@@ -21,7 +21,7 @@ def work_on_artifacts():
     import sys
 
     print(pathlib.Path("/root/greeting.txt").is_file(), file=sys.stdout)
-    print(pathlib.Path("/root/dump").is_dir(), file=sys.stdout)
+    print(pathlib.Path("/root/greetings").is_dir(), file=sys.stdout)
 
     pathlib.Path("/root/dump.txt").write_text("Dumped like a sack of rocks")
     os.mkdir("/root/dump")
