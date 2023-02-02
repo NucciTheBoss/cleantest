@@ -4,8 +4,8 @@
 
 """Abstractions for uploading and downloading files from test environments."""
 
-import os
 import copy
+import os
 import pathlib
 import shutil
 import tarfile
