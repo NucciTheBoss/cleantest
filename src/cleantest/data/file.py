@@ -4,9 +4,12 @@
 
 """Abstractions for uploading and downloading files from test environments."""
 
-import copy
 import os
+import copy
 import pathlib
+import shutil
+import tarfile
+import tempfile
 import textwrap
 from io import BytesIO, StringIO
 from typing import Dict, Union
@@ -26,9 +29,9 @@ class File(Injectable):
     """Represents a file that can be shared between host and test environment.
 
     Args:
-        src (Union[str, os.PathLike, StringIO, BytesIO]):
+        src (Union[str, pathlib.Path, StringIO, BytesIO]):
             Where to load file from.
-        dest (Union[str, os.PathLike]): Where to dump file to.
+        dest (Union[str, pathlib.Path]): Where to dump file to.
         overwrite (bool):
             True - overwrite file if it already exists when dumping.
             False - raise error if file already exists when dumping.
@@ -36,24 +39,56 @@ class File(Injectable):
 
     def __init__(
         self,
-        src: Union[str, os.PathLike, StringIO, BytesIO],
-        dest: Union[str, os.PathLike],
+        src: Union[str, pathlib.Path, bytes, StringIO, BytesIO],
+        dest: Union[str, pathlib.Path],
         overwrite: bool = False,
     ) -> None:
-        if type(src) == str or isinstance(src, os.PathLike):
-            self.src = pathlib.Path(src)
-        elif isinstance(src, StringIO) or isinstance(src, BytesIO):
-            self.src = src.read().encode() if isinstance(src, StringIO) else src.read()
-        else:
-            raise FileError(
-                (
-                    "Expected type str,os.PathLike, StringIO, or BytesIO, "
-                    f"not {type(src)}."
-                )
-            )
+        self.src = src
         self.dest = pathlib.Path(dest)
         self.overwrite = overwrite
         self.__data = None
+
+    def load(self) -> None:
+        """Load file from specified source.
+
+        Raises:
+            FileNotFoundError: Raised if file is not found.
+            FileError: Raised if source is a directory rather than a file.
+        """
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            _ = pathlib.Path(tmp_dir)
+            with tarfile.open(pathlib.Path(tmp_dir) / "_", "w:gz") as tar:
+                old_pwd = os.getcwd()
+                os.chdir(_)
+                if type(self.src) == str or isinstance(self.src, pathlib.Path):
+                    data = pathlib.Path(self.src)
+                    if data.exists() is False:
+                        raise FileNotFoundError(f"Could not find {self.src}.")
+
+                    if data.is_dir():
+                        raise FileError(
+                            f"{self.src} is a directory. Use Dir class instead."
+                        )
+                    shutil.copy(data, _ / "data")
+                    tar.add("data")
+                elif isinstance(self.src, StringIO) or isinstance(self.src, BytesIO):
+                    data = copy.deepcopy(self.src)
+                    placeholder = pathlib.Path("data")
+                    placeholder.write_text(data.read()) if isinstance(
+                        self.src, StringIO
+                    ) else placeholder.write_bytes(data.read())
+                    tar.add(placeholder)
+                else:
+                    raise FileError(
+                        (
+                            "Expected type str, os.PathLike, StringIO, or BytesIO, "
+                            f"not {type(self.src)}."
+                        )
+                    )
+
+                os.chdir(old_pwd)
+
+            self.__data = pathlib.Path(tar.name).read_bytes()
 
     def dump(self) -> None:
         """Dump directory to specified destination.
@@ -73,25 +108,11 @@ class File(Injectable):
         if self.__data is None:
             raise FileError("Nothing to write.")
 
-        self.dest.write_bytes(self.__data)
-
-    def load(self) -> None:
-        """Load file from specified source.
-
-        Raises:
-            FileNotFoundError: Raised if file is not found.
-            FileError: Raised if source is a directory rather than a file.
-        """
-        if isinstance(self.src, pathlib.Path):
-            if self.src.exists() is False:
-                raise FileNotFoundError(f"Could not find {self.src}.")
-
-            if self.src.is_dir():
-                raise FileError(f"{self.src} is a directory. Use Dir class instead.")
-
-            self.__data = self.src.read_bytes()
-        else:
-            self.__data = copy.deepcopy(self.src)
+        with tempfile.TemporaryDirectory() as tmp_dir, tarfile.open(
+            fileobj=BytesIO(self.__data), mode="r:gz"
+        ) as tar:
+            tar.extractall(tmp_dir)
+            shutil.copy((pathlib.Path(tmp_dir) / "data"), self.dest)
 
     def _injectable(self, data: Dict[str, str], **kwargs) -> str:
         """Generate injectable script that will be run inside the test environment.

@@ -61,25 +61,7 @@ class Dir(File):
         dest: Union[str, os.PathLike],
         overwrite: bool = False,
     ) -> None:
-        super().__init__(src, dest, overwrite)
-
-    def dump(self) -> None:
-        """Dump directory to specified destination.
-
-        Raises:
-            DirectoryExistsError: Raised if directory already exists and overwrite=False.
-            DirectoryError: Raised if no data has been loaded prior to calling dump().
-        """
-        if self.dest.exists() and self.overwrite is False:
-            raise DirectoryExistsError(
-                f"{self.dest} already exists. Set overwrite = True to overwrite {self.dest}."
-            )
-
-        if self.__data is None:
-            DirectoryError("Nothing to write.")
-
-        with tarfile.open(fileobj=BytesIO(self.__data), mode="r:gz") as tar:
-            tar.extractall(self.dest, members=_strip_tar(tar))
+        super().__init__(pathlib.Path(src), dest, overwrite)
 
     def load(self) -> None:
         """Load directory from specified source.
@@ -101,3 +83,21 @@ class Dir(File):
                 tar.add(self.src.name)
             self.__data = pathlib.Path(fin.name).read_bytes()
         os.chdir(_)
+
+    def dump(self) -> None:
+        """Dump directory to specified destination.
+
+        Raises:
+            DirectoryExistsError: Raised if directory already exists and overwrite=False.
+            DirectoryError: Raised if no data has been loaded prior to calling dump().
+        """
+        if self.dest.exists() and self.overwrite is False:
+            raise DirectoryExistsError(
+                f"{self.dest} already exists. Set overwrite = True to overwrite {self.dest}."
+            )
+
+        if self.__data is None:
+            DirectoryError("Nothing to write.")
+
+        with tarfile.open(fileobj=BytesIO(self.__data), mode="r:gz") as tar:
+            tar.extractall(self.dest, members=_strip_tar(tar))
