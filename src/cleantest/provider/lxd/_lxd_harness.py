@@ -353,9 +353,12 @@ class LXDProviderEntrypoint(BaseEntrypoint, LXDHarness):
                 Result of test run inside of pre-existing
                 LXD test environment instance.
         """
-        return instance.name, self._execute(
+        self._handle_start_env_hooks(instance)
+        result = self._execute(
             self._make_testlet(
                 self._func, self._func_name, [re.compile(r"^@lxd\(([^)]+)\)")]
             ),
             instance,
         )
+        self._handle_stop_env_hooks(instance)
+        return instance.name, result
