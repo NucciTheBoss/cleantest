@@ -7,7 +7,6 @@
 import json
 import os
 import pathlib
-import pdb
 from io import StringIO
 
 from jinja2 import Environment, FileSystemLoader
@@ -23,13 +22,16 @@ templates = Environment(loader=FileSystemLoader(root / "templates"))
 
 @lxd.target("slurmctld-0")
 def run_job():
+    import os
     import pathlib
+    import shutil
     import textwrap
     from time import sleep
 
     from cleantest.utils import run
 
-    pathlib.Path("research.submit").write_text(
+    tmp_dir = pathlib.Path("/tmp")
+    (tmp_dir / "research.submit").write_text(
         textwrap.dedent(
             """
             #!/bin/bash
@@ -40,25 +42,31 @@ def run_job():
             #SBATCH --cpus-per-task=1
             #SBATCH --mem=500mb
             #SBATCH --time=00:00:30
-            #SBATCH --error=research.%J.err
-            #SBATCH --output=research.%J.out
+            #SBATCH --error=research.err
+            #SBATCH --output=research.out
             
             echo "I love doing research!"
             """
-        )
+        ).strip("\n")
     )
-    for result in run("sbatch research.submit"):
+
+    # Set user to test cluster user nucci.
+    os.setuid(10000)
+    os.chdir("/home/nucci")
+    for result in run(
+        f"cp {(tmp_dir / 'research.submit')} .",
+        "sbatch research.submit",
+    ):
         assert result.exit_code == 0
     sleep(60)
-    for result in run("cat research.*.out > result"):
-        assert result.exit_code == 0
+    shutil.copy("research.out", (tmp_dir / "result"))
 
 
 def test_lxd_archon_local() -> None:
     """Test LXDArchon against local LXD cluster."""
     archon = LXDArchon()
     archon.config.register_hook(
-        StopEnvHook(name="get_result", download=[File("/root/result", root / "result")])
+        StopEnvHook(name="get_result", download=[File("/tmp/result", root / "result")])
     )
     _ = archon.config.get_instance_config("ubuntu-jammy-amd64").dict()
     _["name"] = "mini-hpc-sm"
@@ -100,7 +108,7 @@ def test_lxd_archon_local() -> None:
         ],
     )
     archon.pull(
-        "slurmctld-0", data_obj=File("/etc/munge/munge.key", root / "munge.key")
+        "slurmctld-0", data_obj=[File("/etc/munge/munge.key", root / "munge.key")]
     )
     archon.add(
         ["slurmd-0", "slurmd-1", "slurmd-2"],
@@ -132,7 +140,6 @@ def test_lxd_archon_local() -> None:
         ["slurmd-0", "slurmd-1", "slurmd-2"], command="systemctl start slurmd"
     )
     for name, result in run_job():
-        pdb.set_trace()
         assert "I love doing research!" in pathlib.Path(root / "result").read_text()
     (root / "munge.key").unlink(missing_ok=True)
     (root / "result").unlink(missing_ok=True)
@@ -141,4 +148,3 @@ def test_lxd_archon_local() -> None:
         command=f"umount /home /data",
     )
     archon.destroy()
-
