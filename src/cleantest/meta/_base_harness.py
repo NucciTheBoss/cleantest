@@ -16,8 +16,8 @@ class BaseEntrypointError(Exception):
     """Base error for test run entrypoints."""
 
 
-class BaseHandlerError(Exception):
-    """Base error for test environment handlers."""
+class BaseHarnessError(Exception):
+    """Base error for test environment provider harnesses."""
 
 
 class BaseEntrypoint(ABC):
@@ -31,10 +31,11 @@ class BaseEntrypoint(ABC):
         """Run handler for test environment."""
 
 
-class BaseHandler(ABC):
-    """Metaclass for test environment handlers.
+class BaseHarness(ABC):
+    """Base class for test environment provider harnesses.
 
-    Handlers define the tooling stubs needed to run tests inside the test environment.
+    Harnesses wrap around testlets to ensure they are run inside the
+    specified test environment instance.
     """
 
     @abstractmethod

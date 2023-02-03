@@ -13,15 +13,13 @@ from typing import Any, Callable, Iterable, List, Literal, Optional, Tuple
 
 from pylxd import Client
 
-from cleantest.meta import (
+from cleantest.meta import BasePackage, Injectable, Result
+from cleantest.meta._base_harness import (
     BaseEntrypoint,
     BaseEntrypointError,
-    BaseHandler,
-    BasePackage,
-    CleantestInfo,
-    Injectable,
-    Result,
+    BaseHarness,
 )
+from cleantest.meta._cleantest_info import CleantestInfo
 
 
 class LXDEntrypointError(BaseEntrypointError):
@@ -56,7 +54,7 @@ class InstanceMetadata:
         )
 
 
-class LXDHandler(BaseHandler):
+class LXDHarness(BaseHarness):
     """Mixin for controlling the LXD hypervisor via its unix socket."""
 
     @property
@@ -66,17 +64,7 @@ class LXDHandler(BaseHandler):
         Returns:
             (Client): Connection to LXD API socket.
         """
-        if self._lxd_client_config is None:
-            return Client(project="default")
-        else:
-            return Client(
-                endpoint=self._lxd_client_config.endpoint,
-                version=self._lxd_client_config.version,
-                cert=self._lxd_client_config.cert,
-                verify=self._lxd_client_config.verify,
-                timeout=self._lxd_client_config.timeout,
-                project=self._lxd_client_config.project,
-            )
+        return Client(**self._lxd_config.client_config.dict())
 
     @property
     def _instance_metadata(self) -> List[InstanceMetadata]:
@@ -110,14 +98,14 @@ class LXDHandler(BaseHandler):
             instance (InstanceMetadata): Instance to initialize.
         """
         if instance.exists is False:
-            config = self._lxd_provider_config.get_instance_config(instance.image)
+            config = self._lxd_config.get_instance_config(instance.image)
             config.name = instance.name
             self._client.instances.create(config.dict(), wait=True)
             instance = self._client.instances.get(instance.name)
             instance.start(wait=True)
             meta = CleantestInfo()
             instance.execute(["mkdir", "-p", "/root/init/cleantest"])
-            for name, data in meta.dump():
+            for name, data in meta.dumps():
                 instance.files.put(
                     f"/root/init/cleantest/install_{name}",
                     data["injectable"],
@@ -161,7 +149,7 @@ class LXDHandler(BaseHandler):
         Args:
             instance (InstanceMetadata): Instance to run start env hooks in.
         """
-        start_env_hooks = self._lxd_provider_config.startenv_hooks
+        start_env_hooks = self._lxd_config.startenv_hooks
         while start_env_hooks:
             hook = start_env_hooks.pop()
             instance = self._client.instances.get(instance.name)
@@ -178,7 +166,7 @@ class LXDHandler(BaseHandler):
         Args:
             instance (InstanceMetadata): Instance to run stop env hooks in.
         """
-        stop_env_hooks = self._lxd_provider_config.stopenv_hooks
+        stop_env_hooks = self._lxd_config.stopenv_hooks
         while stop_env_hooks:
             hook = stop_env_hooks.pop()
             instance = self._client.instances.get(instance.name)
@@ -195,7 +183,7 @@ class LXDHandler(BaseHandler):
         """
         dispatch = {"charmlib": lambda x: self._env.add(json.loads(x))}
 
-        dump_data = pkg._dump()
+        dump_data = pkg._dumps()
         instance.execute(["mkdir", "-p", "/root/init/pkg"])
         instance.files.put("/root/init/pkg/install", dump_data["injectable"])
         result = instance.execute(["python3", "/root/init/pkg/install"])
@@ -211,7 +199,7 @@ class LXDHandler(BaseHandler):
             artifact (Injectable): Artifact to upload.
         """
         artifact.load()
-        dump_data = artifact._dump(mode="push")
+        dump_data = artifact._dumps(mode="push")
         instance.execute(["mkdir", "-p", "/root/init/data"])
         instance.files.put("/root/init/data/dump", dump_data["injectable"])
         instance.execute(["python3", "/root/init/data/dump"])
@@ -223,7 +211,7 @@ class LXDHandler(BaseHandler):
             instance (Any): Instance to download artifact from.
             artifact (Injectable): Artifact to download.
         """
-        dump_data = artifact._dump(mode="pull")
+        dump_data = artifact._dumps(mode="pull")
         instance.execute(["mkdir", "-p", "/root/post/data"])
         instance.files.put(
             "/root/post/data/load",
@@ -233,11 +221,11 @@ class LXDHandler(BaseHandler):
             instance.execute(["python3", "/root/post/data/load"]).stdout
         )
         with tempfile.NamedTemporaryFile():
-            holder = artifact.__class__._load(result["checksum"], result["data"])
+            holder = artifact.__class__._loads(result["checksum"], result["data"])
             holder.dump()
 
 
-class LXDProviderEntrypoint(BaseEntrypoint, LXDHandler):
+class LXDProviderEntrypoint(BaseEntrypoint, LXDHarness):
     """Entrypoint to running testlets with LXD test environment provider.
 
     Args:
@@ -365,9 +353,12 @@ class LXDProviderEntrypoint(BaseEntrypoint, LXDHandler):
                 Result of test run inside of pre-existing
                 LXD test environment instance.
         """
-        return instance.name, self._execute(
+        self._handle_start_env_hooks(instance)
+        result = self._execute(
             self._make_testlet(
-                self._func, self._func_name, [re.compile(r"^@lxd\(([^)]+)\)")]
+                self._func, self._func_name, [re.compile(r"^@lxd\.target\(([^)]+)\)")]
             ),
             instance,
         )
+        self._handle_stop_env_hooks(instance)
+        return instance.name, result

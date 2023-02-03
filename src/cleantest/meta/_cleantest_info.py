@@ -16,6 +16,28 @@ from typing import Dict, Iterable, Tuple
 
 import pkg_resources
 
+from cleantest.meta.utils import thread_count
+
+
+def _dependency_processor(dependency: pkg_resources.Distribution) -> Dict[str, bytes]:
+    """Collect source code of cleantest dependency.
+
+    Args:
+        dependency (pkg_resources.Distribution): Dependency of cleantest.
+
+    Returns:
+        (Dict[str, bytes]): Name and base64 encoded source code of dependency.
+    """
+    os.chdir(dependency.location)
+    with tempfile.NamedTemporaryFile() as fin:
+        with tarfile.open(fin.name, "w:gz") as tar, pathlib.Path(
+            f"{dependency.key.replace('-', '_')}-{dependency.version}.dist-info"
+        ).joinpath("RECORD").open(mode="rt") as dist_info_fin:
+            for row in csv.reader(dist_info_fin):
+                tar.add(row[0])
+
+        return {dependency.key: pathlib.Path(fin.name).read_bytes()}
+
 
 class CleantestInfo:
     """Metaclass for getting information about the cleantest library."""
@@ -26,12 +48,12 @@ class CleantestInfo:
         Returns:
             (CleantestInfo): New object instance.
         """
-        if not hasattr(cls, "instance"):
-            cls.instance = super(CleantestInfo, cls).__new__(cls)
-        return cls.instance
+        if not hasattr(cls, f"_{cls.__name__}__instance"):
+            cls.__instance = super(CleantestInfo, cls).__new__(cls)
+        return cls.__instance
 
     @property
-    def _src(self) -> Dict[str, bytes]:
+    def __src(self) -> Dict[str, bytes]:
         """Retrieve the source code of cleantest.
 
         Returns:
@@ -46,15 +68,15 @@ class CleantestInfo:
             return {"cleantest": pathlib.Path(fin.name).read_bytes()}
 
     @property
-    def _dependencies(self) -> Iterable[Tuple[str, bytes]]:
+    def __dependencies(self) -> Iterable[Tuple[str, bytes]]:
         """Retrieve the source code of cleantest's dependencies.
 
         Yields:
             (Dict[str, bytes]): Name and source code of dependencies.
         """
-        with ProcessPoolExecutor(max_workers=os.cpu_count()) as pool:
+        with ProcessPoolExecutor(max_workers=thread_count()) as pool:
             pool_results = pool.map(
-                self._dependency_processor,
+                _dependency_processor,
                 pkg_resources.working_set.resolve(
                     pkg_resources.working_set.by_key["cleantest"].requires()
                 ),
@@ -63,28 +85,7 @@ class CleantestInfo:
                 for k, v in res.items():
                     yield k, v
 
-    def _dependency_processor(
-        self, dependency: pkg_resources.Distribution
-    ) -> Dict[str, bytes]:
-        """Collect source code of cleantest dependency.
-
-        Args:
-            dependency (pkg_resources.Distribution): Dependency of cleantest.
-
-        Returns:
-            (Dict[str, bytes]): Name and base64 encoded source code of dependency.
-        """
-        os.chdir(dependency.location)
-        with tempfile.NamedTemporaryFile() as fin:
-            with tarfile.open(fin.name, "w:gz") as tar, pathlib.Path(
-                f"{dependency.key.replace('-', '_')}-{dependency.version}.dist-info"
-            ).joinpath("RECORD").open(mode="rt") as dist_info_fin:
-                for row in csv.reader(dist_info_fin):
-                    tar.add(row[0])
-
-            return {dependency.key: pathlib.Path(fin.name).read_bytes()}
-
-    def _injectable(self, checksum: str, data: str) -> str:
+    def __injectable(self, checksum: str, data: str) -> str:
         """Generate injectable script to install packages inside the test instance.
 
         Args:
@@ -114,7 +115,7 @@ class CleantestInfo:
             fout.seek(0)
             return fout.read()
 
-    def dump(self) -> Iterable[Tuple[str, Dict[str, str]]]:
+    def dumps(self) -> Iterable[Tuple[str, Dict[str, str]]]:
         """Prepare cleantest for injection into test environment instance.
 
         Yields:
@@ -124,13 +125,13 @@ class CleantestInfo:
                 data (str): Base64 encoded tarball containing source code.
                 injectable (str): Injectable to run inside remote instance.
         """
-        packages = self._src
-        packages.update(dict(self._dependencies))
+        packages = self.__src
+        packages.update(dict(self.__dependencies))
         for k, v in packages.items():
             checksum = hashlib.sha224(v).hexdigest()
             data = base64.b64encode(v).decode()
             yield k, {
                 "checksum": checksum,
                 "data": data,
-                "injectable": self._injectable(checksum, data),
+                "injectable": self.__injectable(checksum, data),
             }

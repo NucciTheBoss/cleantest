@@ -1,0 +1,10 @@
+[sssd]
+config_file_version = 2
+domains = mini-hpc.org
+
+[domain/mini-hpc.org]
+id_provider = ldap
+auth_provider = ldap
+ldap_uri = ldap://{{ ldap_server_address }}
+cache_credentials = True
+ldap_search_base = dc=mini-hpc,dc=org

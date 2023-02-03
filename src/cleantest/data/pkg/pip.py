@@ -160,7 +160,7 @@ class Pip(BasePackage):
                         )
                     )
 
-    def _dump(self) -> Dict[str, str]:
+    def _dumps(self) -> Dict[str, str]:
         """Prepare Pip object for injection.
 
         Raises:
@@ -190,7 +190,7 @@ class Pip(BasePackage):
                     )
                 self._constraints_store.append(fin.read_text())
 
-        return super()._dump()
+        return super()._dumps()
 
     def _injectable(self, data: Dict[str, str], **kwargs) -> str:
         """Generate injectable script that will be used to install packages with pip.
@@ -209,7 +209,7 @@ class Pip(BasePackage):
 
             from {self.__module__} import {self.__class__.__name__}
 
-            holder = {self.__class__.__name__}._load("{data['checksum']}", "{data['data']}")
+            holder = {self.__class__.__name__}._loads("{data['checksum']}", "{data['data']}")
             holder._run()
             """
         ).strip("\n")

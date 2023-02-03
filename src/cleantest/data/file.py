@@ -4,13 +4,15 @@
 
 """Abstractions for uploading and downloading files from test environments."""
 
+import copy
 import os
 import pathlib
+import shutil
 import tarfile
 import tempfile
 import textwrap
-from io import BytesIO
-from typing import Dict
+from io import BytesIO, StringIO
+from typing import Dict, Union
 
 from cleantest.meta import Injectable
 
@@ -27,18 +29,66 @@ class File(Injectable):
     """Represents a file that can be shared between host and test environment.
 
     Args:
-        src (pathlib.Path): Where to load file from.
-        dest (pathlib.Path): Where to dump file to.
+        src (Union[str, pathlib.Path, StringIO, BytesIO]):
+            Where to load file from.
+        dest (Union[str, pathlib.Path]): Where to dump file to.
         overwrite (bool):
             True - overwrite file if it already exists when dumping.
             False - raise error if file already exists when dumping.
     """
 
-    def __init__(self, src: str, dest: str, overwrite: bool = False) -> None:
-        self.src = pathlib.Path(src)
+    def __init__(
+        self,
+        src: Union[str, pathlib.Path, bytes, StringIO, BytesIO],
+        dest: Union[str, pathlib.Path],
+        overwrite: bool = False,
+    ) -> None:
+        self.src = src
         self.dest = pathlib.Path(dest)
         self.overwrite = overwrite
-        self._data = None
+        self.__data = None
+
+    def load(self) -> None:
+        """Load file from specified source.
+
+        Raises:
+            FileNotFoundError: Raised if file is not found.
+            FileError: Raised if source is a directory rather than a file.
+        """
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            _ = pathlib.Path(tmp_dir)
+            with tarfile.open(pathlib.Path(tmp_dir) / "_", "w:gz") as tar:
+                old_pwd = os.getcwd()
+                os.chdir(_)
+                if type(self.src) == str or isinstance(self.src, pathlib.Path):
+                    data = pathlib.Path(self.src)
+                    if data.exists() is False:
+                        raise FileNotFoundError(f"Could not find {self.src}.")
+
+                    if data.is_dir():
+                        raise FileError(
+                            f"{self.src} is a directory. Use Dir class instead."
+                        )
+                    shutil.copy(data, _ / "data")
+                    tar.add("data")
+                elif isinstance(self.src, StringIO) or isinstance(self.src, BytesIO):
+                    data = copy.deepcopy(self.src)
+                    placeholder = pathlib.Path("data")
+                    placeholder.write_text(data.read()) if isinstance(
+                        self.src, StringIO
+                    ) else placeholder.write_bytes(data.read())
+                    tar.add(placeholder)
+                else:
+                    raise FileError(
+                        (
+                            "Expected type str, os.PathLike, StringIO, or BytesIO, "
+                            f"not {type(self.src)}."
+                        )
+                    )
+
+                os.chdir(old_pwd)
+
+            self.__data = pathlib.Path(tar.name).read_bytes()
 
     def dump(self) -> None:
         """Dump directory to specified destination.
@@ -49,40 +99,20 @@ class File(Injectable):
         """
         if self.dest.exists() and self.overwrite is False:
             raise FileExistsError(
-                f"{self.dest} already exists. Set overwrite = True to overwrite {self.dest}."
+                (
+                    f"{self.dest} already exists. Set overwrite = True to "
+                    f"overwrite {self.dest}."
+                )
             )
 
-        if self._data is None:
+        if self.__data is None:
             raise FileError("Nothing to write.")
 
-        with tarfile.open(
-            fileobj=BytesIO(self._data), mode="r:gz"
-        ) as tar, tempfile.TemporaryDirectory() as tmp_dir:
+        with tempfile.TemporaryDirectory() as tmp_dir, tarfile.open(
+            fileobj=BytesIO(self.__data), mode="r:gz"
+        ) as tar:
             tar.extractall(tmp_dir)
-            self.dest.write_bytes(
-                pathlib.Path(tmp_dir).joinpath(self.src.name).read_bytes()
-            )
-
-    def load(self) -> None:
-        """Load file from specified source.
-
-        Raises:
-            FileNotFoundError: Raised if file is not found.
-            FileError: Raised if source is a directory rather than a file.
-        """
-        if self.src.exists() is False:
-            raise FileNotFoundError(f"Could not find {self.src}.")
-
-        if self.src.is_dir():
-            raise FileError(f"{self.src} is a directory. Use Dir class instead.")
-
-        _ = os.getcwd()
-        os.chdir(os.sep.join(str(self.src).split(os.sep)[:-1]))
-        with tempfile.NamedTemporaryFile() as fin:
-            with tarfile.open(fin.name, "w:gz") as tar:
-                tar.add(self.src.name)
-            self._data = pathlib.Path(fin.name).read_bytes()
-        os.chdir(_)
+            shutil.copy((pathlib.Path(tmp_dir) / "data"), self.dest)
 
     def _injectable(self, data: Dict[str, str], **kwargs) -> str:
         """Generate injectable script that will be run inside the test environment.
@@ -112,7 +142,7 @@ class File(Injectable):
                 
                 from {self.__module__} import {self.__class__.__name__}
                 
-                _ = {self.__class__.__name__}._load("{data['checksum']}", "{data['data']}")
+                _ = {self.__class__.__name__}._loads("{data['checksum']}", "{data['data']}")
                 _.dump()
                 """
             ).strip("\n")
@@ -125,8 +155,15 @@ class File(Injectable):
                 
                 from {self.__module__} import {self.__class__.__name__}
                 
-                _ = {self.__class__.__name__}._load("{data['checksum']}", "{data['data']}")
+                _ = {self.__class__.__name__}._loads("{data['checksum']}", "{data['data']}")
                 _.load()
-                print(json.dumps(_._dump()), file=sys.stdout)
+                print(json.dumps(_._dumps()), file=sys.stdout)
                 """
             ).strip("\n")
+
+    def __repr__(self) -> str:
+        """String representation of File."""
+        attrs = ", ".join(
+            f"{k}={v}" for k, v in self.__dict__.items() if not k.startswith("_")
+        )
+        return f"{self.__class__.__name__}({attrs})"

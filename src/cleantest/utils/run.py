@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-# Copyright 2023 Jason C. Nucciarone, Canonical Ltd.
+# Copyright 2023 Jason C. Nucciarone
 # See LICENSE file for licensing details.
 
 """Run commands inside test environment instances."""
 
+import shlex
 import subprocess
 from typing import Any, Dict, Iterable, Optional
 
@@ -35,7 +36,7 @@ def run(
     for command in commands:
         try:
             res = subprocess.run(
-                command.split(" "),
+                shlex.split(command),
                 env=(env if env else None),
                 cwd=(cwd if cwd else None),
                 stdout=subprocess.PIPE,

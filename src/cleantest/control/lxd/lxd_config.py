@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
-# Copyright 2023 Jason C. Nucciarone, Canonical Ltd.
+# Copyright 2023 Jason C. Nucciarone
 # See LICENSE file for licensing details.
 
-"""Classes to assist with LXD instance configuration."""
+"""Dataclasses to assist with LXD provider and instance configuration."""
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Optional, Tuple, Union
 
-from cleantest.meta.mixins import DictOps
+from cleantest.meta.mixins import DictLike, EnhancedEnum
 
 
 class BadLXDConfigError(Exception):
     """Raised when the newly entered configuration fails the lint check."""
 
 
-class ClientConfig:
+class ClientConfig(DictLike):
     """Define an LXD client connection.
 
     Args:
@@ -47,6 +47,11 @@ class ClientConfig:
         self.verify = verify
         self.timeout = timeout
         self.project = project
+
+    def __repr__(self) -> str:
+        """String representation of ClientConfig."""
+        attrs = ", ".join(f"{k}={v}" for k, v in self.__dict__.items())
+        return f"{self.__class__.__name__}({attrs})"
 
 
 class InstanceSource:
@@ -137,8 +142,13 @@ class InstanceSource:
         if source is not None:
             setattr(self, "source", source)
 
+    def __repr__(self) -> str:
+        """String representation of InstanceSource."""
+        attrs = ", ".join(f"{k}={v}" for k, v in self.__dict__.items())
+        return f"{self.__class__.__name__}({attrs})"
 
-class InstanceConfig(DictOps):
+
+class InstanceConfig(DictLike):
     """Define an LXD instance that can be brought up for test environments.
 
     Args:
@@ -199,25 +209,287 @@ class InstanceConfig(DictOps):
         if stateful is not None:
             setattr(self, "stateful", stateful)
 
-        self._lint(self.dict())
+        self.__lint()
 
-    def _lint(self, new_config: Dict[str, Any]) -> None:
+    def __lint(self) -> None:
         """Lint a new LXD instance configuration to ensure that it is valid.
 
-        Args:
-            new_config (Dict[str, Any]): New configuration to lint.
-
         Raises:
-            BadLXDConfigError: Raised if the passed LXD instance configuration is invalid.
+            BadLXDConfigError:
+                Raised if the passed LXD instance configuration is invalid.
         """
         checks = ["name", "server", "alias", "protocol", "type", "mode"]
-        config = self._deconstruct(new_config)
         for i in checks:
-            if i not in config:
+            if i not in self.keys(all_keys=True):
                 raise BadLXDConfigError(
                     (
-                        f"Bad instance configuration: {new_config}. "
+                        f"Bad instance configuration: {self.dict()}. "
                         "Please ensure instance configuration has the "
-                        f"following values set: {checks}."
+                        f"following values set: {', '.join(checks)}."
                     )
                 )
+
+    def __repr__(self) -> str:
+        """String representation of InstanceConfig."""
+        attrs = ", ".join(f"{k}={v}" for k, v in self.__dict__.items())
+        return f"{self.__class__.__name__}({attrs})"
+
+
+class _DefaultSources(EnhancedEnum):
+    """Default sources for LXD test environment provider."""
+
+    ALMALINUX_8_AMD64 = InstanceSource(
+        alias="almalinux/8/amd64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    ALMALINUX_8_ARM64 = InstanceSource(
+        alias="almalinux/8/arm64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    ALMALINUX_9_AMD64 = InstanceSource(
+        alias="almalinux/9/amd64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    ALMALINUX_9_ARM64 = InstanceSource(
+        alias="almalinux/9/arm64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    ARCHLINUX_AMD64 = InstanceSource(
+        alias="archlinux/amd64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    ARCHLINUX_ARM64 = InstanceSource(
+        alias="archlinux/arm64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    CENTOS_8_STREAM_AMD64 = InstanceSource(
+        alias="centos/8-Stream/amd64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    CENTOS_8_STREAM_ARM64 = InstanceSource(
+        alias="centos/8-Stream/arm64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    CENTOS_9_STREAM_AMD64 = InstanceSource(
+        alias="centos/9-Stream/amd64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    CENTOS_9_STREAM_ARM64 = InstanceSource(
+        alias="centos/9-Stream/arm64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    DEBIAN_10_AMD64 = InstanceSource(
+        alias="debian/10/amd64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    DEBIAN_10_ARM64 = InstanceSource(
+        alias="debian/10/arm64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    DEBIAN_11_AMD64 = InstanceSource(
+        alias="debian/11/amd64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    DEBIAN_11_ARM64 = InstanceSource(
+        alias="debian/11/arm64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    DEBIAN_12_AMD64 = InstanceSource(
+        alias="debian/12/amd64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    DEBIAN_12_ARM64 = InstanceSource(
+        alias="debian/12/arm64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    FEDORA_35_AMD64 = InstanceSource(
+        alias="fedora/35/amd64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    FEDORA_35_ARM64 = InstanceSource(
+        alias="fedora/35/arm64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    FEDORA_36_AMD64 = InstanceSource(
+        alias="fedora/36/amd64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    FEDORA_36_ARM64 = InstanceSource(
+        alias="fedora/36/arm64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    FEDORA_37_AMD64 = InstanceSource(
+        alias="fedora/37/amd64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    FEDORA_37_ARM64 = InstanceSource(
+        alias="fedora/37/arm64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    ROCKYLINUX_8_AMD64 = InstanceSource(
+        alias="rockylinux/8/amd64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    ROCKYLINUX_8_ARM64 = InstanceSource(
+        alias="rockylinux/8/arm64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    ROCKYLINUX_9_AMD64 = InstanceSource(
+        alias="rockylinux/9/amd64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    ROCKYLINUX_9_ARM64 = InstanceSource(
+        alias="rockylinux/9/arm64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    UBUNTU_JAMMY_AMD64 = InstanceSource(
+        alias="ubuntu/jammy/amd64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    UBUNTU_JAMMY_ARM64 = InstanceSource(
+        alias="ubuntu/jammy/arm64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    UBUNTU_FOCAL_AMD64 = InstanceSource(
+        alias="ubuntu/focal/amd64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    UBUNTU_FOCAL_ARM64 = InstanceSource(
+        alias="ubuntu/focal/arm64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    UBUNTU_BIONIC_AMD64 = InstanceSource(
+        alias="ubuntu/18.04/amd64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )
+
+    UBUNTU_BIONIC_ARM64 = InstanceSource(
+        alias="ubuntu/18.04/arm64",
+        mode="pull",
+        protocol="simplestreams",
+        server="https://images.linuxcontainers.org",
+        type="image",
+    )

@@ -1,0 +1,31 @@
+SlurmctldHost={{ slurmctld_name }}({{ slurmctld_address }})
+ClusterName=mini-hpc
+
+AuthType=auth/munge
+FirstJobId=65536
+InactiveLimit=120
+JobCompType=jobcomp/filetxt
+JobCompLoc=/var/log/slurm/jobcomp
+ProctrackType=proctrack/linuxproc
+KillWait=30
+MaxJobCount=10000
+MinJobAge=3600
+ReturnToService=0
+SchedulerType=sched/backfill
+SlurmctldLogFile=/var/log/slurm/slurmctld.log
+SlurmdLogFile=/var/log/slurm/slurmd.log
+SlurmctldPort=7002
+SlurmdPort=7003
+SlurmdSpoolDir=/var/spool/slurmd.spool
+StateSaveLocation=/var/spool/slurm.state
+SwitchType=switch/none
+TmpFS=/tmp
+WaitTime=30
+
+# Node Configurations
+NodeName={{ slurmd_0_name }} NodeAddr={{ slurmd_0_address }} CPUs=1 RealMemory=1000 TmpDisk=10000
+NodeName={{ slurmd_1_name }} NodeAddr={{ slurmd_1_address }} CPUs=1 RealMemory=1000 TmpDisk=10000
+NodeName={{ slurmd_2_name }} NodeAddr={{ slurmd_2_address }} CPUs=1 RealMemory=1000 TmpDisk=10000
+
+# Partition Configurations
+PartitionName=all Nodes={{ slurmd_0_name }},{{ slurmd_1_name }},{{ slurmd_2_name }} MaxTime=30 MaxNodes=3 State=UP

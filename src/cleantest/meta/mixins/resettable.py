@@ -10,7 +10,6 @@ from abc import ABC, abstractmethod
 class Resettable(ABC):
     """Abstract mixin for Singletons that need to implement reset behavior."""
 
-    @classmethod
     @abstractmethod
-    def reset(cls) -> None:
+    def reset(self) -> None:
         """Reset the current Singleton to its default state."""

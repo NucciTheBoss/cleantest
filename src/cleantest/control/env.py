@@ -7,7 +7,7 @@
 import os
 from typing import Any, Dict, Optional
 
-from cleantest._meta.mixins import Resettable
+from cleantest.meta.mixins import Resettable
 
 
 class Env(Resettable):
@@ -25,10 +25,9 @@ class Env(Resettable):
             cls._instance = super(Env, cls).__new__(cls)
         return cls._instance
 
-    @classmethod
-    def reset(cls) -> None:
+    def reset(self) -> None:
         """Reset environment information."""
-        cls._env = {}
+        self._env = {}
 
     def add(self, env_mapping: Dict[str, Any]) -> None:
         """Add new values to environment.
