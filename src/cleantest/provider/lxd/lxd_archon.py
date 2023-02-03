@@ -159,7 +159,7 @@ class LXDArchon:
             logger.info(f"Executing provision script {work_order.provision_script}")
             self.push(
                 work_order.name,
-                data_obj=File(work_order.provision_script, "/root/.init/provision"),
+                data_obj=[File(work_order.provision_script, "/root/.init/provision")],
             )
             instance.execute(shlex.split("python3 /root/.init/provision"))
 
