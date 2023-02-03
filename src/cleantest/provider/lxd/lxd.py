@@ -95,6 +95,7 @@ class lxd:  # noqa N801
                 _ = {
                     "_target_instances": [*instances],
                     "_env": Env(),
+                    "_lxd_config": Configure("lxd"),
                     "_num_threads": _num_threads,
                 }
                 handler = (
