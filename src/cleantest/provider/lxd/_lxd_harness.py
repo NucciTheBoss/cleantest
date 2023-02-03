@@ -356,7 +356,7 @@ class LXDProviderEntrypoint(BaseEntrypoint, LXDHarness):
         self._handle_start_env_hooks(instance)
         result = self._execute(
             self._make_testlet(
-                self._func, self._func_name, [re.compile(r"^@lxd\(([^)]+)\)")]
+                self._func, self._func_name, [re.compile(r"^@lxd\.target\(([^)]+)\)")]
             ),
             instance,
         )
