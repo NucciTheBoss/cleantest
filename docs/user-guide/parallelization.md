@@ -47,23 +47,17 @@ you need to use one of Python's many parallel computing libraries, or third-part
 
 """Parallel testing example using LXD as test environment provider."""
 
-import os
-
-from cleantest import Configure
-from cleantest.hooks import StartEnvHook
-from cleantest.pkg import Pip
+from cleantest.control import Configure
+from cleantest.control.hooks import StartEnvHook
+from cleantest.data.pkg import Pip
 from cleantest.provider import lxd
-
-config = Configure()
-start_hook = StartEnvHook(name="pip_injection", packages=[Pip(packages="tabulate")])
-config.register_hook(start_hook)
 
 
 @lxd(
-    image=["jammy-amd64", "focal-amd64", "bionic-amd64"],
+    image=["ubuntu-jammy-amd64", "ubuntu-focal-amd64", "ubuntu-bionic-amd64"],
     preserve=False,
     parallel=True,
-    num_threads=os.cpu_count(),
+    num_threads=3,
 )
 def install_tabulate():
     import sys
@@ -79,12 +73,13 @@ def install_tabulate():
     sys.exit(0)
 
 
-class TestParallelLXD:
-    def test_parallel_lxd(self) -> None:
-        results = install_tabulate()
-        for name, result in results.items():
-            try:
-                assert result.exit_code == 0
-            except AssertionError:
-                raise Exception(f"{name} failed. Result: {result}")
+def test_parallel_lxd(clean_slate) -> None:
+    config = Configure("lxd")
+    start_hook = StartEnvHook(name="pip_injection", packages=[Pip(packages="tabulate")])
+    config.register_hook(start_hook)
+    for name, result in install_tabulate():
+        try:
+            assert result.exit_code == 0
+        except AssertionError:
+            raise Exception(f"{name} failed. Result: {result}")
 ```

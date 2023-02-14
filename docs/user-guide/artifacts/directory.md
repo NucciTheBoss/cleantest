@@ -41,43 +41,43 @@ and how `Dir` behaves when accessed by them:
 
 import os
 import pathlib
-import tempfile
+import shutil
 
-from cleantest import Configure
-from cleantest.hooks import StartEnvHook, StopEnvHook
-from cleantest.hooks.data import Dir
+from cleantest.control import Configure
+from cleantest.control.hooks import StartEnvHook, StopEnvHook
+from cleantest.data import Dir
 from cleantest.provider import lxd
 
-root = os.path.dirname(os.path.realpath(__file__))
-config = Configure()
-start_hook = StartEnvHook(
-    name="upload_artifact",
-    upload=[
-        Dir(os.path.join(root, "greetings"), "/root/greetings"),
-    ],
-)
-stop_hook = StopEnvHook(
-    name="download_artifact",
-    download=[
-        Dir("/root/dump", os.path.join(tempfile.gettempdir(), "dump"), overwrite=True),
-    ],
-)
-config.register_hook(start_hook, stop_hook)
 
-
-@lxd(image="jammy-amd64", preserve=True)
+@lxd(image="ubuntu-jammy-amd64", preserve=False)
 def work_on_artifacts():
     import os
     import pathlib
     import sys
 
-    print(pathlib.Path("/root/dump").is_dir(), file=sys.stdout)
+    print(pathlib.Path("/root/greetings").is_dir(), file=sys.stdout)
+
     os.mkdir("/root/dump")
     pathlib.Path("/root/dump/dump_1.txt").write_text("Oh I have been dumped again!")
 
 
-class TestUploadDownload:
-    def test_upload_download(self) -> None:
-        work_on_artifacts()
-        assert pathlib.Path(tempfile.gettempdir()).joinpath("dump").is_dir() is True
+def test_upload_download(clean_slate) -> None:
+    root = pathlib.Path(os.path.dirname(os.path.realpath(__file__)))
+    config = Configure("lxd")
+    start_hook = StartEnvHook(
+        name="upload_artifact",
+        upload=[
+            Dir(root / "greetings", "/root/greetings"),
+        ],
+    )
+    stop_hook = StopEnvHook(
+        name="download_artifact",
+        download=[
+            Dir("/root/dump", root / "dump", overwrite=True,),
+        ],
+    )
+    config.register_hook(start_hook, stop_hook)
+    for name, result in work_on_artifacts():
+        assert (root / "dump").is_dir() is True
+    shutil.rmtree(root / "dump")
 ```

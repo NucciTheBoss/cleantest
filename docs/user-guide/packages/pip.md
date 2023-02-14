@@ -30,23 +30,17 @@ accepts three arguments:
 
 """Example usage of Pip package metaclass."""
 
-from cleantest import Configure
-from cleantest.hooks import StartEnvHook
-from cleantest.pkg import Pip
+import os
+import pathlib
+
+from cleantest.control import Configure
+from cleantest.control.hooks import StartEnvHook
+from cleantest.data.pkg import Pip
 from cleantest.provider import lxd
 
-config = Configure()
-start_hook = StartEnvHook(
-    name="install_tabulate",
-    packages=[
-        Pip(packages=["tabulate"]),
-    ],
-)
-config.register_hook(start_hook)
 
-
-@lxd(image="jammy-amd64", preserve=False)
-def install_tabulate():
+@lxd(image="ubuntu-jammy-amd64", preserve=False)
+def install_snapd():
     import sys
 
     try:
@@ -60,9 +54,16 @@ def install_tabulate():
     sys.exit(0)
 
 
-class TestLocalLXD:
-    def test_local_lxd(self) -> None:
-        results = install_tabulate()
-        for name, result in results.items():
-            assert result.exit_code == 0
+def test_local_lxd(clean_slate) -> None:
+    root = pathlib.Path(os.path.dirname(os.path.realpath(__file__)))
+    config = Configure("lxd")
+    start_hook = StartEnvHook(
+        name="setup_deps",
+        packages=[
+            Pip(requirements=[root / "requirements.txt"]),
+        ],
+    )
+    config.register_hook(start_hook)
+    for name, result in install_snapd():
+        assert result.exit_code == 0
 ```

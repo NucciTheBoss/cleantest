@@ -56,8 +56,7 @@ of choice. In our case, we used __pytest__:
 ```python
 class TestSuite:
     def test_do_something(self) -> None:
-        results = do_something()
-        for name, result in results.items()
+        for name, result in do_something():
             assert result.exit_code == 0
 ```
 
@@ -89,8 +88,7 @@ def do_something():
 
 class TestSuite:
     def test_do_something(self) -> None:
-        results = do_something()
-        for name, result in results.items()
+        for name, result in do_something():
             assert result.exit_code == 0
 ```
 
