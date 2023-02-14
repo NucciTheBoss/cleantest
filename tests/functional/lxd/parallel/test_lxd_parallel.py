@@ -14,7 +14,7 @@ from cleantest.provider import lxd
     image=["ubuntu-jammy-amd64", "ubuntu-focal-amd64", "ubuntu-bionic-amd64"],
     preserve=False,
     parallel=True,
-    num_threads=2,
+    num_threads=3,
 )
 def install_tabulate():
     import sys

@@ -5,6 +5,7 @@
 """Test LXD environment capabilities using local LXD cluster."""
 
 import os
+import pathlib
 
 from cleantest.control import Configure
 from cleantest.control.hooks import StartEnvHook
@@ -48,16 +49,16 @@ def install_snapd():
 
 
 def test_local_lxd(clean_slate) -> None:
-    root = os.path.dirname(os.path.realpath(__file__))
+    root = pathlib.Path(os.path.dirname(os.path.realpath(__file__)))
     config = Configure("lxd")
     start_hook = StartEnvHook(
         name="setup_deps",
         packages=[
             Charmlib(
-                auth_token_path=os.path.join(root, "charmhub.secret"),
+                auth_token_path=root / "charmhub.secret",
                 charmlibs=["charms.operator_libs_linux.v0.apt"],
             ),
-            Pip(requirements=os.path.join(root, "requirements.txt")),
+            Pip(requirements=[root / "requirements.txt"]),
         ],
     )
     config.register_hook(start_hook)

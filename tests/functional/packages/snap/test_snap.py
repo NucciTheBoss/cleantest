@@ -5,6 +5,7 @@
 """Test that cleantest can successfully install and operate snap packages."""
 
 import os
+import pathlib
 
 from cleantest.control import Configure
 from cleantest.control.hooks import StartEnvHook
@@ -26,7 +27,7 @@ def functional_snaps():
 
 
 def test_snap_package(clean_slate) -> None:
-    root = os.path.dirname(os.path.realpath(__file__))
+    root = pathlib.Path(os.path.dirname(os.path.realpath(__file__)))
     config = Configure("lxd")
     start_hook = StartEnvHook(
         name="test_snaps",
@@ -41,7 +42,7 @@ def test_snap_package(clean_slate) -> None:
                 ],
             ),
             Snap(
-                local_snaps=os.path.join(root, "marktext.snap"),
+                local_snaps=[root / "marktext.snap"],
                 dangerous=True,
             ),
         ],
