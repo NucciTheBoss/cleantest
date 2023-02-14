@@ -2,72 +2,77 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://nuccitheboss.github.io/cleantest/</loc>
-         <lastmod>2022-12-26</lastmod>
+         <lastmod>2023-02-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://nuccitheboss.github.io/cleantest/about/license/</loc>
-         <lastmod>2022-12-26</lastmod>
+         <lastmod>2023-02-14</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://nuccitheboss.github.io/cleantest/examples/building-an-hpc-undercloud/</loc>
+         <lastmod>2023-02-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://nuccitheboss.github.io/cleantest/examples/coming-soon/</loc>
-         <lastmod>2022-12-26</lastmod>
+         <lastmod>2023-02-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://nuccitheboss.github.io/cleantest/user-guide/getting-started/</loc>
-         <lastmod>2022-12-26</lastmod>
+         <lastmod>2023-02-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://nuccitheboss.github.io/cleantest/user-guide/hooks/</loc>
-         <lastmod>2022-12-26</lastmod>
+         <lastmod>2023-02-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://nuccitheboss.github.io/cleantest/user-guide/installation/</loc>
-         <lastmod>2022-12-26</lastmod>
+         <lastmod>2023-02-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://nuccitheboss.github.io/cleantest/user-guide/parallelization/</loc>
-         <lastmod>2022-12-26</lastmod>
+         <lastmod>2023-02-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://nuccitheboss.github.io/cleantest/user-guide/test-env-providers/</loc>
-         <lastmod>2022-12-26</lastmod>
+         <lastmod>2023-02-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://nuccitheboss.github.io/cleantest/user-guide/using-diff-linux-distro/</loc>
-         <lastmod>2022-12-26</lastmod>
+         <lastmod>2023-02-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://nuccitheboss.github.io/cleantest/user-guide/artifacts/directory/</loc>
-         <lastmod>2022-12-26</lastmod>
+         <lastmod>2023-02-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://nuccitheboss.github.io/cleantest/user-guide/artifacts/file/</loc>
-         <lastmod>2022-12-26</lastmod>
+         <lastmod>2023-02-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://nuccitheboss.github.io/cleantest/user-guide/packages/charmlib/</loc>
-         <lastmod>2022-12-26</lastmod>
+         <lastmod>2023-02-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://nuccitheboss.github.io/cleantest/user-guide/packages/pip/</loc>
-         <lastmod>2022-12-26</lastmod>
+         <lastmod>2023-02-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://nuccitheboss.github.io/cleantest/user-guide/packages/snaps/</loc>
-         <lastmod>2022-12-26</lastmod>
+         <lastmod>2023-02-14</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
