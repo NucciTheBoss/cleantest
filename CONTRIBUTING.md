@@ -1,3 +1,6 @@
+[//]: # "Copyright 2023 Jason C. Nucciarone"
+[//]: # "See LICENSE file for licensing details."
+
 # Contributing to cleantest
 
 Do you have something that you wish to contribute to cleantest? **If so, here is how you can help!**

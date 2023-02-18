@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright 2022 Jason C. Nucciarone, Canonical Ltd.
+# Copyright 2023 Jason C. Nucciarone
 # See LICENSE file for licensing details.
 
 """Detect operating system of test environment."""
@@ -9,8 +9,6 @@ import platform
 
 class UnknownOSError(Exception):
     """Raised when an unknown operating system is detected."""
-
-    ...
 
 
 def detect_os_variant() -> str:

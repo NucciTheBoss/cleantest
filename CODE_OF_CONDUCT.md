@@ -1,3 +1,6 @@
+[//]: # "Copyright 2023 Jason C. Nucciarone"
+[//]: # "See LICENSE file for licensing details."
+
 # Community
 
 cleantest is about providing an easy way to test software using open-source container and virtual machine hypervisors
