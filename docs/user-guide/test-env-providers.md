@@ -1,3 +1,6 @@
+[//]: # "Copyright 2023 Jason C. Nucciarone"
+[//]: # "See LICENSE file for licensing details."
+
 # Test environment providers
 
 Test environment providers are the backbone of cleantest; they provide the containers or virtual machines that

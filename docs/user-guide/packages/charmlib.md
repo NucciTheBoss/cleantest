@@ -1,3 +1,6 @@
+[//]: # "Copyright 2023 Jason C. Nucciarone"
+[//]: # "See LICENSE file for licensing details."
+
 # Working with charm libraries
 
 Charm libraries are special Python modules used in charmed operators deployed by [__Juju__](https://juju.is). They

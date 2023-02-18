@@ -1,3 +1,6 @@
+[//]: # "Copyright 2023 Jason C. Nucciarone"
+[//]: # "See LICENSE file for licensing details."
+
 # Working with snap packages
 
 Snap packages are a bundle of an app and its dependencies that work across a variety of Linux distributions

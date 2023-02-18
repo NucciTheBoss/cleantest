@@ -1,3 +1,6 @@
+[//]: # "Copyright 2023 Jason C. Nucciarone" 
+[//]: # "See LICENSE file for licensing details."
+
 # Working with directories
 
 Directories can be uploaded to and downloaded from test environment instances as artifacts.

@@ -1,3 +1,6 @@
+[//]: # "Copyright 2023 Jason C. Nucciarone"
+[//]: # "See LICENSE file for licensing details."
+
 # Working with pip packages
 
 Pip is the package installer for the Python programming language. You can use it to install packages from the

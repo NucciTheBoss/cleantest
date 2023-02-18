@@ -1,3 +1,6 @@
+[//]: # "Copyright 2023 Jason C. Nucciarone"
+[//]: # "See LICENSE file for licensing details."
+
 # Getting started with cleantest
 
 Now that you have the cleantest framework installed on your system, let's get you introduced to writing some basic 

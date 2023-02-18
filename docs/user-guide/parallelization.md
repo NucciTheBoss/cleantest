@@ -1,3 +1,6 @@
+[//]: # "Copyright 2023 Jason C. Nucciarone"
+[//]: # "See LICENSE file for licensing details."
+
 # Running tests in parallel
 
 cleantest has the ability to run test environment instances in parallel to increase the efficiency of test runs.

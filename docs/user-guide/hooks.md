@@ -1,3 +1,6 @@
+[//]: # "Copyright 2023 Jason C. Nucciarone"
+[//]: # "See LICENSE file for licensing details."
+
 # Using hooks
 
 Hooks are used to run actions at various stages of the cleantest lifecycle. They can be used to configure test
