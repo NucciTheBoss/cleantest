@@ -12,7 +12,7 @@ long_description = top_dir.joinpath("README.md").read_text()
 
 setup(
     name="cleantest",
-    version="0.3.0",
+    version="0.4.0-rc1",
     description="Clean tests for developers in a hurry",
     long_description=long_description,
     long_description_content_type="text/markdown",
