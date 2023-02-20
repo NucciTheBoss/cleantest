@@ -1,0 +1,1890 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentation for cleantest - a testing framework for developers who need clean testing environments in a hurry.
+">
+      
+      
+      
+        <link rel="canonical" href="https://nuccitheboss.github.io/cleantest/tutorials/using-a-mini-hpc-cluster/">
+      
+      
+        <link rel="prev" href="../../user-guide/parallelization/">
+      
+      
+        <link rel="next" href="../../reference/coming-soon/">
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.2, mkdocs-material-9.0.13">
+    
+    
+      
+        <title>Using a mini-HPC cluster to test batch jobs - cleantest</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ffa9267a.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.a0c5b2b5.min.css">
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="black" data-md-color-accent="">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#using-a-mini-hpc-cluster-to-test-batch-jobs" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="cleantest" class="md-header__button md-logo" aria-label="cleantest" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            cleantest
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Using a mini-HPC cluster to test batch jobs
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/NucciTheBoss/cleantest" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    NucciTheBoss/cleantest
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../.." class="md-tabs__link">
+      Home
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../user-guide/installation/" class="md-tabs__link">
+        User Guide
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+    
+  
+
+
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="./" class="md-tabs__link md-tabs__link--active">
+        Tutorials
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../reference/coming-soon/" class="md-tabs__link">
+      Reference
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../../news/news/" class="md-tabs__link">
+      News
+    </a>
+  </li>
+
+      
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="https://github.com/NucciTheBoss/cleantest/discussions" class="md-tabs__link">
+      Community
+    </a>
+  </li>
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="cleantest" class="md-nav__button md-logo" aria-label="cleantest" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    cleantest
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/NucciTheBoss/cleantest" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.3.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    NucciTheBoss/cleantest
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+          User Guide
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_2">
+          <span class="md-nav__icon md-icon"></span>
+          User Guide
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/installation/" class="md-nav__link">
+        Installation
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/getting-started/" class="md-nav__link">
+        Getting started
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/test-env-providers/" class="md-nav__link">
+        Test environment providers
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/hooks/" class="md-nav__link">
+        Using hooks
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_5" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2_5" id="__nav_2_5_label" tabindex="0">
+          Working with packages
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_5_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_2_5">
+          <span class="md-nav__icon md-icon"></span>
+          Working with packages
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/packages/charmlib/" class="md-nav__link">
+        Charm libraries
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/packages/pip/" class="md-nav__link">
+        Pip
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/packages/snaps/" class="md-nav__link">
+        Snaps
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+      
+      
+        
+      
+      <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2_6" >
+      
+      
+      
+        <label class="md-nav__link" for="__nav_2_6" id="__nav_2_6_label" tabindex="0">
+          Working with artifacts
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_6_label" aria-expanded="false">
+        <label class="md-nav__title" for="__nav_2_6">
+          <span class="md-nav__icon md-icon"></span>
+          Working with artifacts
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/artifacts/directory/" class="md-nav__link">
+        Directories
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/artifacts/file/" class="md-nav__link">
+        Files
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/using-diff-linux-distro/" class="md-nav__link">
+        Using different Linux distributions
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../user-guide/parallelization/" class="md-nav__link">
+        Parallel testing
+      </a>
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+      
+      
+      <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+      
+      
+      
+        <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          Tutorials
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+        <label class="md-nav__title" for="__nav_3">
+          <span class="md-nav__icon md-icon"></span>
+          Tutorials
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+            
+              
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Using a mini-HPC cluster to test batch jobs
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Using a mini-HPC cluster to test batch jobs
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setting-up-the-cleantest-environment" class="md-nav__link">
+    Setting up the cleantest environment
+  </a>
+  
+    <nav class="md-nav" aria-label="Setting up the cleantest environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#test-dependencies" class="md-nav__link">
+    Test dependencies
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-template-files" class="md-nav__link">
+    Required template files
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-the-test-file" class="md-nav__link">
+    Create the test file
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-the-identity-service" class="md-nav__link">
+    Configuring the identity service
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring the identity service">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#provision-script-for-ldap-0" class="md-nav__link">
+    Provision script for ldap-0
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cleantest-archon-to-create-ldap-0" class="md-nav__link">
+    Use cleantest archon to create ldap-0
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-up-the-shared-filesystem" class="md-nav__link">
+    Setting up the shared filesystem
+  </a>
+  
+    <nav class="md-nav" aria-label="Setting up the shared filesystem">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#provision-script-for-nfs-0" class="md-nav__link">
+    Provision script for nfs-0
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cleantest-archon-to-create-nfs-0" class="md-nav__link">
+    Use cleantest archon to create nfs-0
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#starting-the-slurm-cluster" class="md-nav__link">
+    Starting the SLURM cluster
+  </a>
+  
+    <nav class="md-nav" aria-label="Starting the SLURM cluster">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#provision-script-for-slurmctld-0" class="md-nav__link">
+    Provision script for slurmctld-0
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#provision-script-for-slurmd-012" class="md-nav__link">
+    Provision script for slurmd-{0,1,2}
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cleantest-archon-to-create-slurmctld-0" class="md-nav__link">
+    Use cleantest archon to create slurmctld-0
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pull-munge-key-from-slurmctld-0-and-create-slurmd-012" class="md-nav__link">
+    Pull MUNGE key from slurmctld-0 and create slurmd-{0,1,2}
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sync-slurmconf-across-slurmctld-0-and-slurmd-012-and-start-slurm-services" class="md-nav__link">
+    Sync slurm.conf across slurmctld-0 and slurmd-{0,1,2} and start SLURM services
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#write-a-testlet-to-submit-test-batch-job" class="md-nav__link">
+    Write a testlet to submit test batch job
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bringing-it-all-together" class="md-nav__link">
+    Bringing it all together
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-to-go-from-here" class="md-nav__link">
+    Where to go from here
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+            
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/coming-soon/" class="md-nav__link">
+        Reference
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../news/news/" class="md-nav__link">
+        News
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/NucciTheBoss/cleantest/discussions" class="md-nav__link">
+        Community
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setting-up-the-cleantest-environment" class="md-nav__link">
+    Setting up the cleantest environment
+  </a>
+  
+    <nav class="md-nav" aria-label="Setting up the cleantest environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#test-dependencies" class="md-nav__link">
+    Test dependencies
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-template-files" class="md-nav__link">
+    Required template files
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-the-test-file" class="md-nav__link">
+    Create the test file
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-the-identity-service" class="md-nav__link">
+    Configuring the identity service
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring the identity service">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#provision-script-for-ldap-0" class="md-nav__link">
+    Provision script for ldap-0
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cleantest-archon-to-create-ldap-0" class="md-nav__link">
+    Use cleantest archon to create ldap-0
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setting-up-the-shared-filesystem" class="md-nav__link">
+    Setting up the shared filesystem
+  </a>
+  
+    <nav class="md-nav" aria-label="Setting up the shared filesystem">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#provision-script-for-nfs-0" class="md-nav__link">
+    Provision script for nfs-0
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cleantest-archon-to-create-nfs-0" class="md-nav__link">
+    Use cleantest archon to create nfs-0
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#starting-the-slurm-cluster" class="md-nav__link">
+    Starting the SLURM cluster
+  </a>
+  
+    <nav class="md-nav" aria-label="Starting the SLURM cluster">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#provision-script-for-slurmctld-0" class="md-nav__link">
+    Provision script for slurmctld-0
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#provision-script-for-slurmd-012" class="md-nav__link">
+    Provision script for slurmd-{0,1,2}
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cleantest-archon-to-create-slurmctld-0" class="md-nav__link">
+    Use cleantest archon to create slurmctld-0
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pull-munge-key-from-slurmctld-0-and-create-slurmd-012" class="md-nav__link">
+    Pull MUNGE key from slurmctld-0 and create slurmd-{0,1,2}
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sync-slurmconf-across-slurmctld-0-and-slurmd-012-and-start-slurm-services" class="md-nav__link">
+    Sync slurm.conf across slurmctld-0 and slurmd-{0,1,2} and start SLURM services
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#write-a-testlet-to-submit-test-batch-job" class="md-nav__link">
+    Write a testlet to submit test batch job
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bringing-it-all-together" class="md-nav__link">
+    Bringing it all together
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-to-go-from-here" class="md-nav__link">
+    Where to go from here
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="using-a-mini-hpc-cluster-to-test-batch-jobs">Using a mini-HPC cluster to test batch jobs</h1>
+<p>Testing applications intended to run on high-performance computing clusters can be a painful process, 
+especially when you do not have access to the resources you need. Sometimes you just want to check if 
+you have the right compile flag specified, if the script you wrote actually works, or if your 
+application can successfully use multiple cores. One way to test your HPC software is by emulation; 
+instead of wasting precious compute time on your bare-metal cluster, you use a mini-HPC cluster that 
+provides the same functionality as the bare-metal cluster on a smaller scale.</p>
+<p>Using cleantest, you can build yourself a mini-HPC cluster anywhere you need it, whether it be on your laptop
+or a continuous integration pipeline runner. In this tutorial, you will learn how to build a mini-HPC cluster
+and submit a test batch jobs to the cluster's resource manager/workload scheduler. Below is a diagram outlining
+the architecture of the mini-HPC cluster that we are going to build with cleantest.</p>
+<pre class="mermaid"><code>flowchart LR
+    subgraph identity [Identity]
+        ldap(OpenLDAP)
+    end
+    subgraph filesystem [Shared Filesystem]
+        nfs(NFS)
+    end
+    subgraph cluster [Resource Management &amp; Compute Service]
+        controller(slurmctld)
+        compute0(slurmd)
+        compute1(slurmd)
+        compute2(slurmd)
+    end
+
+    identity --&gt; filesystem
+    identity --&gt; cluster
+    filesystem --&gt; cluster
+    cluster --&gt; filesystem
+    controller --&gt; compute0
+    compute0 --&gt; controller
+    controller --&gt; compute1
+    compute1 --&gt; controller
+    controller --&gt; compute2
+    compute2 --&gt; controller</code></pre>
+<h2 id="setting-up-the-cleantest-environment">Setting up the cleantest environment</h2>
+<h3 id="test-dependencies">Test dependencies</h3>
+<p>This tutorial will be using the <a href="../../user-guide/test-env-providers/#lxd">LXD test environment provider</a> to provide
+the test environment instances that will compose the mini-HPC cluster. If you do not have LXD installed on your
+system, please visit the <a href="../../user-guide/installation/#lxd">Installation guide</a> for instructions on how to set up
+LXD.</p>
+<p>This tutorial will also being using the Jinja templating engine for rendering specific configuration files for the
+services used inside the mini-HPC cluster. You can use the <code>pip</code> package manager to install Jinja on your system:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>Jinja2
+</code></pre></div>
+<p>We will also be using <code>pytest</code> to run our "clean tests". <code>pytest</code> can be installed using <code>pip</code> as well:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python3<span class="w"> </span>-m<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>pytest
+</code></pre></div>
+<h3 id="required-template-files">Required template files</h3>
+<p>The following Jinja template files are needed for rendering service configuration files. Please create a <code>templates</code>
+directory in your current working directory and copy the templates to the newly created directory.</p>
+<p><strong>sssd.conf.tmpl</strong></p>
+<p>We will be using <a href="https://ubuntu.com/server/docs/service-sssd">sssd</a> (System Security Services Daemon) to connect
+clients to the mini-HPC cluster's identity service. This Jinja template will be used to render the <em>sssd.conf</em> file
+that will be used by the sssd service to locate the identity service.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>[sssd]
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>config_file_version = 2
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>domains = mini-hpc.org
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>[domain/mini-hpc.org]
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>id_provider = ldap
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>auth_provider = ldap
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>ldap_uri = ldap://{{ ldap_server_address }}
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>cache_credentials = True
+<a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>ldap_search_base = dc=mini-hpc,dc=org
+</code></pre></div>
+<p><strong>slurm.conf.tmpl</strong></p>
+<p>We will be using the <a href="https://slurm.schedmd.com/overview.html">SLURM workload manager</a> to provide resource management,
+workload scheduling, and compute service in the mini-HPC cluster. This Jinja template will be used to configure SLURM
+after the controller and compute nodes have been created.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>SlurmctldHost={{ slurmctld_name }}({{ slurmctld_address }})
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>ClusterName=mini-hpc
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>AuthType=auth/munge
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>FirstJobId=65536
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>InactiveLimit=120
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>JobCompType=jobcomp/filetxt
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>JobCompLoc=/var/log/slurm/jobcomp
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>ProctrackType=proctrack/linuxproc
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>KillWait=30
+<a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>MaxJobCount=10000
+<a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>MinJobAge=3600
+<a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>ReturnToService=0
+<a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>SchedulerType=sched/backfill
+<a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>SlurmctldLogFile=/var/log/slurm/slurmctld.log
+<a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a>SlurmdLogFile=/var/log/slurm/slurmd.log
+<a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>SlurmctldPort=7002
+<a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>SlurmdPort=7003
+<a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>SlurmdSpoolDir=/var/spool/slurmd.spool
+<a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a>StateSaveLocation=/var/spool/slurm.state
+<a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>SwitchType=switch/none
+<a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a>TmpFS=/tmp
+<a id="__codelineno-3-23" name="__codelineno-3-23" href="#__codelineno-3-23"></a>WaitTime=30
+<a id="__codelineno-3-24" name="__codelineno-3-24" href="#__codelineno-3-24"></a>
+<a id="__codelineno-3-25" name="__codelineno-3-25" href="#__codelineno-3-25"></a># Node Configurations
+<a id="__codelineno-3-26" name="__codelineno-3-26" href="#__codelineno-3-26"></a>NodeName={{ slurmd_0_name }} NodeAddr={{ slurmd_0_address }} CPUs=1 RealMemory=1000 TmpDisk=10000
+<a id="__codelineno-3-27" name="__codelineno-3-27" href="#__codelineno-3-27"></a>NodeName={{ slurmd_1_name }} NodeAddr={{ slurmd_1_address }} CPUs=1 RealMemory=1000 TmpDisk=10000
+<a id="__codelineno-3-28" name="__codelineno-3-28" href="#__codelineno-3-28"></a>NodeName={{ slurmd_2_name }} NodeAddr={{ slurmd_2_address }} CPUs=1 RealMemory=1000 TmpDisk=10000
+<a id="__codelineno-3-29" name="__codelineno-3-29" href="#__codelineno-3-29"></a>
+<a id="__codelineno-3-30" name="__codelineno-3-30" href="#__codelineno-3-30"></a># Partition Configurations
+<a id="__codelineno-3-31" name="__codelineno-3-31" href="#__codelineno-3-31"></a>PartitionName=all Nodes={{ slurmd_0_name }},{{ slurmd_1_name }},{{ slurmd_2_name }} MaxTime=30 MaxNodes=3 State=UP
+</code></pre></div>
+<h3 id="create-the-test-file">Create the test file</h3>
+<p>Create the file <em>test_mini_hpc.py</em> in your current working directory; this file is where we will write our test.
+Once you have created <em>test_mini_hpc.py</em>, add the following lines to the top of the file:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="ch">#!/usr/bin/env python3</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="sd">&quot;&quot;&quot;Test batch job using mini-HPC cluster created with cleantest.&quot;&quot;&quot;</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="kn">import</span> <span class="nn">json</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="kn">import</span> <span class="nn">os</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="kn">import</span> <span class="nn">pathlib</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">FileSystemLoader</span>
+<a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>
+<a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="kn">from</span> <span class="nn">cleantest.control.hooks</span> <span class="kn">import</span> <span class="n">StopEnvHook</span>
+<a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="kn">from</span> <span class="nn">cleantest.control.lxd</span> <span class="kn">import</span> <span class="n">InstanceConfig</span>
+<a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="kn">from</span> <span class="nn">cleantest.data</span> <span class="kn">import</span> <span class="n">File</span>
+<a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="kn">from</span> <span class="nn">cleantest.provider</span> <span class="kn">import</span> <span class="n">lxd</span><span class="p">,</span> <span class="n">LXDArchon</span>
+<a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>
+<a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="n">root</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span>
+<a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="n">templates</span> <span class="o">=</span> <span class="n">Environment</span><span class="p">(</span><span class="n">loader</span><span class="o">=</span><span class="n">FileSystemLoader</span><span class="p">(</span><span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;templates&quot;</span><span class="p">))</span>
+<a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>
+<a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="c1"># Where the testlet will be added.</span>
+<a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="o">...</span>
+<a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a>
+<a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a>
+<a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="k">def</span> <span class="nf">test_mini_hpc</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Test batch job inside mini-hpc cluster.&quot;&quot;&quot;</span>
+<a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a>    <span class="n">archon</span> <span class="o">=</span> <span class="n">LXDArchon</span><span class="p">()</span>
+<a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a>    <span class="n">archon</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">register_hook</span><span class="p">(</span>
+<a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a>        <span class="n">StopEnvHook</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;get_result&quot;</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="p">[</span><span class="n">File</span><span class="p">(</span><span class="s2">&quot;/tmp/result&quot;</span><span class="p">,</span> <span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;result&quot;</span><span class="p">)])</span>
+<a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a>    <span class="p">)</span>
+<a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a>    <span class="n">placeholder</span> <span class="o">=</span> <span class="n">archon</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_instance_config</span><span class="p">(</span><span class="s2">&quot;ubuntu-jammy-amd64&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span>
+<a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a>    <span class="n">placeholder</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;mini-hpc-sm&quot;</span>
+<a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a>    <span class="n">archon</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_instance_config</span><span class="p">(</span>
+<a id="__codelineno-4-33" name="__codelineno-4-33" href="#__codelineno-4-33"></a>        <span class="n">InstanceConfig</span><span class="p">(</span>
+<a id="__codelineno-4-34" name="__codelineno-4-34" href="#__codelineno-4-34"></a>            <span class="n">config</span><span class="o">=</span><span class="p">{</span>
+<a id="__codelineno-4-35" name="__codelineno-4-35" href="#__codelineno-4-35"></a>                <span class="s2">&quot;limits.cpu&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+<a id="__codelineno-4-36" name="__codelineno-4-36" href="#__codelineno-4-36"></a>                <span class="s2">&quot;limits.memory&quot;</span><span class="p">:</span> <span class="s2">&quot;8GB&quot;</span><span class="p">,</span>
+<a id="__codelineno-4-37" name="__codelineno-4-37" href="#__codelineno-4-37"></a>                <span class="s2">&quot;security.privileged&quot;</span><span class="p">:</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span>
+<a id="__codelineno-4-38" name="__codelineno-4-38" href="#__codelineno-4-38"></a>                <span class="s2">&quot;raw.apparmor&quot;</span><span class="p">:</span> <span class="s2">&quot;mount fstype=nfs*, mount fstype=rpc_pipefs,&quot;</span><span class="p">,</span>
+<a id="__codelineno-4-39" name="__codelineno-4-39" href="#__codelineno-4-39"></a>            <span class="p">},</span>
+<a id="__codelineno-4-40" name="__codelineno-4-40" href="#__codelineno-4-40"></a>            <span class="o">**</span><span class="n">placeholder</span><span class="p">,</span>
+<a id="__codelineno-4-41" name="__codelineno-4-41" href="#__codelineno-4-41"></a>        <span class="p">)</span>
+<a id="__codelineno-4-42" name="__codelineno-4-42" href="#__codelineno-4-42"></a>    <span class="p">)</span>
+<a id="__codelineno-4-43" name="__codelineno-4-43" href="#__codelineno-4-43"></a>
+<a id="__codelineno-4-44" name="__codelineno-4-44" href="#__codelineno-4-44"></a>    <span class="c1"># Where most of the code snippets will be appended </span>
+<a id="__codelineno-4-45" name="__codelineno-4-45" href="#__codelineno-4-45"></a>    <span class="c1"># for creating the mini-HPC cluster.</span>
+<a id="__codelineno-4-46" name="__codelineno-4-46" href="#__codelineno-4-46"></a>    <span class="o">...</span>
+</code></pre></div>
+<p>These imports/variable declarations at the beginning of the test file will be used throughout the code snippets in
+the rest of this tutorial.</p>
+<p>Inside our test function, we instantiate an instance of <code>LXDArchon</code> that will be used to
+control the LXD test environment provider. We also define a stop environment hook that will be used to retrieve
+the result of our test batch job. Lastly, we create a custom test environment instance configuration. This
+configuration will have the necessary privileges set so that we do not eat all of your workstation's resources
+as well as enabling support for NFS mounts inside the test environment instances.</p>
+<h2 id="configuring-the-identity-service">Configuring the identity service</h2>
+<p>To start, we will be configuring an identity service for our mini-HPC cluster. We cannot let user <code>root</code> be the 
+primary user of our mini-HPC cluster; that would create a disaster. To prevent the mini-HPC cluster from going 
+up into flames, we are going to use <a href="https://manpages.ubuntu.com/manpages/jammy/en/man8/slapd.8.html">slapd</a>
+(Stand-alone LDAP Daemon) to provide the identity service for our cluster.</p>
+<h3 id="provision-script-for-ldap-0">Provision script for <code>ldap-0</code></h3>
+<p>cleantest has a built-in provisioning mechanism for test environment instances. You can write custom Python scripts
+that use utilities provided by cleantest to set up the test environment instance how you like. Below is the provision
+script that we will use to provision the <code>ldap-0</code> instance in our mini-HPC cluster. Save the provision script to the
+file <em>ldap_provision_script.py</em> in your current working directory.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="ch">#!/usr/bin/env python3</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="c1"># Copyright 2023 Jason C. Nucciarone</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="c1"># See LICENSE file for licensing details.</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="sd">&quot;&quot;&quot;Provision LDAP server nodes.&quot;&quot;&quot;</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="kn">import</span> <span class="nn">pathlib</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="kn">import</span> <span class="nn">tempfile</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="kn">import</span> <span class="nn">textwrap</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="kn">from</span> <span class="nn">cleantest.utils</span> <span class="kn">import</span> <span class="n">apt</span><span class="p">,</span> <span class="n">systemd</span><span class="p">,</span> <span class="n">run</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>
+<a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="c1"># Define resources needed to set up LDAP.</span>
+<a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="n">slapd_preseed</span> <span class="o">=</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">dedent</span><span class="p">(</span>
+<a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="sd">    slapd slapd/no_configuration boolean false</span>
+<a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="sd">    slapd slapd/domain string mini-hpc.org</span>
+<a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a><span class="sd">    slapd shared/organization string mini-hpc</span>
+<a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a><span class="sd">    slapd slapd/password1 password test</span>
+<a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a><span class="sd">    slapd slapd/password2 password test</span>
+<a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="sd">    slapd slapd/purge_database boolean true</span>
+<a id="__codelineno-5-22" name="__codelineno-5-22" href="#__codelineno-5-22"></a><span class="sd">    slapd slapd/move_old_database boolean true</span>
+<a id="__codelineno-5-23" name="__codelineno-5-23" href="#__codelineno-5-23"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-5-24" name="__codelineno-5-24" href="#__codelineno-5-24"></a><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-25" name="__codelineno-5-25" href="#__codelineno-5-25"></a><span class="n">default_ldif</span> <span class="o">=</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">dedent</span><span class="p">(</span>
+<a id="__codelineno-5-26" name="__codelineno-5-26" href="#__codelineno-5-26"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-5-27" name="__codelineno-5-27" href="#__codelineno-5-27"></a><span class="sd">    dn: ou=People,dc=mini-hpc,dc=org</span>
+<a id="__codelineno-5-28" name="__codelineno-5-28" href="#__codelineno-5-28"></a><span class="sd">    objectClass: organizationalUnit</span>
+<a id="__codelineno-5-29" name="__codelineno-5-29" href="#__codelineno-5-29"></a><span class="sd">    ou: People</span>
+<a id="__codelineno-5-30" name="__codelineno-5-30" href="#__codelineno-5-30"></a>
+<a id="__codelineno-5-31" name="__codelineno-5-31" href="#__codelineno-5-31"></a><span class="sd">    dn: ou=Groups,dc=mini-hpc,dc=org</span>
+<a id="__codelineno-5-32" name="__codelineno-5-32" href="#__codelineno-5-32"></a><span class="sd">    objectClass: organizationalUnit</span>
+<a id="__codelineno-5-33" name="__codelineno-5-33" href="#__codelineno-5-33"></a><span class="sd">    ou: Groups</span>
+<a id="__codelineno-5-34" name="__codelineno-5-34" href="#__codelineno-5-34"></a>
+<a id="__codelineno-5-35" name="__codelineno-5-35" href="#__codelineno-5-35"></a><span class="sd">    dn: uid=nucci,ou=People,dc=mini-hpc,dc=org</span>
+<a id="__codelineno-5-36" name="__codelineno-5-36" href="#__codelineno-5-36"></a><span class="sd">    uid: nucci</span>
+<a id="__codelineno-5-37" name="__codelineno-5-37" href="#__codelineno-5-37"></a><span class="sd">    objectClass: inetOrgPerson</span>
+<a id="__codelineno-5-38" name="__codelineno-5-38" href="#__codelineno-5-38"></a><span class="sd">    objectClass: posixAccount</span>
+<a id="__codelineno-5-39" name="__codelineno-5-39" href="#__codelineno-5-39"></a><span class="sd">    cn: nucci</span>
+<a id="__codelineno-5-40" name="__codelineno-5-40" href="#__codelineno-5-40"></a><span class="sd">    sn: nucci</span>
+<a id="__codelineno-5-41" name="__codelineno-5-41" href="#__codelineno-5-41"></a><span class="sd">    givenName: nucci</span>
+<a id="__codelineno-5-42" name="__codelineno-5-42" href="#__codelineno-5-42"></a><span class="sd">    mail: nucci@example.com</span>
+<a id="__codelineno-5-43" name="__codelineno-5-43" href="#__codelineno-5-43"></a><span class="sd">    userPassword: test</span>
+<a id="__codelineno-5-44" name="__codelineno-5-44" href="#__codelineno-5-44"></a><span class="sd">    uidNumber: 10000</span>
+<a id="__codelineno-5-45" name="__codelineno-5-45" href="#__codelineno-5-45"></a><span class="sd">    gidNumber: 10000</span>
+<a id="__codelineno-5-46" name="__codelineno-5-46" href="#__codelineno-5-46"></a><span class="sd">    loginShell: /bin/bash</span>
+<a id="__codelineno-5-47" name="__codelineno-5-47" href="#__codelineno-5-47"></a><span class="sd">    homeDirectory: /home/nucci</span>
+<a id="__codelineno-5-48" name="__codelineno-5-48" href="#__codelineno-5-48"></a>
+<a id="__codelineno-5-49" name="__codelineno-5-49" href="#__codelineno-5-49"></a><span class="sd">    dn: cn=nucci,ou=Groups,dc=mini-hpc,dc=org</span>
+<a id="__codelineno-5-50" name="__codelineno-5-50" href="#__codelineno-5-50"></a><span class="sd">    cn: nucci</span>
+<a id="__codelineno-5-51" name="__codelineno-5-51" href="#__codelineno-5-51"></a><span class="sd">    objectClass: posixGroup</span>
+<a id="__codelineno-5-52" name="__codelineno-5-52" href="#__codelineno-5-52"></a><span class="sd">    gidNumber: 10000</span>
+<a id="__codelineno-5-53" name="__codelineno-5-53" href="#__codelineno-5-53"></a><span class="sd">    memberUid: nucci</span>
+<a id="__codelineno-5-54" name="__codelineno-5-54" href="#__codelineno-5-54"></a>
+<a id="__codelineno-5-55" name="__codelineno-5-55" href="#__codelineno-5-55"></a><span class="sd">    dn: cn=research,ou=Groups,dc=mini-hpc,dc=org</span>
+<a id="__codelineno-5-56" name="__codelineno-5-56" href="#__codelineno-5-56"></a><span class="sd">    cn: research</span>
+<a id="__codelineno-5-57" name="__codelineno-5-57" href="#__codelineno-5-57"></a><span class="sd">    objectClass: posixGroup</span>
+<a id="__codelineno-5-58" name="__codelineno-5-58" href="#__codelineno-5-58"></a><span class="sd">    gidNumber: 10100</span>
+<a id="__codelineno-5-59" name="__codelineno-5-59" href="#__codelineno-5-59"></a><span class="sd">    memberUid: nucci</span>
+<a id="__codelineno-5-60" name="__codelineno-5-60" href="#__codelineno-5-60"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-5-61" name="__codelineno-5-61" href="#__codelineno-5-61"></a><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-62" name="__codelineno-5-62" href="#__codelineno-5-62"></a>
+<a id="__codelineno-5-63" name="__codelineno-5-63" href="#__codelineno-5-63"></a><span class="c1"># Set up slapd service.</span>
+<a id="__codelineno-5-64" name="__codelineno-5-64" href="#__codelineno-5-64"></a><span class="n">apt</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+<a id="__codelineno-5-65" name="__codelineno-5-65" href="#__codelineno-5-65"></a><span class="n">apt</span><span class="o">.</span><span class="n">install</span><span class="p">(</span><span class="s2">&quot;slapd&quot;</span><span class="p">,</span> <span class="s2">&quot;ldap-utils&quot;</span><span class="p">,</span> <span class="s2">&quot;debconf-utils&quot;</span><span class="p">)</span>
+<a id="__codelineno-5-66" name="__codelineno-5-66" href="#__codelineno-5-66"></a><span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">preseed</span><span class="p">,</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">()</span> <span class="k">as</span> <span class="n">ldif</span><span class="p">:</span>
+<a id="__codelineno-5-67" name="__codelineno-5-67" href="#__codelineno-5-67"></a>    <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">preseed</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">slapd_preseed</span><span class="p">)</span>
+<a id="__codelineno-5-68" name="__codelineno-5-68" href="#__codelineno-5-68"></a>    <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">ldif</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">default_ldif</span><span class="p">)</span>
+<a id="__codelineno-5-69" name="__codelineno-5-69" href="#__codelineno-5-69"></a>    <span class="n">results</span> <span class="o">=</span> <span class="n">run</span><span class="p">(</span>
+<a id="__codelineno-5-70" name="__codelineno-5-70" href="#__codelineno-5-70"></a>        <span class="sa">f</span><span class="s2">&quot;debconf-set-selections &lt; </span><span class="si">{</span><span class="n">preseed</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-71" name="__codelineno-5-71" href="#__codelineno-5-71"></a>        <span class="s2">&quot;dpkg-reconfigure -f noninteractive slapd&quot;</span><span class="p">,</span>
+<a id="__codelineno-5-72" name="__codelineno-5-72" href="#__codelineno-5-72"></a>        <span class="p">(</span>
+<a id="__codelineno-5-73" name="__codelineno-5-73" href="#__codelineno-5-73"></a>            <span class="s2">&quot;ldapadd -x -D cn=admin,dc=mini-hpc,dc=org -w &quot;</span>
+<a id="__codelineno-5-74" name="__codelineno-5-74" href="#__codelineno-5-74"></a>            <span class="sa">f</span><span class="s2">&quot;test -f </span><span class="si">{</span><span class="n">ldif</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> -H ldap:///&quot;</span>
+<a id="__codelineno-5-75" name="__codelineno-5-75" href="#__codelineno-5-75"></a>        <span class="p">),</span>
+<a id="__codelineno-5-76" name="__codelineno-5-76" href="#__codelineno-5-76"></a>    <span class="p">)</span>
+<a id="__codelineno-5-77" name="__codelineno-5-77" href="#__codelineno-5-77"></a>    <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">results</span><span class="p">:</span>
+<a id="__codelineno-5-78" name="__codelineno-5-78" href="#__codelineno-5-78"></a>        <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span>
+<a id="__codelineno-5-79" name="__codelineno-5-79" href="#__codelineno-5-79"></a>
+<a id="__codelineno-5-80" name="__codelineno-5-80" href="#__codelineno-5-80"></a><span class="n">systemd</span><span class="o">.</span><span class="n">restart</span><span class="p">(</span><span class="s2">&quot;slapd&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>The provision script works through the following steps:</p>
+<ol>
+<li>Import the <code>apt</code>, <code>systemd</code>, and <code>run</code> utilities for interfacing with the APT package manager and systemd on the 
+    instance, and executing shell commands respectively.</li>
+<li>Define a preseed file that will be used by <code>debconf-set-selections</code> to configure the slapd service on the instance.</li>
+<li>Define a ldif (LDAP Data Interchange Format) file that will be used to create our test user and group.</li>
+<li>Update APT cache and install <code>slapd</code>, <code>ldap-utils</code>, and <code>debconf-utils</code>.</li>
+<li>Configure slapd service using <code>debconf-set-selections</code> and add test user and group to the LDAP server.</li>
+<li>Restart slapd so that new configurations will be set.</li>
+</ol>
+<h3 id="use-cleantest-archon-to-create-ldap-0">Use cleantest archon to create <code>ldap-0</code></h3>
+<p>Now that we have our provision script <em>ldap_provision_script.py</em> written, use the following block of code
+to add the instance <code>ldap-0</code> to our LXD test environment provider:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="n">archon</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>    <span class="s2">&quot;ldap-0&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="n">image</span><span class="o">=</span><span class="s2">&quot;mini-hpc-sm&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="n">provision_script</span><span class="o">=</span><span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;ldap_provision_script.py&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="p">)</span>
+</code></pre></div>
+<p>The provision script will be injected into <code>ldap-0</code> and executed after the instance becomes active.</p>
+<h2 id="setting-up-the-shared-filesystem">Setting up the shared filesystem</h2>
+<p>We will be using <a href="https://en.wikipedia.org/wiki/Network_File_System">NFS</a> (Network File System) to provide the
+shared filesystem in the mini-HPC cluster. Many compute instances are generally operating on the same set of data
+across the cluster, so the compute nodes all need access to the same data. Using NFS, we can ensure that each
+compute instance has access to the same file and/or directories. </p>
+<h3 id="provision-script-for-nfs-0">Provision script for <code>nfs-0</code></h3>
+<p>With the <code>ldap-0</code> instance created, create the provision script <em>nfs_provision_script.py</em> in your current working
+directory and add the following code block to the file:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="ch">#!/usr/bin/env python3</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="c1"># Copyright 2023 Jason C. Nucciarone</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="c1"># See LICENSE file for licensing details.</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="sd">&quot;&quot;&quot;Provision NFS server nodes.&quot;&quot;&quot;</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="kn">import</span> <span class="nn">pathlib</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="kn">import</span> <span class="nn">textwrap</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="kn">from</span> <span class="nn">cleantest.utils</span> <span class="kn">import</span> <span class="n">apt</span><span class="p">,</span> <span class="n">systemd</span><span class="p">,</span> <span class="n">run</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="c1"># Define resources needed to set up nfs-kernel-server.</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="n">default_exports</span> <span class="o">=</span> <span class="n">textwrap</span><span class="o">.</span><span class="n">dedent</span><span class="p">(</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a><span class="sd">    /srv     *(ro,sync,subtree_check)</span>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="sd">    /home    *(rw,sync,no_subtree_check)</span>
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a><span class="sd">    /data    *(rw,sync,no_subtree_check,no_root_squash)</span>
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="sd">    /opt     *(rw,sync,no_subtree_check,no_root_squash)</span>
+<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a><span class="sd">    &quot;&quot;&quot;</span>
+<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-7-21" name="__codelineno-7-21" href="#__codelineno-7-21"></a>
+<a id="__codelineno-7-22" name="__codelineno-7-22" href="#__codelineno-7-22"></a><span class="c1"># Set up SSSD service.</span>
+<a id="__codelineno-7-23" name="__codelineno-7-23" href="#__codelineno-7-23"></a><span class="n">apt</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+<a id="__codelineno-7-24" name="__codelineno-7-24" href="#__codelineno-7-24"></a><span class="n">apt</span><span class="o">.</span><span class="n">install</span><span class="p">(</span><span class="s2">&quot;nfs-kernel-server&quot;</span><span class="p">,</span> <span class="s2">&quot;sssd-ldap&quot;</span><span class="p">)</span>
+<a id="__codelineno-7-25" name="__codelineno-7-25" href="#__codelineno-7-25"></a><span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">run</span><span class="p">(</span>
+<a id="__codelineno-7-26" name="__codelineno-7-26" href="#__codelineno-7-26"></a>    <span class="s2">&quot;mv /root/.init/sssd.conf /etc/sssd/sssd.conf&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-27" name="__codelineno-7-27" href="#__codelineno-7-27"></a>    <span class="s2">&quot;chmod 0600 /etc/sssd/sssd.conf&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-28" name="__codelineno-7-28" href="#__codelineno-7-28"></a>    <span class="s2">&quot;pam-auth-update --enable mkhomedir&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-29" name="__codelineno-7-29" href="#__codelineno-7-29"></a><span class="p">):</span>
+<a id="__codelineno-7-30" name="__codelineno-7-30" href="#__codelineno-7-30"></a>    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span>
+<a id="__codelineno-7-31" name="__codelineno-7-31" href="#__codelineno-7-31"></a>
+<a id="__codelineno-7-32" name="__codelineno-7-32" href="#__codelineno-7-32"></a><span class="n">systemd</span><span class="o">.</span><span class="n">restart</span><span class="p">(</span><span class="s2">&quot;sssd&quot;</span><span class="p">)</span>
+<a id="__codelineno-7-33" name="__codelineno-7-33" href="#__codelineno-7-33"></a>
+<a id="__codelineno-7-34" name="__codelineno-7-34" href="#__codelineno-7-34"></a><span class="c1"># Set up NFS kernel server.</span>
+<a id="__codelineno-7-35" name="__codelineno-7-35" href="#__codelineno-7-35"></a><span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">run</span><span class="p">(</span>
+<a id="__codelineno-7-36" name="__codelineno-7-36" href="#__codelineno-7-36"></a>    <span class="s2">&quot;mkdir -p /data/nucci&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-37" name="__codelineno-7-37" href="#__codelineno-7-37"></a>    <span class="s2">&quot;mkdir -p /home/nucci&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-38" name="__codelineno-7-38" href="#__codelineno-7-38"></a>    <span class="s2">&quot;chown -R nucci:nucci /data/nucci&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-39" name="__codelineno-7-39" href="#__codelineno-7-39"></a>    <span class="s2">&quot;chown -R nucci:nucci /home/nucci&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-40" name="__codelineno-7-40" href="#__codelineno-7-40"></a>    <span class="s2">&quot;chmod 0755 /data&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-41" name="__codelineno-7-41" href="#__codelineno-7-41"></a>    <span class="s2">&quot;chmod -R 0750 /data/nucci&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-42" name="__codelineno-7-42" href="#__codelineno-7-42"></a>    <span class="s2">&quot;chmod -R 0740 /home/nucci&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-43" name="__codelineno-7-43" href="#__codelineno-7-43"></a>    <span class="s2">&quot;ln -s /data/nucci /home/nucci/data&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-44" name="__codelineno-7-44" href="#__codelineno-7-44"></a><span class="p">):</span>
+<a id="__codelineno-7-45" name="__codelineno-7-45" href="#__codelineno-7-45"></a>    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span>
+<a id="__codelineno-7-46" name="__codelineno-7-46" href="#__codelineno-7-46"></a>
+<a id="__codelineno-7-47" name="__codelineno-7-47" href="#__codelineno-7-47"></a><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/etc/exports&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">default_exports</span><span class="p">)</span>
+<a id="__codelineno-7-48" name="__codelineno-7-48" href="#__codelineno-7-48"></a><span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">run</span><span class="p">(</span><span class="s2">&quot;exportfs -a&quot;</span><span class="p">):</span>
+<a id="__codelineno-7-49" name="__codelineno-7-49" href="#__codelineno-7-49"></a>    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span>
+<a id="__codelineno-7-50" name="__codelineno-7-50" href="#__codelineno-7-50"></a>
+<a id="__codelineno-7-51" name="__codelineno-7-51" href="#__codelineno-7-51"></a><span class="n">systemd</span><span class="o">.</span><span class="n">restart</span><span class="p">(</span><span class="s2">&quot;nfs-kernel-server&quot;</span><span class="p">)</span>
+</code></pre></div>
+<details class="note" open="open">
+<summary>Connecting to the LDAP server on <code>ldap-0</code> using sssd</summary>
+<p>Notice how in <em>nfs_provision_script.py</em> when are configuring the sssd service, we are first moving a sssd.conf
+file from <code>/root/.init/sssd.conf</code> to <code>/etc/sssd/sssd.conf</code>? You may be wondering "how did that file get there?"
+Worry not! In the <a href="#use-cleantest-archon-to-create-nfs-0">next section</a>, we will be generating that sssd.conf
+file using a Jinja template and uploading to <code>nfs-0</code> as a "provisioning resource."</p>
+</details>
+<p>This script will work through the following the steps to configure the NFS server that will provide the shared
+filesystem for the mini-HPC cluster:</p>
+<ol>
+<li>Import <code>apt</code>, <code>systemd</code>, and <code>run</code> utilities for interfacing with the APT package manager and systemd on the 
+    instance, and executing shell commands respectively.</li>
+<li>Define the <em>exports</em> file that will be used to tell the NFS kernel server which directories to export.</li>
+<li>Update the APT cache and install <code>nfs-kernel-server</code> and <code>sssd-ldap</code> for running the NFS server and connecting to
+    the LDAP server respectively.</li>
+<li>Connect to the LDAP server on <code>ldap-0</code> using sssd.</li>
+<li>Set up the test user's home and data directories.</li>
+<li>Share the <code>/data</code> and <code>/home</code> directories across the network.</li>
+<li>Restart the <code>nfs-kernel-service</code> so the new <em>/etc/exports</em> file takes effect.</li>
+</ol>
+<h3 id="use-cleantest-archon-to-create-nfs-0">Use cleantest archon to create <code>nfs-0</code></h3>
+<p>Now with our <em>nfs_provision_script.py</em> file created, use the following block of code to add the <code>nfs-0</code> 
+instance to our LXD test environment provider.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">sssd_conf</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="n">templates</span><span class="o">.</span><span class="n">get_template</span><span class="p">(</span><span class="s2">&quot;sssd.conf.tmpl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>        <span class="n">ldap_server_address</span><span class="o">=</span><span class="n">archon</span><span class="o">.</span><span class="n">get_public_address</span><span class="p">(</span><span class="s2">&quot;ldap-0&quot;</span><span class="p">)</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="p">)</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="p">)</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="n">archon</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    <span class="s2">&quot;nfs-0&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>    <span class="n">image</span><span class="o">=</span><span class="s2">&quot;mini-hpc-sm&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>    <span class="n">provision_script</span><span class="o">=</span><span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;nfs_provision_script.py&quot;</span><span class="p">,</span>
+<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>    <span class="n">resources</span><span class="o">=</span><span class="p">[</span><span class="n">File</span><span class="p">(</span><span class="n">sssd_conf</span><span class="p">,</span> <span class="s2">&quot;/root/.init/sssd.conf&quot;</span><span class="p">)],</span>
+<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a><span class="p">)</span>
+</code></pre></div>
+<p>The provision script and generated sssd.conf file will be injected into <code>nfs-0</code> after the instance becomes active.</p>
+<h2 id="starting-the-slurm-cluster">Starting the SLURM cluster</h2>
+<p>SLURM is one of the most popular open-source workload managers out there for HPC. SLURM scales very well, so we
+can use it inside the mini-HPC cluster even if SLURM is meant to used with multi-thousand node clusters.</p>
+<h3 id="provision-script-for-slurmctld-0">Provision script for <code>slurmctld-0</code></h3>
+<p>Now that we have both the <code>ldap-0</code> and <code>nfs-0</code> instances created, it is time to provision to controller server
+<code>slurmctld-0</code> for the mini-HPC cluster. Create the file <em>slurmctld_provision_script.py</em> in your current working
+directory and copy the following code block to it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="ch">#!/usr/bin/env python3</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="c1"># Copyright 2023 Jason C. Nucciarone</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="c1"># See LICENSE file for licensing details.</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="sd">&quot;&quot;&quot;Provision slurmctld nodes.&quot;&quot;&quot;</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="kn">import</span> <span class="nn">pathlib</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="kn">import</span> <span class="nn">json</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a><span class="kn">from</span> <span class="nn">cleantest.utils</span> <span class="kn">import</span> <span class="n">apt</span><span class="p">,</span> <span class="n">systemd</span><span class="p">,</span> <span class="n">run</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="c1"># Set up SSSD service.</span>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a><span class="n">apt</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a><span class="n">apt</span><span class="o">.</span><span class="n">install</span><span class="p">(</span><span class="s2">&quot;slurmctld&quot;</span><span class="p">,</span> <span class="s2">&quot;nfs-common&quot;</span><span class="p">,</span> <span class="s2">&quot;sssd-ldap&quot;</span><span class="p">)</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a><span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">run</span><span class="p">(</span>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>    <span class="s2">&quot;mv /root/.init/sssd.conf /etc/sssd/sssd.conf&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>    <span class="s2">&quot;chmod 0600 /etc/sssd/sssd.conf&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>    <span class="s2">&quot;pam-auth-update --enable mkhomedir&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a><span class="p">):</span>
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span>
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>
+<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a><span class="n">systemd</span><span class="o">.</span><span class="n">restart</span><span class="p">(</span><span class="s2">&quot;sssd&quot;</span><span class="p">)</span>
+<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>
+<a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a><span class="c1"># Set up NFS mount.</span>
+<a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a><span class="n">nfs_ip</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/root/.init/nfs-0&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()))</span>
+<a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a><span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">run</span><span class="p">(</span>
+<a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a>    <span class="sa">f</span><span class="s2">&quot;mount </span><span class="si">{</span><span class="n">nfs_ip</span><span class="p">[</span><span class="s1">&#39;nfs-0&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">:/home /home&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a>    <span class="s2">&quot;mkdir -p /data&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a>    <span class="sa">f</span><span class="s2">&quot;mount </span><span class="si">{</span><span class="n">nfs_ip</span><span class="p">[</span><span class="s1">&#39;nfs-0&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">:/data /data&quot;</span><span class="p">,</span>
+<a id="__codelineno-9-31" name="__codelineno-9-31" href="#__codelineno-9-31"></a><span class="p">):</span>
+<a id="__codelineno-9-32" name="__codelineno-9-32" href="#__codelineno-9-32"></a>    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span>
+</code></pre></div>
+<details class="note" open="open">
+<summary>Mounting directories shared by <code>nfs-0</code> and connecting to LDAP server on <code>ldap-0</code></summary>
+<p>Notice how like when we provisioned the <code>nfs-0</code> instance, we used a "provisioning resource" to connect the
+sssd service to the LDAP server? In the above provisioning script for <code>slurmctld-0</code>, we use the same mechanism
+for mounting the shared directories on <code>nfs-0</code>. We will create this <code>/root/.init/nfs-0</code> resource in 
+<a href="#use-cleantest-archon-to-create-slurmctld-0">the section</a> about creating the <code>slurmctld-0</code> instance.</p>
+</details>
+<p>This script will work through the following steps to configure the controller service for the mini-HPC cluster.
+We will be starting the control server manually rather than having the provision script start it for us:</p>
+<ol>
+<li>Import <code>apt</code>, <code>systemd</code>, and <code>run</code> utilities for interfacing with the APT package manager and systemd on the 
+    instance, and executing shell commands respectively.</li>
+<li>Update the APT cache and install <code>slurmctld</code>, <code>nfs-common</code>, <code>sssd-ldap</code> for running the controller server,
+    mounting the shared directories, and connecting to the LDAP server respectively.</li>
+<li>Connect to the LDAP server running on <code>ldap-0</code> using sssd.</li>
+<li>Mount the shared directories exported by the NFS server running on <code>nfs-0</code>.</li>
+</ol>
+<h3 id="provision-script-for-slurmd-012">Provision script for <code>slurmd-{0,1,2}</code></h3>
+<p>We can also provision the compute nodes alongside the controller server <code>slurmctld-0</code>. Create the file
+<em>slurmd_provision_script.py</em> in your current working directory and copy the following code block to it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="ch">#!/usr/bin/env python3</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="c1"># Copyright 2023 Jason C. Nucciarone</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="c1"># See LICENSE file for licensing details.</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="sd">&quot;&quot;&quot;Provision slurmd nodes.&quot;&quot;&quot;</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="kn">import</span> <span class="nn">json</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="kn">import</span> <span class="nn">pathlib</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="kn">from</span> <span class="nn">cleantest.utils</span> <span class="kn">import</span> <span class="n">apt</span><span class="p">,</span> <span class="n">systemd</span><span class="p">,</span> <span class="n">run</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="c1"># Set up SSSD service.</span>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="n">apt</span><span class="o">.</span><span class="n">update</span><span class="p">()</span>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a><span class="n">apt</span><span class="o">.</span><span class="n">install</span><span class="p">(</span><span class="s2">&quot;slurmd&quot;</span><span class="p">,</span> <span class="s2">&quot;nfs-common&quot;</span><span class="p">,</span> <span class="s2">&quot;sssd-ldap&quot;</span><span class="p">)</span>
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a><span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">run</span><span class="p">(</span>
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>    <span class="s2">&quot;mv /root/.init/sssd.conf /etc/sssd/sssd.conf&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>    <span class="s2">&quot;chmod 0600 /etc/sssd/sssd.conf&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>    <span class="s2">&quot;pam-auth-update --enable mkhomedir&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a><span class="p">):</span>
+<a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a>    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span>
+<a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a>
+<a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a><span class="n">systemd</span><span class="o">.</span><span class="n">restart</span><span class="p">(</span><span class="s2">&quot;sssd&quot;</span><span class="p">)</span>
+<a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a>
+<a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a><span class="c1"># Set up NFS mount.</span>
+<a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a><span class="n">nfs_ip</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/root/.init/nfs-0&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()))</span>
+<a id="__codelineno-10-27" name="__codelineno-10-27" href="#__codelineno-10-27"></a><span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">run</span><span class="p">(</span>
+<a id="__codelineno-10-28" name="__codelineno-10-28" href="#__codelineno-10-28"></a>    <span class="sa">f</span><span class="s2">&quot;mount </span><span class="si">{</span><span class="n">nfs_ip</span><span class="p">[</span><span class="s1">&#39;nfs-0&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">:/home /home&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-29" name="__codelineno-10-29" href="#__codelineno-10-29"></a>    <span class="s2">&quot;mkdir -p /data&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-30" name="__codelineno-10-30" href="#__codelineno-10-30"></a>    <span class="sa">f</span><span class="s2">&quot;mount </span><span class="si">{</span><span class="n">nfs_ip</span><span class="p">[</span><span class="s1">&#39;nfs-0&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">:/data /data&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-31" name="__codelineno-10-31" href="#__codelineno-10-31"></a><span class="p">):</span>
+<a id="__codelineno-10-32" name="__codelineno-10-32" href="#__codelineno-10-32"></a>    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span>
+<a id="__codelineno-10-33" name="__codelineno-10-33" href="#__codelineno-10-33"></a>
+<a id="__codelineno-10-34" name="__codelineno-10-34" href="#__codelineno-10-34"></a><span class="c1"># Set up munge key.</span>
+<a id="__codelineno-10-35" name="__codelineno-10-35" href="#__codelineno-10-35"></a><span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">run</span><span class="p">(</span>
+<a id="__codelineno-10-36" name="__codelineno-10-36" href="#__codelineno-10-36"></a>    <span class="s2">&quot;mv /root/.init/munge.key /etc/munge/munge.key&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-37" name="__codelineno-10-37" href="#__codelineno-10-37"></a>    <span class="s2">&quot;chown munge:munge /etc/munge/munge.key&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-38" name="__codelineno-10-38" href="#__codelineno-10-38"></a>    <span class="s2">&quot;chmod 0600 /etc/munge/munge.key&quot;</span><span class="p">,</span>
+<a id="__codelineno-10-39" name="__codelineno-10-39" href="#__codelineno-10-39"></a><span class="p">):</span>
+<a id="__codelineno-10-40" name="__codelineno-10-40" href="#__codelineno-10-40"></a>    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span>
+<a id="__codelineno-10-41" name="__codelineno-10-41" href="#__codelineno-10-41"></a>
+<a id="__codelineno-10-42" name="__codelineno-10-42" href="#__codelineno-10-42"></a><span class="n">systemd</span><span class="o">.</span><span class="n">restart</span><span class="p">(</span><span class="s2">&quot;munge&quot;</span><span class="p">)</span>
+</code></pre></div>
+<details class="note" open="open">
+<summary>Setting up MUNGE authentication service</summary>
+<p>Similar to how <code>nfs-0</code> and <code>slurmctld-0</code> are provisioned, the slurmd instances also use "provisioning resources."
+However, unlike those instances, the slurmd instances require a MUNGE key from the <code>slurmctld-0</code>; MUNGE is the
+authentication service that the SLURM workload manager uses to verify nodes in SLURM cluster. 
+<a href="#pull-munge-key-from-slurmctld-0-and-create-slurmd-012">The section</a> on
+creating the slurmd instances will show you how to pull resources from other instances.</p>
+</details>
+<p>This script will work through the following steps to configure the compute service for the mini-HPC cluster.
+We will be starting the compute servers manually rather than having the provision script start it for us:</p>
+<ol>
+<li>Import <code>apt</code>, <code>systemd</code>, and <code>run</code> utilities for interfacing with the APT package manager and systemd on the 
+    instance, and executing shell commands respectively.</li>
+<li>Update the APT cache and install <code>slurmd</code>, <code>nfs-common</code>, <code>sssd-ldap</code> for running the compute server,
+    mounting the shared directories, and connecting to the LDAP server respectively.</li>
+<li>Connect to the LDAP server running on <code>ldap-0</code> using sssd.</li>
+<li>Mount the shared directories exported by the NFS server running on <code>nfs-0</code>.</li>
+<li>Set up MUNGE key pulled from <code>slurmctld-0</code> instance.</li>
+</ol>
+<h3 id="use-cleantest-archon-to-create-slurmctld-0">Use cleantest archon to create <code>slurmctld-0</code></h3>
+<p>Now with our <em>slurmctld_provision_script.py</em> file created, use the following block of code to add the <code>slurmctld-0</code> 
+instance to our LXD test environment provider.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">nfs_ip</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;nfs-0&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">archon</span><span class="o">.</span><span class="n">get_public_address</span><span class="p">(</span><span class="s2">&quot;nfs-0&quot;</span><span class="p">))})</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a><span class="n">archon</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="s2">&quot;slurmctld-0&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="n">image</span><span class="o">=</span><span class="s2">&quot;mini-hpc-sm&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    <span class="n">provision_script</span><span class="o">=</span><span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;slurmctld_provision_script.py&quot;</span><span class="p">,</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>    <span class="n">resources</span><span class="o">=</span><span class="p">[</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>        <span class="n">File</span><span class="p">(</span><span class="n">sssd_conf</span><span class="p">,</span> <span class="s2">&quot;/root/.init/sssd.conf&quot;</span><span class="p">),</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>        <span class="n">File</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">nfs_ip</span><span class="p">),</span> <span class="s2">&quot;/root/.init/nfs-0&quot;</span><span class="p">),</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>    <span class="p">],</span>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a><span class="p">)</span>
+</code></pre></div>
+<p>The provision script, generated sssd.conf and generated nfs-0 files will be injected into <code>slurmctld-0</code> after the
+instance becomes active.</p>
+<h3 id="pull-munge-key-from-slurmctld-0-and-create-slurmd-012">Pull MUNGE key from <code>slurmctld-0</code> and create <code>slurmd-{0,1,2}</code></h3>
+<p>Using our other provisioning script <em>slurmd_provision_script.py</em>, use the following code block to pull the 
+<em>munge.key</em> file from <code>slurmctld-0</code> and create the instance <code>slurmd-0</code>, <code>slurmd-1</code>, and <code>slurmd-2</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">archon</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>    <span class="s2">&quot;slurmctld-0&quot;</span><span class="p">,</span> <span class="n">data_obj</span><span class="o">=</span><span class="p">[</span><span class="n">File</span><span class="p">(</span><span class="s2">&quot;/etc/munge/munge.key&quot;</span><span class="p">,</span> <span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;munge.key&quot;</span><span class="p">)]</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="p">)</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="n">archon</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    <span class="p">[</span><span class="s2">&quot;slurmd-0&quot;</span><span class="p">,</span> <span class="s2">&quot;slurmd-1&quot;</span><span class="p">,</span> <span class="s2">&quot;slurmd-2&quot;</span><span class="p">],</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    <span class="n">image</span><span class="o">=</span><span class="s2">&quot;mini-hpc-sm&quot;</span><span class="p">,</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>    <span class="n">provision_script</span><span class="o">=</span><span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;slurmd_provision_script.py&quot;</span><span class="p">,</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>    <span class="n">resources</span><span class="o">=</span><span class="p">[</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>        <span class="n">File</span><span class="p">(</span><span class="n">sssd_conf</span><span class="p">,</span> <span class="s2">&quot;/root/.init/sssd.conf&quot;</span><span class="p">),</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>        <span class="n">File</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">nfs_ip</span><span class="p">),</span> <span class="s2">&quot;/root/.init/nfs-0&quot;</span><span class="p">),</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>        <span class="n">File</span><span class="p">(</span><span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;munge.key&quot;</span><span class="p">,</span> <span class="s2">&quot;/root/.init/munge.key&quot;</span><span class="p">),</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>    <span class="p">],</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="p">)</span>
+</code></pre></div>
+<p>The provision script, generated sssd.conf file, generated nfs-0 file, and pulled munge.key file will be 
+injected into <code>slurmd-0</code>, <code>slurmd-1</code>, and <code>slurmd-2</code> after the instance becomes active.</p>
+<h3 id="sync-slurmconf-across-slurmctld-0-and-slurmd-012-and-start-slurm-services">Sync slurm.conf across <code>slurmctld-0</code> and <code>slurmd-{0,1,2}</code> and start SLURM services</h3>
+<p>Now that <code>slurmctld-0</code>, <code>slurmd-0</code>, <code>slurmd-1</code>, and <code>slurmd-2</code> have been created, we can now use the following code
+block to start the SLURM cluster:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="n">slurm_node_info</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>    <span class="s2">&quot;slurmctld_name&quot;</span><span class="p">:</span> <span class="s2">&quot;slurmctld-0&quot;</span><span class="p">,</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    <span class="s2">&quot;slurmctld_address&quot;</span><span class="p">:</span> <span class="n">archon</span><span class="o">.</span><span class="n">get_public_address</span><span class="p">(</span><span class="s2">&quot;slurmctld-0&quot;</span><span class="p">),</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>    <span class="s2">&quot;slurmd_0_name&quot;</span><span class="p">:</span> <span class="s2">&quot;slurmd-0&quot;</span><span class="p">,</span>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>    <span class="s2">&quot;slurmd_0_address&quot;</span><span class="p">:</span> <span class="n">archon</span><span class="o">.</span><span class="n">get_public_address</span><span class="p">(</span><span class="s2">&quot;slurmd-0&quot;</span><span class="p">),</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>    <span class="s2">&quot;slurmd_1_name&quot;</span><span class="p">:</span> <span class="s2">&quot;slurmd-1&quot;</span><span class="p">,</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>    <span class="s2">&quot;slurmd_1_address&quot;</span><span class="p">:</span> <span class="n">archon</span><span class="o">.</span><span class="n">get_public_address</span><span class="p">(</span><span class="s2">&quot;slurmd-1&quot;</span><span class="p">),</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>    <span class="s2">&quot;slurmd_2_name&quot;</span><span class="p">:</span> <span class="s2">&quot;slurmd-2&quot;</span><span class="p">,</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>    <span class="s2">&quot;slurmd_2_address&quot;</span><span class="p">:</span> <span class="n">archon</span><span class="o">.</span><span class="n">get_public_address</span><span class="p">(</span><span class="s2">&quot;slurmd-2&quot;</span><span class="p">),</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="p">}</span>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="n">slurm_conf</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>    <span class="n">templates</span><span class="o">.</span><span class="n">get_template</span><span class="p">(</span><span class="s2">&quot;slurm.conf.tmpl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="o">**</span><span class="n">slurm_node_info</span><span class="p">)</span>
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="p">)</span>
+<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a><span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;slurmctld-0&quot;</span><span class="p">,</span> <span class="s2">&quot;slurmd-0&quot;</span><span class="p">,</span> <span class="s2">&quot;slurmd-1&quot;</span><span class="p">,</span> <span class="s2">&quot;slurmd-2&quot;</span><span class="p">]:</span>
+<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a>    <span class="n">archon</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">data_obj</span><span class="o">=</span><span class="p">[</span><span class="n">File</span><span class="p">(</span><span class="n">slurm_conf</span><span class="p">,</span> <span class="s2">&quot;/etc/slurm/slurm.conf&quot;</span><span class="p">)])</span>
+<a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a><span class="n">archon</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;slurmctld-0&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="s2">&quot;systemctl start slurmctld&quot;</span><span class="p">)</span>
+<a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a><span class="n">archon</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+<a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a>    <span class="p">[</span><span class="s2">&quot;slurmd-0&quot;</span><span class="p">,</span> <span class="s2">&quot;slurmd-1&quot;</span><span class="p">,</span> <span class="s2">&quot;slurmd-2&quot;</span><span class="p">],</span> <span class="n">command</span><span class="o">=</span><span class="s2">&quot;systemctl start slurmd&quot;</span>
+<a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a><span class="p">)</span>
+</code></pre></div>
+<p>This code block will pull the IPv4 addresses of <code>slurmctld-0</code>, <code>slurmd-0</code>, <code>slurmd-1</code>, and <code>slurmd-2</code>,
+generate the slurm.conf from a Jinja template, push slurm.conf into all the slurm instances, and then
+start each slurm service.</p>
+<h2 id="write-a-testlet-to-submit-test-batch-job">Write a testlet to submit test batch job</h2>
+<p>Congratulations, we finally have all the code that we need to create the mini-HPC cluster when we go to run our
+test. Now it is time to write the testlet. In the code block below, <code>@lxd.target("...")</code> is used to target a
+specific test environment instance rather than creating a unique instance for the testlet:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nd">@lxd</span><span class="o">.</span><span class="n">target</span><span class="p">(</span><span class="s2">&quot;slurmctld-0&quot;</span><span class="p">)</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a><span class="k">def</span> <span class="nf">run_job</span><span class="p">():</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="kn">import</span> <span class="nn">os</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>    <span class="kn">import</span> <span class="nn">pathlib</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>    <span class="kn">import</span> <span class="nn">shutil</span>
+<a id="__codelineno-14-6" name="__codelineno-14-6" href="#__codelineno-14-6"></a>    <span class="kn">import</span> <span class="nn">textwrap</span>
+<a id="__codelineno-14-7" name="__codelineno-14-7" href="#__codelineno-14-7"></a>    <span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
+<a id="__codelineno-14-8" name="__codelineno-14-8" href="#__codelineno-14-8"></a>
+<a id="__codelineno-14-9" name="__codelineno-14-9" href="#__codelineno-14-9"></a>    <span class="kn">from</span> <span class="nn">cleantest.utils</span> <span class="kn">import</span> <span class="n">run</span>
+<a id="__codelineno-14-10" name="__codelineno-14-10" href="#__codelineno-14-10"></a>
+<a id="__codelineno-14-11" name="__codelineno-14-11" href="#__codelineno-14-11"></a>    <span class="n">tmp_dir</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/tmp&quot;</span><span class="p">)</span>
+<a id="__codelineno-14-12" name="__codelineno-14-12" href="#__codelineno-14-12"></a>    <span class="p">(</span><span class="n">tmp_dir</span> <span class="o">/</span> <span class="s2">&quot;research.submit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+<a id="__codelineno-14-13" name="__codelineno-14-13" href="#__codelineno-14-13"></a>        <span class="n">textwrap</span><span class="o">.</span><span class="n">dedent</span><span class="p">(</span>
+<a id="__codelineno-14-14" name="__codelineno-14-14" href="#__codelineno-14-14"></a><span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-14-15" name="__codelineno-14-15" href="#__codelineno-14-15"></a><span class="sd">            #!/bin/bash</span>
+<a id="__codelineno-14-16" name="__codelineno-14-16" href="#__codelineno-14-16"></a><span class="sd">            #SBATCH --job-name=research</span>
+<a id="__codelineno-14-17" name="__codelineno-14-17" href="#__codelineno-14-17"></a><span class="sd">            #SBATCH --partition=all</span>
+<a id="__codelineno-14-18" name="__codelineno-14-18" href="#__codelineno-14-18"></a><span class="sd">            #SBATCH --nodes=1</span>
+<a id="__codelineno-14-19" name="__codelineno-14-19" href="#__codelineno-14-19"></a><span class="sd">            #SBATCH --ntasks-per-node=1</span>
+<a id="__codelineno-14-20" name="__codelineno-14-20" href="#__codelineno-14-20"></a><span class="sd">            #SBATCH --cpus-per-task=1</span>
+<a id="__codelineno-14-21" name="__codelineno-14-21" href="#__codelineno-14-21"></a><span class="sd">            #SBATCH --mem=500mb</span>
+<a id="__codelineno-14-22" name="__codelineno-14-22" href="#__codelineno-14-22"></a><span class="sd">            #SBATCH --time=00:00:30</span>
+<a id="__codelineno-14-23" name="__codelineno-14-23" href="#__codelineno-14-23"></a><span class="sd">            #SBATCH --error=research.err</span>
+<a id="__codelineno-14-24" name="__codelineno-14-24" href="#__codelineno-14-24"></a><span class="sd">            #SBATCH --output=research.out</span>
+<a id="__codelineno-14-25" name="__codelineno-14-25" href="#__codelineno-14-25"></a>
+<a id="__codelineno-14-26" name="__codelineno-14-26" href="#__codelineno-14-26"></a><span class="sd">            echo &quot;I love doing research!&quot;</span>
+<a id="__codelineno-14-27" name="__codelineno-14-27" href="#__codelineno-14-27"></a><span class="sd">            &quot;&quot;&quot;</span>
+<a id="__codelineno-14-28" name="__codelineno-14-28" href="#__codelineno-14-28"></a>        <span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-14-29" name="__codelineno-14-29" href="#__codelineno-14-29"></a>    <span class="p">)</span>
+<a id="__codelineno-14-30" name="__codelineno-14-30" href="#__codelineno-14-30"></a>
+<a id="__codelineno-14-31" name="__codelineno-14-31" href="#__codelineno-14-31"></a>    <span class="c1"># Set user to test cluster user nucci.</span>
+<a id="__codelineno-14-32" name="__codelineno-14-32" href="#__codelineno-14-32"></a>    <span class="n">os</span><span class="o">.</span><span class="n">setuid</span><span class="p">(</span><span class="mi">10000</span><span class="p">)</span>
+<a id="__codelineno-14-33" name="__codelineno-14-33" href="#__codelineno-14-33"></a>    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s2">&quot;/home/nucci&quot;</span><span class="p">)</span>
+<a id="__codelineno-14-34" name="__codelineno-14-34" href="#__codelineno-14-34"></a>    <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">run</span><span class="p">(</span>
+<a id="__codelineno-14-35" name="__codelineno-14-35" href="#__codelineno-14-35"></a>        <span class="sa">f</span><span class="s2">&quot;cp </span><span class="si">{</span><span class="p">(</span><span class="n">tmp_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s1">&#39;research.submit&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> .&quot;</span><span class="p">,</span>
+<a id="__codelineno-14-36" name="__codelineno-14-36" href="#__codelineno-14-36"></a>        <span class="s2">&quot;sbatch research.submit&quot;</span><span class="p">,</span>
+<a id="__codelineno-14-37" name="__codelineno-14-37" href="#__codelineno-14-37"></a>    <span class="p">):</span>
+<a id="__codelineno-14-38" name="__codelineno-14-38" href="#__codelineno-14-38"></a>        <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span>
+<a id="__codelineno-14-39" name="__codelineno-14-39" href="#__codelineno-14-39"></a>    <span class="n">sleep</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
+<a id="__codelineno-14-40" name="__codelineno-14-40" href="#__codelineno-14-40"></a>    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s2">&quot;research.out&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">tmp_dir</span> <span class="o">/</span> <span class="s2">&quot;result&quot;</span><span class="p">))</span>
+</code></pre></div>
+<details class="warning">
+<summary>A warning about using cleantest with the SLURM workload manager</summary>
+<p>One thing to note about the SLURM workload manager is that it does not let user <code>root</code> submit jobs to
+the scheduler (for obvious reasons). Unfortunately, cleantest currently only allows for testlets to be
+run as user <code>root</code>. To get around this limitation, we can use Python's <code>os</code> module to change to our test
+user, but we cannot change back to user <code>root</code> after the switch. You should have your "power-user" operations
+taken care of before switching to the test user.</p>
+</details>
+<h2 id="bringing-it-all-together">Bringing it all together</h2>
+<p>Your completed test file <em>test_mini_hpc.py</em> should look like the following:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="ch">#!/usr/bin/env python3</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="sd">&quot;&quot;&quot;Test batch job using mini-HPC cluster created with cleantest.&quot;&quot;&quot;</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="kn">import</span> <span class="nn">json</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="kn">import</span> <span class="nn">os</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="kn">import</span> <span class="nn">pathlib</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">FileSystemLoader</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a><span class="kn">from</span> <span class="nn">cleantest.control.hooks</span> <span class="kn">import</span> <span class="n">StopEnvHook</span>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="kn">from</span> <span class="nn">cleantest.control.lxd</span> <span class="kn">import</span> <span class="n">InstanceConfig</span>
+<a id="__codelineno-15-14" name="__codelineno-15-14" href="#__codelineno-15-14"></a><span class="kn">from</span> <span class="nn">cleantest.data</span> <span class="kn">import</span> <span class="n">File</span>
+<a id="__codelineno-15-15" name="__codelineno-15-15" href="#__codelineno-15-15"></a><span class="kn">from</span> <span class="nn">cleantest.provider</span> <span class="kn">import</span> <span class="n">lxd</span><span class="p">,</span> <span class="n">LXDArchon</span>
+<a id="__codelineno-15-16" name="__codelineno-15-16" href="#__codelineno-15-16"></a>
+<a id="__codelineno-15-17" name="__codelineno-15-17" href="#__codelineno-15-17"></a><span class="n">root</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)))</span>
+<a id="__codelineno-15-18" name="__codelineno-15-18" href="#__codelineno-15-18"></a><span class="n">templates</span> <span class="o">=</span> <span class="n">Environment</span><span class="p">(</span><span class="n">loader</span><span class="o">=</span><span class="n">FileSystemLoader</span><span class="p">(</span><span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;templates&quot;</span><span class="p">))</span>
+<a id="__codelineno-15-19" name="__codelineno-15-19" href="#__codelineno-15-19"></a>
+<a id="__codelineno-15-20" name="__codelineno-15-20" href="#__codelineno-15-20"></a>
+<a id="__codelineno-15-21" name="__codelineno-15-21" href="#__codelineno-15-21"></a><span class="nd">@lxd</span><span class="o">.</span><span class="n">target</span><span class="p">(</span><span class="s2">&quot;slurmctld-0&quot;</span><span class="p">)</span>
+<a id="__codelineno-15-22" name="__codelineno-15-22" href="#__codelineno-15-22"></a><span class="k">def</span> <span class="nf">run_job</span><span class="p">():</span>
+<a id="__codelineno-15-23" name="__codelineno-15-23" href="#__codelineno-15-23"></a>    <span class="kn">import</span> <span class="nn">os</span>
+<a id="__codelineno-15-24" name="__codelineno-15-24" href="#__codelineno-15-24"></a>    <span class="kn">import</span> <span class="nn">pathlib</span>
+<a id="__codelineno-15-25" name="__codelineno-15-25" href="#__codelineno-15-25"></a>    <span class="kn">import</span> <span class="nn">shutil</span>
+<a id="__codelineno-15-26" name="__codelineno-15-26" href="#__codelineno-15-26"></a>    <span class="kn">import</span> <span class="nn">textwrap</span>
+<a id="__codelineno-15-27" name="__codelineno-15-27" href="#__codelineno-15-27"></a>    <span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">sleep</span>
+<a id="__codelineno-15-28" name="__codelineno-15-28" href="#__codelineno-15-28"></a>
+<a id="__codelineno-15-29" name="__codelineno-15-29" href="#__codelineno-15-29"></a>    <span class="kn">from</span> <span class="nn">cleantest.utils</span> <span class="kn">import</span> <span class="n">run</span>
+<a id="__codelineno-15-30" name="__codelineno-15-30" href="#__codelineno-15-30"></a>
+<a id="__codelineno-15-31" name="__codelineno-15-31" href="#__codelineno-15-31"></a>    <span class="n">tmp_dir</span> <span class="o">=</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/tmp&quot;</span><span class="p">)</span>
+<a id="__codelineno-15-32" name="__codelineno-15-32" href="#__codelineno-15-32"></a>    <span class="p">(</span><span class="n">tmp_dir</span> <span class="o">/</span> <span class="s2">&quot;research.submit&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+<a id="__codelineno-15-33" name="__codelineno-15-33" href="#__codelineno-15-33"></a>        <span class="n">textwrap</span><span class="o">.</span><span class="n">dedent</span><span class="p">(</span>
+<a id="__codelineno-15-34" name="__codelineno-15-34" href="#__codelineno-15-34"></a><span class="w">            </span><span class="sd">&quot;&quot;&quot;</span>
+<a id="__codelineno-15-35" name="__codelineno-15-35" href="#__codelineno-15-35"></a><span class="sd">            #!/bin/bash</span>
+<a id="__codelineno-15-36" name="__codelineno-15-36" href="#__codelineno-15-36"></a><span class="sd">            #SBATCH --job-name=research</span>
+<a id="__codelineno-15-37" name="__codelineno-15-37" href="#__codelineno-15-37"></a><span class="sd">            #SBATCH --partition=all</span>
+<a id="__codelineno-15-38" name="__codelineno-15-38" href="#__codelineno-15-38"></a><span class="sd">            #SBATCH --nodes=1</span>
+<a id="__codelineno-15-39" name="__codelineno-15-39" href="#__codelineno-15-39"></a><span class="sd">            #SBATCH --ntasks-per-node=1</span>
+<a id="__codelineno-15-40" name="__codelineno-15-40" href="#__codelineno-15-40"></a><span class="sd">            #SBATCH --cpus-per-task=1</span>
+<a id="__codelineno-15-41" name="__codelineno-15-41" href="#__codelineno-15-41"></a><span class="sd">            #SBATCH --mem=500mb</span>
+<a id="__codelineno-15-42" name="__codelineno-15-42" href="#__codelineno-15-42"></a><span class="sd">            #SBATCH --time=00:00:30</span>
+<a id="__codelineno-15-43" name="__codelineno-15-43" href="#__codelineno-15-43"></a><span class="sd">            #SBATCH --error=research.err</span>
+<a id="__codelineno-15-44" name="__codelineno-15-44" href="#__codelineno-15-44"></a><span class="sd">            #SBATCH --output=research.out</span>
+<a id="__codelineno-15-45" name="__codelineno-15-45" href="#__codelineno-15-45"></a>
+<a id="__codelineno-15-46" name="__codelineno-15-46" href="#__codelineno-15-46"></a><span class="sd">            echo &quot;I love doing research!&quot;</span>
+<a id="__codelineno-15-47" name="__codelineno-15-47" href="#__codelineno-15-47"></a><span class="sd">            &quot;&quot;&quot;</span>
+<a id="__codelineno-15-48" name="__codelineno-15-48" href="#__codelineno-15-48"></a>        <span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-15-49" name="__codelineno-15-49" href="#__codelineno-15-49"></a>    <span class="p">)</span>
+<a id="__codelineno-15-50" name="__codelineno-15-50" href="#__codelineno-15-50"></a>
+<a id="__codelineno-15-51" name="__codelineno-15-51" href="#__codelineno-15-51"></a>    <span class="c1"># Set user to test cluster user nucci.</span>
+<a id="__codelineno-15-52" name="__codelineno-15-52" href="#__codelineno-15-52"></a>    <span class="n">os</span><span class="o">.</span><span class="n">setuid</span><span class="p">(</span><span class="mi">10000</span><span class="p">)</span>
+<a id="__codelineno-15-53" name="__codelineno-15-53" href="#__codelineno-15-53"></a>    <span class="n">os</span><span class="o">.</span><span class="n">chdir</span><span class="p">(</span><span class="s2">&quot;/home/nucci&quot;</span><span class="p">)</span>
+<a id="__codelineno-15-54" name="__codelineno-15-54" href="#__codelineno-15-54"></a>    <span class="k">for</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">run</span><span class="p">(</span>
+<a id="__codelineno-15-55" name="__codelineno-15-55" href="#__codelineno-15-55"></a>        <span class="sa">f</span><span class="s2">&quot;cp </span><span class="si">{</span><span class="p">(</span><span class="n">tmp_dir</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="s1">&#39;research.submit&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> .&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-56" name="__codelineno-15-56" href="#__codelineno-15-56"></a>        <span class="s2">&quot;sbatch research.submit&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-57" name="__codelineno-15-57" href="#__codelineno-15-57"></a>    <span class="p">):</span>
+<a id="__codelineno-15-58" name="__codelineno-15-58" href="#__codelineno-15-58"></a>        <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">exit_code</span> <span class="o">==</span> <span class="mi">0</span>
+<a id="__codelineno-15-59" name="__codelineno-15-59" href="#__codelineno-15-59"></a>    <span class="n">sleep</span><span class="p">(</span><span class="mi">60</span><span class="p">)</span>
+<a id="__codelineno-15-60" name="__codelineno-15-60" href="#__codelineno-15-60"></a>    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="s2">&quot;research.out&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">tmp_dir</span> <span class="o">/</span> <span class="s2">&quot;result&quot;</span><span class="p">))</span>
+<a id="__codelineno-15-61" name="__codelineno-15-61" href="#__codelineno-15-61"></a>
+<a id="__codelineno-15-62" name="__codelineno-15-62" href="#__codelineno-15-62"></a>
+<a id="__codelineno-15-63" name="__codelineno-15-63" href="#__codelineno-15-63"></a><span class="k">def</span> <span class="nf">test_lxd_archon_local</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<a id="__codelineno-15-64" name="__codelineno-15-64" href="#__codelineno-15-64"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Test LXDArchon against local LXD cluster.&quot;&quot;&quot;</span>
+<a id="__codelineno-15-65" name="__codelineno-15-65" href="#__codelineno-15-65"></a>    <span class="n">archon</span> <span class="o">=</span> <span class="n">LXDArchon</span><span class="p">()</span>
+<a id="__codelineno-15-66" name="__codelineno-15-66" href="#__codelineno-15-66"></a>    <span class="n">archon</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">register_hook</span><span class="p">(</span>
+<a id="__codelineno-15-67" name="__codelineno-15-67" href="#__codelineno-15-67"></a>        <span class="n">StopEnvHook</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;get_result&quot;</span><span class="p">,</span> <span class="n">download</span><span class="o">=</span><span class="p">[</span><span class="n">File</span><span class="p">(</span><span class="s2">&quot;/tmp/result&quot;</span><span class="p">,</span> <span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;result&quot;</span><span class="p">)])</span>
+<a id="__codelineno-15-68" name="__codelineno-15-68" href="#__codelineno-15-68"></a>    <span class="p">)</span>
+<a id="__codelineno-15-69" name="__codelineno-15-69" href="#__codelineno-15-69"></a>    <span class="n">placeholder</span> <span class="o">=</span> <span class="n">archon</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get_instance_config</span><span class="p">(</span><span class="s2">&quot;ubuntu-jammy-amd64&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span>
+<a id="__codelineno-15-70" name="__codelineno-15-70" href="#__codelineno-15-70"></a>    <span class="n">placeholder</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;mini-hpc-sm&quot;</span>
+<a id="__codelineno-15-71" name="__codelineno-15-71" href="#__codelineno-15-71"></a>    <span class="n">archon</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">add_instance_config</span><span class="p">(</span>
+<a id="__codelineno-15-72" name="__codelineno-15-72" href="#__codelineno-15-72"></a>        <span class="n">InstanceConfig</span><span class="p">(</span>
+<a id="__codelineno-15-73" name="__codelineno-15-73" href="#__codelineno-15-73"></a>            <span class="n">config</span><span class="o">=</span><span class="p">{</span>
+<a id="__codelineno-15-74" name="__codelineno-15-74" href="#__codelineno-15-74"></a>                <span class="s2">&quot;limits.cpu&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-75" name="__codelineno-15-75" href="#__codelineno-15-75"></a>                <span class="s2">&quot;limits.memory&quot;</span><span class="p">:</span> <span class="s2">&quot;8GB&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-76" name="__codelineno-15-76" href="#__codelineno-15-76"></a>                <span class="s2">&quot;security.privileged&quot;</span><span class="p">:</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-77" name="__codelineno-15-77" href="#__codelineno-15-77"></a>                <span class="s2">&quot;raw.apparmor&quot;</span><span class="p">:</span> <span class="s2">&quot;mount fstype=nfs*, mount fstype=rpc_pipefs,&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-78" name="__codelineno-15-78" href="#__codelineno-15-78"></a>            <span class="p">},</span>
+<a id="__codelineno-15-79" name="__codelineno-15-79" href="#__codelineno-15-79"></a>            <span class="o">**</span><span class="n">placeholder</span><span class="p">,</span>
+<a id="__codelineno-15-80" name="__codelineno-15-80" href="#__codelineno-15-80"></a>        <span class="p">)</span>
+<a id="__codelineno-15-81" name="__codelineno-15-81" href="#__codelineno-15-81"></a>    <span class="p">)</span>
+<a id="__codelineno-15-82" name="__codelineno-15-82" href="#__codelineno-15-82"></a>    <span class="n">archon</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+<a id="__codelineno-15-83" name="__codelineno-15-83" href="#__codelineno-15-83"></a>        <span class="s2">&quot;ldap-0&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-84" name="__codelineno-15-84" href="#__codelineno-15-84"></a>        <span class="n">image</span><span class="o">=</span><span class="s2">&quot;mini-hpc-sm&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-85" name="__codelineno-15-85" href="#__codelineno-15-85"></a>        <span class="n">provision_script</span><span class="o">=</span><span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;ldap_provision_script.py&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-86" name="__codelineno-15-86" href="#__codelineno-15-86"></a>    <span class="p">)</span>
+<a id="__codelineno-15-87" name="__codelineno-15-87" href="#__codelineno-15-87"></a>    <span class="n">sssd_conf</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span>
+<a id="__codelineno-15-88" name="__codelineno-15-88" href="#__codelineno-15-88"></a>        <span class="n">templates</span><span class="o">.</span><span class="n">get_template</span><span class="p">(</span><span class="s2">&quot;sssd.conf.tmpl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+<a id="__codelineno-15-89" name="__codelineno-15-89" href="#__codelineno-15-89"></a>            <span class="n">ldap_server_address</span><span class="o">=</span><span class="n">archon</span><span class="o">.</span><span class="n">get_public_address</span><span class="p">(</span><span class="s2">&quot;ldap-0&quot;</span><span class="p">)</span>
+<a id="__codelineno-15-90" name="__codelineno-15-90" href="#__codelineno-15-90"></a>        <span class="p">)</span>
+<a id="__codelineno-15-91" name="__codelineno-15-91" href="#__codelineno-15-91"></a>    <span class="p">)</span>
+<a id="__codelineno-15-92" name="__codelineno-15-92" href="#__codelineno-15-92"></a>    <span class="n">archon</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+<a id="__codelineno-15-93" name="__codelineno-15-93" href="#__codelineno-15-93"></a>        <span class="s2">&quot;nfs-0&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-94" name="__codelineno-15-94" href="#__codelineno-15-94"></a>        <span class="n">image</span><span class="o">=</span><span class="s2">&quot;mini-hpc-sm&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-95" name="__codelineno-15-95" href="#__codelineno-15-95"></a>        <span class="n">provision_script</span><span class="o">=</span><span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;nfs_provision_script.py&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-96" name="__codelineno-15-96" href="#__codelineno-15-96"></a>        <span class="n">resources</span><span class="o">=</span><span class="p">[</span><span class="n">File</span><span class="p">(</span><span class="n">sssd_conf</span><span class="p">,</span> <span class="s2">&quot;/root/.init/sssd.conf&quot;</span><span class="p">)],</span>
+<a id="__codelineno-15-97" name="__codelineno-15-97" href="#__codelineno-15-97"></a>    <span class="p">)</span>
+<a id="__codelineno-15-98" name="__codelineno-15-98" href="#__codelineno-15-98"></a>    <span class="n">nfs_ip</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;nfs-0&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">archon</span><span class="o">.</span><span class="n">get_public_address</span><span class="p">(</span><span class="s2">&quot;nfs-0&quot;</span><span class="p">))})</span>
+<a id="__codelineno-15-99" name="__codelineno-15-99" href="#__codelineno-15-99"></a>    <span class="n">archon</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+<a id="__codelineno-15-100" name="__codelineno-15-100" href="#__codelineno-15-100"></a>        <span class="s2">&quot;slurmctld-0&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-101" name="__codelineno-15-101" href="#__codelineno-15-101"></a>        <span class="n">image</span><span class="o">=</span><span class="s2">&quot;mini-hpc-sm&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-102" name="__codelineno-15-102" href="#__codelineno-15-102"></a>        <span class="n">provision_script</span><span class="o">=</span><span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;slurmctld_provision_script.py&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-103" name="__codelineno-15-103" href="#__codelineno-15-103"></a>        <span class="n">resources</span><span class="o">=</span><span class="p">[</span>
+<a id="__codelineno-15-104" name="__codelineno-15-104" href="#__codelineno-15-104"></a>            <span class="n">File</span><span class="p">(</span><span class="n">sssd_conf</span><span class="p">,</span> <span class="s2">&quot;/root/.init/sssd.conf&quot;</span><span class="p">),</span>
+<a id="__codelineno-15-105" name="__codelineno-15-105" href="#__codelineno-15-105"></a>            <span class="n">File</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">nfs_ip</span><span class="p">),</span> <span class="s2">&quot;/root/.init/nfs-0&quot;</span><span class="p">),</span>
+<a id="__codelineno-15-106" name="__codelineno-15-106" href="#__codelineno-15-106"></a>        <span class="p">],</span>
+<a id="__codelineno-15-107" name="__codelineno-15-107" href="#__codelineno-15-107"></a>    <span class="p">)</span>
+<a id="__codelineno-15-108" name="__codelineno-15-108" href="#__codelineno-15-108"></a>    <span class="n">archon</span><span class="o">.</span><span class="n">pull</span><span class="p">(</span>
+<a id="__codelineno-15-109" name="__codelineno-15-109" href="#__codelineno-15-109"></a>        <span class="s2">&quot;slurmctld-0&quot;</span><span class="p">,</span> <span class="n">data_obj</span><span class="o">=</span><span class="p">[</span><span class="n">File</span><span class="p">(</span><span class="s2">&quot;/etc/munge/munge.key&quot;</span><span class="p">,</span> <span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;munge.key&quot;</span><span class="p">)]</span>
+<a id="__codelineno-15-110" name="__codelineno-15-110" href="#__codelineno-15-110"></a>    <span class="p">)</span>
+<a id="__codelineno-15-111" name="__codelineno-15-111" href="#__codelineno-15-111"></a>    <span class="n">archon</span><span class="o">.</span><span class="n">add</span><span class="p">(</span>
+<a id="__codelineno-15-112" name="__codelineno-15-112" href="#__codelineno-15-112"></a>        <span class="p">[</span><span class="s2">&quot;slurmd-0&quot;</span><span class="p">,</span> <span class="s2">&quot;slurmd-1&quot;</span><span class="p">,</span> <span class="s2">&quot;slurmd-2&quot;</span><span class="p">],</span>
+<a id="__codelineno-15-113" name="__codelineno-15-113" href="#__codelineno-15-113"></a>        <span class="n">image</span><span class="o">=</span><span class="s2">&quot;mini-hpc-sm&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-114" name="__codelineno-15-114" href="#__codelineno-15-114"></a>        <span class="n">provision_script</span><span class="o">=</span><span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;slurmd_provision_script.py&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-115" name="__codelineno-15-115" href="#__codelineno-15-115"></a>        <span class="n">resources</span><span class="o">=</span><span class="p">[</span>
+<a id="__codelineno-15-116" name="__codelineno-15-116" href="#__codelineno-15-116"></a>            <span class="n">File</span><span class="p">(</span><span class="n">sssd_conf</span><span class="p">,</span> <span class="s2">&quot;/root/.init/sssd.conf&quot;</span><span class="p">),</span>
+<a id="__codelineno-15-117" name="__codelineno-15-117" href="#__codelineno-15-117"></a>            <span class="n">File</span><span class="p">(</span><span class="n">StringIO</span><span class="p">(</span><span class="n">nfs_ip</span><span class="p">),</span> <span class="s2">&quot;/root/.init/nfs-0&quot;</span><span class="p">),</span>
+<a id="__codelineno-15-118" name="__codelineno-15-118" href="#__codelineno-15-118"></a>            <span class="n">File</span><span class="p">(</span><span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;munge.key&quot;</span><span class="p">,</span> <span class="s2">&quot;/root/.init/munge.key&quot;</span><span class="p">),</span>
+<a id="__codelineno-15-119" name="__codelineno-15-119" href="#__codelineno-15-119"></a>        <span class="p">],</span>
+<a id="__codelineno-15-120" name="__codelineno-15-120" href="#__codelineno-15-120"></a>    <span class="p">)</span>
+<a id="__codelineno-15-121" name="__codelineno-15-121" href="#__codelineno-15-121"></a>    <span class="n">slurm_node_info</span> <span class="o">=</span> <span class="p">{</span>
+<a id="__codelineno-15-122" name="__codelineno-15-122" href="#__codelineno-15-122"></a>        <span class="s2">&quot;slurmctld_name&quot;</span><span class="p">:</span> <span class="s2">&quot;slurmctld-0&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-123" name="__codelineno-15-123" href="#__codelineno-15-123"></a>        <span class="s2">&quot;slurmctld_address&quot;</span><span class="p">:</span> <span class="n">archon</span><span class="o">.</span><span class="n">get_public_address</span><span class="p">(</span><span class="s2">&quot;slurmctld-0&quot;</span><span class="p">),</span>
+<a id="__codelineno-15-124" name="__codelineno-15-124" href="#__codelineno-15-124"></a>        <span class="s2">&quot;slurmd_0_name&quot;</span><span class="p">:</span> <span class="s2">&quot;slurmd-0&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-125" name="__codelineno-15-125" href="#__codelineno-15-125"></a>        <span class="s2">&quot;slurmd_0_address&quot;</span><span class="p">:</span> <span class="n">archon</span><span class="o">.</span><span class="n">get_public_address</span><span class="p">(</span><span class="s2">&quot;slurmd-0&quot;</span><span class="p">),</span>
+<a id="__codelineno-15-126" name="__codelineno-15-126" href="#__codelineno-15-126"></a>        <span class="s2">&quot;slurmd_1_name&quot;</span><span class="p">:</span> <span class="s2">&quot;slurmd-1&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-127" name="__codelineno-15-127" href="#__codelineno-15-127"></a>        <span class="s2">&quot;slurmd_1_address&quot;</span><span class="p">:</span> <span class="n">archon</span><span class="o">.</span><span class="n">get_public_address</span><span class="p">(</span><span class="s2">&quot;slurmd-1&quot;</span><span class="p">),</span>
+<a id="__codelineno-15-128" name="__codelineno-15-128" href="#__codelineno-15-128"></a>        <span class="s2">&quot;slurmd_2_name&quot;</span><span class="p">:</span> <span class="s2">&quot;slurmd-2&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-129" name="__codelineno-15-129" href="#__codelineno-15-129"></a>        <span class="s2">&quot;slurmd_2_address&quot;</span><span class="p">:</span> <span class="n">archon</span><span class="o">.</span><span class="n">get_public_address</span><span class="p">(</span><span class="s2">&quot;slurmd-2&quot;</span><span class="p">),</span>
+<a id="__codelineno-15-130" name="__codelineno-15-130" href="#__codelineno-15-130"></a>    <span class="p">}</span>
+<a id="__codelineno-15-131" name="__codelineno-15-131" href="#__codelineno-15-131"></a>    <span class="n">slurm_conf</span> <span class="o">=</span> <span class="n">StringIO</span><span class="p">(</span>
+<a id="__codelineno-15-132" name="__codelineno-15-132" href="#__codelineno-15-132"></a>        <span class="n">templates</span><span class="o">.</span><span class="n">get_template</span><span class="p">(</span><span class="s2">&quot;slurm.conf.tmpl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="o">**</span><span class="n">slurm_node_info</span><span class="p">)</span>
+<a id="__codelineno-15-133" name="__codelineno-15-133" href="#__codelineno-15-133"></a>    <span class="p">)</span>
+<a id="__codelineno-15-134" name="__codelineno-15-134" href="#__codelineno-15-134"></a>    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;slurmctld-0&quot;</span><span class="p">,</span> <span class="s2">&quot;slurmd-0&quot;</span><span class="p">,</span> <span class="s2">&quot;slurmd-1&quot;</span><span class="p">,</span> <span class="s2">&quot;slurmd-2&quot;</span><span class="p">]:</span>
+<a id="__codelineno-15-135" name="__codelineno-15-135" href="#__codelineno-15-135"></a>        <span class="n">archon</span><span class="o">.</span><span class="n">push</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">data_obj</span><span class="o">=</span><span class="p">[</span><span class="n">File</span><span class="p">(</span><span class="n">slurm_conf</span><span class="p">,</span> <span class="s2">&quot;/etc/slurm/slurm.conf&quot;</span><span class="p">)])</span>
+<a id="__codelineno-15-136" name="__codelineno-15-136" href="#__codelineno-15-136"></a>    <span class="n">archon</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;slurmctld-0&quot;</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="s2">&quot;systemctl start slurmctld&quot;</span><span class="p">)</span>
+<a id="__codelineno-15-137" name="__codelineno-15-137" href="#__codelineno-15-137"></a>    <span class="n">archon</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+<a id="__codelineno-15-138" name="__codelineno-15-138" href="#__codelineno-15-138"></a>        <span class="p">[</span><span class="s2">&quot;slurmd-0&quot;</span><span class="p">,</span> <span class="s2">&quot;slurmd-1&quot;</span><span class="p">,</span> <span class="s2">&quot;slurmd-2&quot;</span><span class="p">],</span> <span class="n">command</span><span class="o">=</span><span class="s2">&quot;systemctl start slurmd&quot;</span>
+<a id="__codelineno-15-139" name="__codelineno-15-139" href="#__codelineno-15-139"></a>    <span class="p">)</span>
+<a id="__codelineno-15-140" name="__codelineno-15-140" href="#__codelineno-15-140"></a>    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">result</span> <span class="ow">in</span> <span class="n">run_job</span><span class="p">():</span>
+<a id="__codelineno-15-141" name="__codelineno-15-141" href="#__codelineno-15-141"></a>        <span class="k">assert</span> <span class="s2">&quot;I love doing research!&quot;</span> <span class="ow">in</span> <span class="n">pathlib</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;result&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+<a id="__codelineno-15-142" name="__codelineno-15-142" href="#__codelineno-15-142"></a>    <span class="p">(</span><span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;munge.key&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-15-143" name="__codelineno-15-143" href="#__codelineno-15-143"></a>    <span class="p">(</span><span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;result&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">missing_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a id="__codelineno-15-144" name="__codelineno-15-144" href="#__codelineno-15-144"></a>    <span class="n">archon</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span>
+<a id="__codelineno-15-145" name="__codelineno-15-145" href="#__codelineno-15-145"></a>        <span class="p">[</span><span class="s2">&quot;slurmctld-0&quot;</span><span class="p">,</span> <span class="s2">&quot;slurmd-0&quot;</span><span class="p">,</span> <span class="s2">&quot;slurmd-1&quot;</span><span class="p">,</span> <span class="s2">&quot;slurmd-2&quot;</span><span class="p">],</span>
+<a id="__codelineno-15-146" name="__codelineno-15-146" href="#__codelineno-15-146"></a>        <span class="n">command</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;umount /home /data&quot;</span><span class="p">,</span>
+<a id="__codelineno-15-147" name="__codelineno-15-147" href="#__codelineno-15-147"></a>    <span class="p">)</span>
+<a id="__codelineno-15-148" name="__codelineno-15-148" href="#__codelineno-15-148"></a>    <span class="n">archon</span><span class="o">.</span><span class="n">destroy</span><span class="p">()</span>
+</code></pre></div>
+<p>Do not forget to add the bottom part here that evaluates the result of the testlet! After the evaluation, some
+basic cleanup is also performed so that the mini-HPC cluster does not continue to use your workstation's resources
+after the test has completed. Now use <code>pytest</code> to run your "clean test"!</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>pytest<span class="w"> </span>test_mini_hpc.py
+</code></pre></div>
+<p>Now sit back, relax, and wait for your test to complete! You can watch the following video to get an idea
+of what cleantest is doing "under the hood" on your system to run the test:</p>
+<p align="center">
+  <iframe 
+    width="620" height="375" src="https://www.youtube.com/embed/UXQ9WHRiBfo" 
+    title="mini-hpc cluster demo video" frameborder="0" 
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+    allowfullscreen>
+  </iframe>
+</p>
+
+<h2 id="where-to-go-from-here">Where to go from here</h2>
+<p>This was quite a long tutorial, so make sure to grant yourself a well-earned coffee break! </p>
+<p>If you are interested in learning more about the underpinnings of a mini-HPC cluster, check out my 
+<a href="https://nuccitheboss.github.io/hpc-workshop/">intro to open-source HPC workshop</a> that I gave at the 2022 Ubuntu 
+Summit in Prague. My workshop will take your through building your own mini-HPC cluster manually, and it takes you
+further than just setting up the infrastructure such as building containers and deploying your own software stack.</p>
+<p>If you want to sink your teeth further into cleantest, I suggest reading more of the tutorials or heading over
+onto the <a href="../../user-guide/installation/">User Guide</a> page to learn about what cleantest is capable of!</p>
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.expand", "navigation.tabs"], "search": "../../assets/javascripts/workers/search.208ed371.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.2a6f1dda.min.js"></script>
+      
+    
+  </body>
+</html>
