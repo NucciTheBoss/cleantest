@@ -1,3 +1,6 @@
+# Copyright 2023 Jason C. Nucciarone
+# See LICENSE file for licensing details.
+
 site_name: cleantest
 site_url: https://nuccitheboss.github.io/cleantest/
 site_description: |
@@ -46,6 +49,8 @@ nav:
         - 'Files': 'user-guide/artifacts/file.md'
     - 'Using different Linux distributions': 'user-guide/using-diff-linux-distro.md'
     - 'Parallel testing': 'user-guide/parallelization.md'
-  - Examples: 'examples/coming-soon.md'
-  - About:
-    - 'License': 'about/license.md'
+  - Tutorials:
+      - 'Using a mini-HPC cluster to test batch jobs': 'tutorials/using-a-mini-hpc-cluster.md'
+  - Reference: 'reference/coming-soon.md'
+  - News: 'news/news.md'
+  - Community: 'https://github.com/NucciTheBoss/cleantest/discussions'
