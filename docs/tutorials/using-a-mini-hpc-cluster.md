@@ -682,7 +682,7 @@ def run_job():
     One thing to note about the SLURM workload manager is that it does not let user `root` submit jobs to
     the scheduler (for obvious reasons). Unfortunately, cleantest currently only allows for testlets to be
     run as user `root`. To get around this limitation, we can use Python's `os` module to change to our test
-    user, but we cannot change back to user `root` after the switch. You shoud have your "power-user" operations
+    user, but we cannot change back to user `root` after the switch. You should have your "power-user" operations
     taken care of before switching to the test user.
 
 
