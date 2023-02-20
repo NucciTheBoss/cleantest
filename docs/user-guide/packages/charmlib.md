@@ -1,3 +1,6 @@
+[//]: # "Copyright 2023 Jason C. Nucciarone"
+[//]: # "See LICENSE file for licensing details."
+
 # Working with charm libraries
 
 Charm libraries are special Python modules used in charmed operators deployed by [__Juju__](https://juju.is). They
@@ -42,27 +45,15 @@ test script below:
 """Example usage of Charmlib package metaclass."""
 
 import os
+import pathlib
 
-from cleantest import Configure
+from cleantest.control import Configure
 from cleantest.control.hooks import StartEnvHook
 from cleantest.data.pkg import Charmlib
 from cleantest.provider import lxd
 
-root = os.path.dirname(os.path.realpath(__file__))
-config = Configure()
-start_hook = StartEnvHook(
-    name="charmlib_start_hook",
-    packages=[
-        Charmlib(
-            auth_token_path=os.path.join(root, "charmhub.secret"),
-            charmlibs=["charms.operator_libs_linux.v0.apt"],
-        ),
-    ],
-)
-config.register_hook(start_hook)
 
-
-@lxd(image="jammy-amd64", preserve=False)
+@lxd(image="ubuntu-jammy-amd64", preserve=False)
 def install_snapd():
     import sys
 
@@ -89,9 +80,19 @@ def install_snapd():
     sys.exit(0)
 
 
-class TestCharmlib:
-    def test_charmlib(self) -> None:
-        results = install_snapd()
-        for name, result in results.items():
-            assert result.exit_code == 0
+def test_local_lxd(clean_slate) -> None:
+    root = pathlib.Path(os.path.dirname(os.path.realpath(__file__)))
+    config = Configure("lxd")
+    start_hook = StartEnvHook(
+        name="setup_deps",
+        packages=[
+            Charmlib(
+                auth_token_path=root / "charmhub.secret",
+                charmlibs=["charms.operator_libs_linux.v0.apt"],
+            ),
+        ],
+    )
+    config.register_hook(start_hook)
+    for name, result in install_snapd():
+        assert result.exit_code == 0
 ```

@@ -1,3 +1,6 @@
+[//]: # "Copyright 2023 Jason C. Nucciarone"
+[//]: # "See LICENSE file for licensing details."
+
 <h3 align="center">cleantest</h3>
 
 <p align="center">
@@ -83,8 +86,8 @@ def do_something():
 
 class TestSuite:
     def test_do_something(self) -> None:
-        result = do_something()
-        assert result.exit_code == 0
+        for name, result in do_something():
+            assert result.exit_code == 0
 ```
 </details>
 
@@ -107,21 +110,28 @@ standards, and how to submit contributions to cleantest.
 
 ## License
 
-Code and documentation copyright &copy; 2022 Jason C. Nucciarone, Canonical Ltd. Please see the 
+Code and documentation copyright &copy; 2023 Jason C. Nucciarone. Please see the 
 [Apache-2.0](https://www.apache.org/licenses/LICENSE-2.0.html) license for more details.
 
 ## Roadmap
 
 Here are my (NucciTheBoss's) goals to get cleantest to release version 1.0.0:
 
+> We are sort of the way there on fully support multiple Linux distributions.
+> The big hang-up now is just ensuring that the current macros and utilities are
+> compatible with the new distributions and writing integration tests to ensure that
+> the distributions actually work with cleantest.
+> 
+> __Note:__ cleantest can boot these new distributions but support might be slightly flaky.
+
 * ~~Add support for injecting tests into LXD~~
-* Add support for multiple distros:
+* ~~Add support for multiple distros:~~
   * ~~Ubuntu~~
-  * Debian
-  * CentOS
-  * Rocky
-  * Fedora
-  * Arch
+  * ~~Debian~~
+  * ~~CentOS~~
+  * ~~Rocky~~
+  * ~~Fedora~~
+  * ~~Arch~~
 * ~~Enable support for running parallel tests with LXD~~
 * Better test logging capabilities
 * Support for a select few popular packaging formats:

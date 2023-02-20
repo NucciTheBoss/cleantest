@@ -6,7 +6,7 @@
 
 import os
 import pathlib
-import tempfile
+import shutil
 
 from cleantest.control import Configure
 from cleantest.control.hooks import StartEnvHook, StopEnvHook
@@ -29,13 +29,13 @@ def work_on_artifacts():
 
 
 def test_upload_download(clean_slate) -> None:
-    root = os.path.dirname(os.path.realpath(__file__))
+    root = pathlib.Path(os.path.dirname(os.path.realpath(__file__)))
     config = Configure("lxd")
     start_hook = StartEnvHook(
         name="upload_artifact",
         upload=[
-            File(os.path.join(root, "greeting.txt"), "/root/greeting.txt"),
-            Dir(os.path.join(root, "greetings"), "/root/greetings"),
+            File(root / "greeting.txt", "/root/greeting.txt"),
+            Dir(root / "greetings", "/root/greetings"),
         ],
     )
     stop_hook = StopEnvHook(
@@ -43,19 +43,19 @@ def test_upload_download(clean_slate) -> None:
         download=[
             File(
                 "/root/dump.txt",
-                os.path.join(tempfile.gettempdir(), "dump.txt"),
+                root / "dump.txt",
                 overwrite=True,
             ),
             Dir(
                 "/root/dump",
-                os.path.join(tempfile.gettempdir(), "dump"),
+                root / "dump",
                 overwrite=True,
             ),
         ],
     )
     config.register_hook(start_hook, stop_hook)
     for name, result in work_on_artifacts():
-        assert (
-            pathlib.Path(tempfile.gettempdir()).joinpath("dump.txt").is_file() is True
-        )
-        assert pathlib.Path(tempfile.gettempdir()).joinpath("dump").is_dir() is True
+        assert (root / "dump.txt").is_file() is True
+        assert (root / "dump").is_dir() is True
+    (root / "dump.txt").unlink(missing_ok=True)
+    shutil.rmtree(root / "dump")

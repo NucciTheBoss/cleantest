@@ -1,3 +1,6 @@
+[//]: # "Copyright 2023 Jason C. Nucciarone"
+[//]: # "See LICENSE file for licensing details."
+
 # Getting started with cleantest
 
 Now that you have the cleantest framework installed on your system, let's get you introduced to writing some basic 
@@ -56,8 +59,7 @@ of choice. In our case, we used __pytest__:
 ```python
 class TestSuite:
     def test_do_something(self) -> None:
-        results = do_something()
-        for name, result in results.items()
+        for name, result in do_something():
             assert result.exit_code == 0
 ```
 
@@ -89,8 +91,7 @@ def do_something():
 
 class TestSuite:
     def test_do_something(self) -> None:
-        results = do_something()
-        for name, result in results.items()
+        for name, result in do_something():
             assert result.exit_code == 0
 ```
 

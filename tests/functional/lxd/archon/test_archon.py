@@ -68,8 +68,8 @@ def test_lxd_archon_local() -> None:
     archon.config.register_hook(
         StopEnvHook(name="get_result", download=[File("/tmp/result", root / "result")])
     )
-    _ = archon.config.get_instance_config("ubuntu-jammy-amd64").dict()
-    _["name"] = "mini-hpc-sm"
+    placeholder = archon.config.get_instance_config("ubuntu-jammy-amd64").dict()
+    placeholder["name"] = "mini-hpc-sm"
     archon.config.add_instance_config(
         InstanceConfig(
             config={
@@ -78,7 +78,7 @@ def test_lxd_archon_local() -> None:
                 "security.privileged": "true",
                 "raw.apparmor": "mount fstype=nfs*, mount fstype=rpc_pipefs,",
             },
-            **_,
+            **placeholder,
         )
     )
     archon.add(
