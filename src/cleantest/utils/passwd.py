@@ -171,7 +171,7 @@ class Group:
             raise TypeError(
                 f"Argument `group` should be type str or Group, not {type(group)}."
             )
-        for executable in ["addgroup", "groupdel", "gpasswd", "groupmems"]:
+        for executable in ["groupadd", "groupdel", "gpasswd", "groupmems"]:
             if shutil.which(executable) is None:
                 raise GroupError(
                     f"Executable `{executable}` not found on PATH {os.getenv('PATH')}"
@@ -233,7 +233,7 @@ class Group:
         if self.exists():
             raise GroupError(f"Group {self._group} already exists.")
 
-        cmd = ["addgroup"]
+        cmd = ["groupadd"]
         if gid:
             cmd.extend(["--gid", gid])
         if system_group:
