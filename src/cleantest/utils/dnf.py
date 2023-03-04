@@ -13,7 +13,7 @@ from io import StringIO
 from typing import Dict, Optional, Union
 
 
-class ExecutionError(Exception):
+class Error(Exception):
     """Raise when dnf encounters an execution error."""
 
 
@@ -115,7 +115,7 @@ def upgrade(*packages: str) -> None:
         *packages (str): Packages to upgrade on system.
     """
     if len(packages) == 0:
-        raise ExecutionError("No packages specified.")
+        raise Error("No packages specified.")
     _dnf("upgrade", *packages)
 
 
@@ -159,7 +159,7 @@ def fetch(package: str) -> PackageInfo:
         package (str): Package to get information about.
 
     Returns:
-        PackageInfo: Information about package.
+        (PackageInfo): Information about package.
     """
     try:
         status, info = _dnf("list", "-q", package).split("\n")[
@@ -187,7 +187,7 @@ def fetch(package: str) -> PackageInfo:
             }
         )
 
-    except ExecutionError:
+    except Error:
         return PackageInfo({"name": package, "state": _PackageState.ABSENT})
 
 
@@ -209,13 +209,13 @@ def _dnf(*args: str) -> str:
         *args (str): Arguments to pass to `dnf` executable.
 
     Raises:
-        ExecutionError: Raised if DNF command execution fails.
+        Error: Raised if DNF command execution fails.
 
     Returns:
-        str: Captured stdout of executed DNF command.
+        (str): Captured stdout of executed DNF command.
     """
     if not installed():
-        raise ExecutionError(f"dnf not found on PATH {os.getenv('PATH')}")
+        raise Error(f"dnf not found on PATH {os.getenv('PATH')}")
 
     cmd = ["dnf", "-y", *args]
     try:
@@ -227,4 +227,4 @@ def _dnf(*args: str) -> str:
             check=True,
         ).stdout.strip("\n")
     except subprocess.CalledProcessError as e:
-        raise ExecutionError(f"{e} Reason:\n{e.stderr}")
+        raise Error(f"{e} Reason:\n{e.stderr}")
