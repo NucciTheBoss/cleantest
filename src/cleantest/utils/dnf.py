@@ -9,7 +9,6 @@ import re
 import shutil
 import subprocess
 from enum import Enum
-from io import StringIO
 from typing import Dict, Optional, Union
 
 
@@ -89,7 +88,7 @@ class PackageInfo:
 
 def version() -> str:
     """Get version of `dnf` executable."""
-    return StringIO(_dnf("--version")).readline().strip("\n")
+    return _dnf("--version").splitlines()[0]
 
 
 def installed() -> bool:
