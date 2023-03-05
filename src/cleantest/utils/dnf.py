@@ -21,7 +21,6 @@ class _PackageState(Enum):
     INSTALLED = "installed"
     AVAILABLE = "available"
     ABSENT = "absent"
-    UNKNOWN = "unknown"
 
 
 class PackageInfo:
@@ -44,11 +43,6 @@ class PackageInfo:
     def absent(self) -> bool:
         """Determine if package is marked 'absent'."""
         return self._data["state"] == _PackageState.ABSENT
-
-    @property
-    def unknown(self) -> bool:
-        """Determine if package is marked 'unknown'."""
-        return self._data["state"] == _PackageState.UNKNOWN
 
     @property
     def name(self) -> str:
@@ -108,15 +102,17 @@ def update() -> None:
     _dnf("update")
 
 
-def upgrade(*packages: str) -> None:
+def upgrade(*packages: Optional[str]) -> None:
     """Upgrade one or more packages.
 
     Args:
-        *packages (str): Packages to upgrade on system.
+        *packages (Optional[str]):
+            Packages to upgrade on system. If None, upgrade all packages.
     """
     if len(packages) == 0:
-        raise Error("No packages specified.")
-    _dnf("upgrade", *packages)
+        _dnf("upgrade")
+    else:
+        _dnf("upgrade", *packages)
 
 
 def install(*packages: Union[str, os.PathLike]) -> None:
@@ -173,7 +169,7 @@ def fetch(package: str) -> PackageInfo:
         elif "Available" in status:
             state = _PackageState.AVAILABLE
         else:
-            state = _PackageState.UNKNOWN
+            state = _PackageState.ABSENT
 
         return PackageInfo(
             {
@@ -217,10 +213,9 @@ def _dnf(*args: str) -> str:
     if not installed():
         raise Error(f"dnf not found on PATH {os.getenv('PATH')}")
 
-    cmd = ["dnf", "-y", *args]
     try:
         return subprocess.run(
-            cmd,
+            ["dnf", "-y", *args],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             universal_newlines=True,
