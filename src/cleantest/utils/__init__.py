@@ -5,6 +5,8 @@
 """Utilities for testlets and cleantest."""
 
 from . import apt
+from . import dnf
+from . import pacman
 from . import snap
 from . import systemd
 from .run import run
