@@ -139,9 +139,9 @@ class File(Injectable):
             return textwrap.dedent(
                 f"""
                 #!/usr/bin/env python3
-                
+
                 from {self.__module__} import {self.__class__.__name__}
-                
+
                 _ = {self.__class__.__name__}._loads("{data['checksum']}", "{data['data']}")
                 _.dump()
                 """
@@ -152,9 +152,9 @@ class File(Injectable):
                 #!/usr/bin/env python3
                 import json
                 import sys
-                
+
                 from {self.__module__} import {self.__class__.__name__}
-                
+
                 _ = {self.__class__.__name__}._loads("{data['checksum']}", "{data['data']}")
                 _.load()
                 print(json.dumps(_._dumps()), file=sys.stdout)

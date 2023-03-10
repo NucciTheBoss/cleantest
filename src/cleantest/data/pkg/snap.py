@@ -257,6 +257,7 @@ class Snap(BasePackage, SnapdSupport):
             data (Dict[str, str]): Data that needs to be in injectable script.
                 - checksum (str): SHA224 checksum to verify authenticity of Snap object.
                 - data (str): Base64 encoded Snap object to inject.
+            **kwargs: Optional arguments to pass to injectable script.
 
         Returns:
             (str): Injectable script.

@@ -111,6 +111,7 @@ class Charmlib(BasePackage, SnapdSupport):
             data (Dict[str, str]): Data that needs to be in injectable script.
                 - checksum (str): SHA224 checksum to verify authenticity of Charmlib object.
                 - data (str): Base64 encoded Charmlib object to inject.
+            **kwargs: Optional arguments to pass to injectable script.
 
         Returns:
             (str): Injectable script.
@@ -118,9 +119,9 @@ class Charmlib(BasePackage, SnapdSupport):
         return textwrap.dedent(
             f"""
             #!/usr/bin/env python3
-            
+
             from {self.__module__} import {self.__class__.__name__}
-            
+
             holder = {self.__class__.__name__}._loads("{data['checksum']}", "{data['data']}")
             holder._run()
             """

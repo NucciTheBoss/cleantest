@@ -199,6 +199,7 @@ class Pip(BasePackage):
             data (Dict[str, str]): Data that needs to be in injectable script.
                 - checksum (str): SHA224 checksum to verify authenticity of Pip object.
                 - data (str): Base64 encoded Pip object to inject.
+            **kwargs: Optional arguments to pass to injectable script.
 
         Returns:
             (str): Injectable script.
