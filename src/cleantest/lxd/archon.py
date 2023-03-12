@@ -1,8 +1,18 @@
-#!/usr/bin/env python3
 # Copyright 2023 Jason C. Nucciarone
-# See LICENSE file for licensing details.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-"""Direct the LXD test environment provider and instances."""
+"""Archon for the LXD test environment provider."""
 
 import csv
 import json
@@ -19,11 +29,11 @@ from typing import Dict, List, Optional, Tuple, Union
 
 from pylxd import Client
 
-from cleantest.control.lxd._lxd_configurer import LXDConfigurer
 from cleantest.data import Dir, File
+from cleantest.lxd.lxd_configurer import LXDConfigurer
 from cleantest.meta import Result
-from cleantest.meta._cleantest_info import CleantestInfo
 from cleantest.meta.utils import thread_count
+from cleantest.meta.utils.depfetch import CleantestInfo
 from cleantest.utils import run
 
 logger = logging.getLogger(__name__)
@@ -69,14 +79,14 @@ class LXDArchon:
         Returns:
             (Client): Connection to LXD API socket.
         """
-        return Client(**self.config.client_config.dict())
+        return Client(**self.config.client.dict())
 
     @property
     def config(self) -> LXDConfigurer:
-        """Get LXDConfigurer instance containing configuration information.
+        """Get _LXDConfigurer instance containing configuration information.
 
         Returns:
-            (LXDConfigurer): LXDConfigurer instance.
+            (_LXDConfigurer): _LXDConfigurer instance.
         """
         return LXDConfigurer()
 
