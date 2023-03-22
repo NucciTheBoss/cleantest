@@ -21,6 +21,8 @@ from typing import Dict, List, Optional, Tuple, Union
 from cleantest.meta.mixins import DictLike
 from cleantest.meta.objects import Singleton, configurer
 
+from ..env import Env
+
 
 class Error(Exception):
     """Raise when there is an LXD test environment provider configuration error."""
@@ -31,19 +33,22 @@ class ClientConfig(DictLike):
     """Define an LXD client connection.
 
     Args:
-        endpoint (Optional[str]): Endpoint can be an HTTP endpoint or
-            a path to a unix socket (Default: None).
-        version (str): API version string to use with LXD
-        cert (Optional[Tuple[str, str]]): A tuple of (cert, key) to use with
-            the HTTP socket for client authentication (Default: "1.0").
-        verify (bool): Either a boolean, in which case it controls
+        endpoint:
+            Endpoint can be an HTTP endpoint or a path to a unix socket.
+            Default: None.
+        version: API version string to use with LXD. Default: "1.0".
+        cert:
+            Certificate and key to use with the HTTP socket for client authentication.
+            Default: None.
+        verify:
+            Either a boolean, in which case it controls
             whether we verify the server's TLS certificate, or a string, in
             which case it must be a path to a CA bundle to use.
-            (Default: True).
-        timeout (Optional[Union[float, Tuple[float, float]]]):
+            Default: True.
+        timeout:
             How long to wait for the server to send data before giving up, as a float,
-            or a (connect timeout, read timeout) tuple.
-        project (Optional[str]): Name of the LXD project to interact with (Default: None).
+            or a (connect timeout, read timeout) tuple. Default: None.
+        project: Name of the LXD project to interact with Default: None.
     """
 
     endpoint: Optional[str] = None
@@ -59,42 +64,29 @@ class InstanceSource:
     """Define an LXD instance source to use for a test environment instance.
 
     Args:
-        alias (str):
-            Alias of source image.
-        mode (str):
-            Mode for accessing source image.
-        protocol (str):
-            Protocol to use when pulling source image.
-        server (str):
-            Server to get source image from.
-        type (str):
-            Type of source image.
-        allow_inconsistent (bool):
-            Whether to ignore errors when copying. e.g. for volatile files. (Default: None).
-        base_image (str):
-            Base image fingerprint for faster migration. (Default: None).
-        certificate (str):
-            Certificate for remote images or migration. (Default: None).
-        fingerprint (str):
-            Fingerprint of image source. (Default: None).
-        instance_only (bool):
-            Whether the copy should skip the snapshots for copy. (Default: None).
-        live (bool):
-            Whether this is a live migration. (Default: None).
-        operation (str):
-            Remote operation URL for migration. (Default: None).
-        project (str):
-            Source project name for copy and local image. (Default: None).
-        properties (Dict[str, str]): Image filters for image source. (Default: None).
-        refresh (bool):
+        alias: Alias of source image.
+        mode: Mode for accessing source image.
+        protocol: Protocol to use when pulling source image.
+        server: Server to get source image from.
+        type: Type of source image.
+        allow_inconsistent:
+            Whether to ignore errors when copying.
+            E.g. for volatile files. Default: None.
+        base_image: Base image fingerprint for faster migration. Default: None.
+        certificate: Certificate for remote images or migration. Default: None.
+        fingerprint: Fingerprint of image source. Default: None.
+        instance_only:
+            Whether the copy should skip the snapshots for copy. Default: None.
+        live: Whether this is a live migration. Default: None.
+        operation: Remote operation URL for migration. Default: None.
+        project: Source project name for copy and local image. Default: None.
+        properties: Image filters for image source. Default: None.
+        refresh:
             Whether this is refreshing an existing instance for migration and copy.
-            (Default: None).
-        secret (str):
-            Remote server secret for remote private images. (Default: None).
-        secrets (Dict[str, str]):
-            Map of migration websockets for migration. (Default: None).
-        source (str):
-            Existing instance name or snapshot for copy. (Default: None)
+            Default: None.
+        secret: Remote server secret for remote private images. Default: None.
+        secrets: Map of migration websockets for migration. Default: None.
+        source: Existing instance name or snapshot for copy. Default: None.
     """
 
     alias: str
@@ -387,6 +379,11 @@ class _LXDConfigurer(configurer.BaseConfigurer, metaclass=Singleton):
         if not isinstance(new_conf, ClientConfig):
             raise TypeError(f"Expected ClientConfig, got {type(new_conf)} instead.")
         self._client_config = new_conf
+
+    @property
+    def env(self) -> Env:
+        """Get environment configuration information."""
+        return Env()
 
     def add_config(self, *new_config: InstanceConfig) -> None:
         """Add a new LXD instance configuration to the registry.
