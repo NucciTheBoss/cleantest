@@ -17,7 +17,7 @@
 from dataclasses import dataclass
 from typing import List
 
-from cleantest.meta.objects import injectable
+from cleantest.meta import injectable
 
 
 @dataclass(frozen=True)
@@ -27,9 +27,9 @@ class StartEnvHook:
     Args:
         name: Unique name of hook.
         packages: Packages to inject into test environment.
-        upload: Artifacts to upload into test environment.
+        push: Objects to push into test environment.
     """
 
     name: str
     packages: List[injectable.Injectable] = None
-    upload: List[injectable.Injectable] = None
+    push: List[injectable.Injectable] = None

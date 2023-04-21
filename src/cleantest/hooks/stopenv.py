@@ -17,7 +17,7 @@
 from dataclasses import dataclass
 from typing import List
 
-from cleantest.meta.objects import injectable
+from cleantest.meta import injectable
 
 
 @dataclass(frozen=True)
@@ -26,8 +26,8 @@ class StopEnvHook:
 
     Args:
         name: Unique name of hook.
-        download: Artifacts to download from test environment instance.
+        pull: Objects to pull from test environment instance.
     """
 
     name: str
-    download: List[injectable.Injectable] = None
+    pull: List[injectable.Injectable] = None
