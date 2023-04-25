@@ -18,8 +18,7 @@ import copy
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Tuple, Union
 
-from cleantest.meta.mixins import DictLike
-from cleantest.meta.objects import Singleton, configurer
+from cleantest.meta import BaseConfigurer, DictLike, Singleton
 
 from ..env import Env
 
@@ -358,7 +357,7 @@ class _DefaultInstances(DictLike):
     )
 
 
-class _LXDConfigurer(configurer.BaseConfigurer, metaclass=Singleton):
+class LXDConfigurer(BaseConfigurer, metaclass=Singleton):
     """Configurer for LXD test environment provider."""
 
     _client_config = ClientConfig()
