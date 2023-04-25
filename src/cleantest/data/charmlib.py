@@ -1,6 +1,16 @@
-#!/usr/bin/env python3
 # Copyright 2023 Jason C. Nucciarone
-# See LICENSE file for licensing details.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 """Manager for installing charm libraries inside remote processes."""
 
@@ -12,12 +22,11 @@ import textwrap
 from shutil import which
 from typing import Dict, List, Union
 
-from cleantest.meta import BasePackage, BasePackageError
-from cleantest.meta.mixins import SnapdSupport
+from cleantest.meta import BaseError, BasePackage, SnapdSupport
 from cleantest.utils import snap
 
 
-class CharmlibPackageError(BasePackageError):
+class Error(BaseError):
     """Base error for Charmlib package handler."""
 
 
@@ -39,12 +48,10 @@ class Charmlib(BasePackage, SnapdSupport):
         self._auth_token = None
 
         if auth_token_path is None:
-            raise CharmlibPackageError(
-                "No authentication token for Charmhub specified."
-            )
+            raise Error("No authentication token for Charmhub specified.")
 
         if charmlibs is None:
-            raise CharmlibPackageError("No charm libraries specified.")
+            raise Error("No charm libraries specified.")
 
     def _run(self) -> None:
         """Run Charmlib package handler."""
@@ -76,7 +83,7 @@ class Charmlib(BasePackage, SnapdSupport):
                     cwd="/root",
                 )
             except subprocess.CalledProcessError:
-                raise CharmlibPackageError(
+                raise Error(
                     (
                         f"Failed to install charm library {charm} "
                         f"using the following command: {' '.join(cmd)}"

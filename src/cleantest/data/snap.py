@@ -1,6 +1,16 @@
-#!/usr/bin/env python3
 # Copyright 2023 Jason C. Nucciarone
-# See LICENSE file for licensing details.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 """Manager for installing snap packages inside remote processes."""
 
@@ -9,12 +19,12 @@ import textwrap
 from enum import Enum
 from typing import Dict, List, Union
 
-from cleantest.meta import BasePackage, BasePackageError
+from cleantest.meta import BaseError, BasePackage
 from cleantest.meta.mixins import SnapdSupport
 from cleantest.utils import snap
 
 
-class SnapPackageError(BasePackageError):
+class Error(BaseError):
     """Base error for Snap package handler."""
 
 
@@ -73,7 +83,7 @@ class Connection:
     def _lint(self) -> None:
         """Lint inputs passed to class constructor."""
         if self._plug.snap is None or self._plug.name is None:
-            raise SnapPackageError(
+            raise Error(
                 f"Invalid plug: {self._plug.__dict__}. "
                 "Plug must have an associated snap and name."
             )
@@ -82,7 +92,7 @@ class Connection:
             and self._slot.snap is None
             and self._slot.name is None
         ):
-            raise SnapPackageError(
+            raise Error(
                 f"Invalid slot: {self._slot.__dict__}. "
                 "Slot must at least have an associated snap or name."
             )
@@ -134,7 +144,7 @@ class Alias:
                     if value is None
                 ]
             )
-            raise SnapPackageError(f"Invalid alias: {holder} cannot be None.")
+            raise Error(f"Invalid alias: {holder} cannot be None.")
 
     def alias(self) -> None:
         """Perform `snap alias` operation."""
@@ -182,10 +192,10 @@ class Snap(BasePackage, SnapdSupport):
         self.aliases = aliases
 
         if snaps is None and local_snaps is None:
-            raise SnapPackageError("No snaps specified.")
+            raise Error("No snaps specified.")
 
         if not hasattr(Confinement, confinement.name):
-            raise SnapPackageError(
+            raise Error(
                 f"Invalid confinement {confinement.name}. "
                 f"Must be either {', '.join([i.name for i in Confinement])}"
             )
