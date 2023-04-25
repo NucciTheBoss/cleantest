@@ -1,6 +1,16 @@
-#!/usr/bin/env python3
 # Copyright 2023 Jason C. Nucciarone
-# See LICENSE file for licensing details.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 """Abstractions for uploading and downloading directories from test environments."""
 
@@ -11,19 +21,13 @@ import tempfile
 from io import BytesIO
 from typing import Iterable, Union
 
-from cleantest.data.file import File
+from cleantest.meta import BaseError
+
+from .file import File
 
 
-class DirectoryError(Exception):
-    """Base error for Dir class."""
-
-
-class DirectoryExistsError(Exception):
-    """Raised when a directory already exists on the host."""
-
-
-class DirectoryNotFoundError(Exception):
-    """Raised when a directory is not found on the host."""
+class Error(BaseError):
+    """Raise when Directory macro encounters an error."""
 
 
 def _strip_tar(
@@ -71,10 +75,10 @@ class Dir(File):
             NotADirectoryError: Raised if source is a file rather than a directory.
         """
         if self.src.exists() is False:
-            raise DirectoryNotFoundError(f"Could not find {self.src}.")
+            raise Error(f"Could not find {self.src}.")
 
         if self.src.is_file():
-            raise NotADirectoryError(f"{self.src} is a file. Use File class instead.")
+            raise Error(f"{self.src} is a file. Use File class instead.")
 
         _ = os.getcwd()
         os.chdir(os.sep.join(str(self.src).split(os.sep)[:-1]))
@@ -92,12 +96,12 @@ class Dir(File):
             DirectoryError: Raised if no data has been loaded prior to calling dump().
         """
         if self.dest.exists() and self.overwrite is False:
-            raise DirectoryExistsError(
+            raise Error(
                 f"{self.dest} already exists. Set overwrite = True to overwrite {self.dest}."
             )
 
         if self.__data is None:
-            DirectoryError("Nothing to write.")
+            Error("Nothing to write.")
 
         with tarfile.open(fileobj=BytesIO(self.__data), mode="r:gz") as tar:
             tar.extractall(self.dest, members=_strip_tar(tar))

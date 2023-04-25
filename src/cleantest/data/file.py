@@ -1,6 +1,16 @@
-#!/usr/bin/env python3
 # Copyright 2023 Jason C. Nucciarone
-# See LICENSE file for licensing details.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 """Abstractions for uploading and downloading files from test environments."""
 
@@ -14,15 +24,11 @@ import textwrap
 from io import BytesIO, StringIO
 from typing import Dict, Union
 
-from cleantest.meta import Injectable
+from cleantest.meta import BaseError, Injectable
 
 
-class FileError(Exception):
-    """Base error for File class."""
-
-
-class InjectableModeError(Exception):
-    """Raised when an invalid injection mode has been passed to `_injectable`."""
+class Error(BaseError):
+    """Raise when File macro encounters an error."""
 
 
 class File(Injectable):
@@ -46,7 +52,7 @@ class File(Injectable):
         self.src = src
         self.dest = pathlib.Path(dest)
         self.overwrite = overwrite
-        self.__data = None
+        self._data = None
 
     def load(self) -> None:
         """Load file from specified source.
@@ -66,7 +72,7 @@ class File(Injectable):
                         raise FileNotFoundError(f"Could not find {self.src}.")
 
                     if data.is_dir():
-                        raise FileError(
+                        raise Error(
                             f"{self.src} is a directory. Use Dir class instead."
                         )
                     shutil.copy(data, _ / "data")
@@ -79,7 +85,7 @@ class File(Injectable):
                     ) else placeholder.write_bytes(data.read())
                     tar.add(placeholder)
                 else:
-                    raise FileError(
+                    raise Error(
                         (
                             "Expected type str, os.PathLike, StringIO, or BytesIO, "
                             f"not {type(self.src)}."
@@ -88,7 +94,7 @@ class File(Injectable):
 
                 os.chdir(old_pwd)
 
-            self.__data = pathlib.Path(tar.name).read_bytes()
+            self._data = pathlib.Path(tar.name).read_bytes()
 
     def dump(self) -> None:
         """Dump directory to specified destination.
@@ -105,11 +111,11 @@ class File(Injectable):
                 )
             )
 
-        if self.__data is None:
-            raise FileError("Nothing to write.")
+        if self._data is None:
+            raise Error("Nothing to write.")
 
         with tempfile.TemporaryDirectory() as tmp_dir, tarfile.open(
-            fileobj=BytesIO(self.__data), mode="r:gz"
+            fileobj=BytesIO(self._data), mode="r:gz"
         ) as tar:
             tar.extractall(tmp_dir)
             shutil.copy((pathlib.Path(tmp_dir) / "data"), self.dest)
@@ -132,9 +138,7 @@ class File(Injectable):
         """
         _ = kwargs.get("mode", None)
         if _ not in {"push", "pull"}:
-            InjectableModeError(
-                f"Invalid mode: {_}. Please set mode to either 'push' or 'pull'."
-            )
+            Error(f"Invalid mode: {_}. Please set mode to either 'push' or 'pull'.")
         elif _ == "push":
             return textwrap.dedent(
                 f"""
