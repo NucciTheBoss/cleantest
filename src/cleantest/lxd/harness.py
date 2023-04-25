@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Harness for the LXD test environment provider."""
+"""BaseHarness for the LXD test environment provider."""
 
 import functools
 import os
@@ -20,7 +20,7 @@ import re
 from typing import Callable, Dict, List, Optional, Union
 
 from cleantest.data import File
-from cleantest.meta import Harness, Result
+from cleantest.meta import BaseHarness, Result
 from cleantest.meta.utils import thread_count
 
 from .archon import LXDArchon
@@ -32,7 +32,7 @@ class Error(Exception):
     """Raise when LXD harness encounters an error."""
 
 
-class lxd(Harness):  # noqa N801
+class lxd(BaseHarness):  # noqa N801
     """LXD test environment provider.
 
     Args:
