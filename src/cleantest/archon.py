@@ -14,8 +14,6 @@
 
 """Direct test environment providers."""
 
-import importlib
-
 
 class Error(Exception):
     """Raise when Archon encounters an error when loading an Archon."""
@@ -24,8 +22,9 @@ class Error(Exception):
 def _lxd_loader():
     """Load the LXD test environment provider Archon."""
     try:
-        lxd = importlib.import_module("cleantest.lxd.archon")
-        return lxd._LXDArchon()
+        from cleantest.lxd.archon import LXDArchon
+
+        return LXDArchon()
     except ImportError:
         raise Error("Failed to load the LXD test environment provider archon.")
 

@@ -14,8 +14,6 @@
 
 """Configure cleantest and test environment providers ."""
 
-import importlib
-
 
 class Error(Exception):
     """Raise when Configure encounters an error when loading a Configurer."""
@@ -24,8 +22,9 @@ class Error(Exception):
 def _lxd_loader():
     """Load the LXD test environment provider configurer."""
     try:
-        lxd = importlib.import_module("cleantest.lxd.config")
-        return lxd._LXDConfigurer()
+        from cleantest.lxd.config import LXDConfigurer
+
+        return LXDConfigurer()
     except ImportError:
         raise Error("Failed to load the LXD test environment provider configurer.")
 
