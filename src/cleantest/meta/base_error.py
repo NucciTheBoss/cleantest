@@ -12,16 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Singleton metaclass for core utilities that are shared between methods."""
+"""Base error class for cleantest."""
 
 
-class Singleton(type):
-    """Metaclass that implements the Singleton design pattern."""
+class BaseError(Exception):
+    """Raise when cleantest encounters an error."""
 
-    _instances = {}
+    @property
+    def name(self) -> str:
+        """Get a string representation of the error plus class name."""
+        return f"<{type(self).__module__}.{type(self).__name__}>"
 
-    def __call__(cls, *args, **kwargs) -> "Singleton":
-        """Call singleton object."""
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
+    @property
+    def message(self) -> str:
+        """Return the message passed as an argument."""
+        return self.args[0]
+
+    def __repr__(self) -> str:
+        """String representation of the error."""
+        return f"<{type(self).__module__}.{type(self).__name__} {self.args}>"

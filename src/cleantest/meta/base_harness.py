@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Base class for test environment provider Harness's."""
+"""Base class for test environment provider BaseHarness's."""
 
 import inspect
 from io import StringIO
 from typing import Callable, List, Pattern
 
 
-class Harness:
+class BaseHarness:
     """Base class for test environment provider harnesses."""
 
     @staticmethod
