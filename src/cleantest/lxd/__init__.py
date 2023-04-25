@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Meta-objects used in cleantest to support core modules."""
+"""The LXD test environment provider."""
 
-import base_configurer as configurer
-from .singleton import Singleton
+from .archon import LXDArchon
+from .harness import lxd

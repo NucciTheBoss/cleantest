@@ -17,7 +17,7 @@
 import os
 from typing import Any, Dict, Optional
 
-from cleantest.meta.objects import Singleton
+from cleantest.meta import Singleton
 
 
 class Env(metaclass=Singleton):
