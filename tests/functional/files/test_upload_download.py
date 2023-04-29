@@ -9,7 +9,7 @@ import pathlib
 import shutil
 
 from cleantest.control import Configure
-from cleantest.control.hooks import StartEnvHook, StopEnvHook
+from cleantest.hooks import StartEnvHook, StopEnvHook
 from cleantest.data import Dir, File
 from cleantest.provider import lxd
 

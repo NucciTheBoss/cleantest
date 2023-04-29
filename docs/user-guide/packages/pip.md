@@ -37,7 +37,7 @@ import os
 import pathlib
 
 from cleantest.control import Configure
-from cleantest.control.hooks import StartEnvHook
+from cleantest.hooks import StartEnvHook
 from cleantest.data.pkg import Pip
 from cleantest.provider import lxd
 

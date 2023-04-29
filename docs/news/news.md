@@ -24,7 +24,7 @@ in the meantime. Here is what is new in 0.4.0-rc1:
     is not fully there yet (i.e. package macros do not work yet).
 * Fixed issue [#21](https://github.com/NucciTheBoss/cleantest/issues/21).
 * Introduction of _Archon_ and _Harness_ classes. Archon can be used to manually direct the test environment provider
-    and Harness is the new name for the legacy _Provider_ classes. _Harness_ is what wraps around testlets when
+    and BaseHarness is the new name for the legacy _Provider_ classes. _Harness_ is what wraps around testlets when
     invoking the provider decorators. _Archon_ can be used to set up more complex cloud deployments such as
     mini high-performance computing clusters.
 * Enhanced documentation. There is now a News page (what you are reading currently), a reference page

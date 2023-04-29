@@ -15,4 +15,5 @@
 """The LXD test environment provider."""
 
 from .archon import LXDArchon
+from .config import ClientConfig, InstanceConfig, InstanceSource, LXDConfigurer
 from .harness import lxd

@@ -145,7 +145,7 @@ from io import StringIO
 
 from jinja2 import Environment, FileSystemLoader
 
-from cleantest.control.hooks import StopEnvHook
+from cleantest.hooks import StopEnvHook
 from cleantest.control.lxd import InstanceConfig
 from cleantest.data import File
 from cleantest.provider import lxd, LXDArchon
@@ -165,7 +165,7 @@ def test_mini_hpc() -> None:
     )
     placeholder = archon.config.get_instance_config("ubuntu-jammy-amd64").dict()
     placeholder["name"] = "mini-hpc-sm"
-    archon.config.add_instance_config(
+    archon.config.add(
         InstanceConfig(
             config={
                 "limits.cpu": "1",
@@ -702,7 +702,7 @@ from io import StringIO
 
 from jinja2 import Environment, FileSystemLoader
 
-from cleantest.control.hooks import StopEnvHook
+from cleantest.hooks import StopEnvHook
 from cleantest.control.lxd import InstanceConfig
 from cleantest.data import File
 from cleantest.provider import lxd, LXDArchon
@@ -745,8 +745,8 @@ def run_job():
     os.setuid(10000)
     os.chdir("/home/nucci")
     for result in run(
-        f"cp {(tmp_dir / 'research.submit')} .",
-        "sbatch research.submit",
+            f"cp {(tmp_dir / 'research.submit')} .",
+            "sbatch research.submit",
     ):
         assert result.exit_code == 0
     sleep(60)
@@ -761,7 +761,7 @@ def test_lxd_archon_local() -> None:
     )
     placeholder = archon.config.get_instance_config("ubuntu-jammy-amd64").dict()
     placeholder["name"] = "mini-hpc-sm"
-    archon.config.add_instance_config(
+    archon.config.add(
         InstanceConfig(
             config={
                 "limits.cpu": "1",

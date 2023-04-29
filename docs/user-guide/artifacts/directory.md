@@ -47,7 +47,7 @@ import pathlib
 import shutil
 
 from cleantest.control import Configure
-from cleantest.control.hooks import StartEnvHook, StopEnvHook
+from cleantest.hooks import StartEnvHook, StopEnvHook
 from cleantest.data import Dir
 from cleantest.provider import lxd
 
@@ -76,7 +76,7 @@ def test_upload_download(clean_slate) -> None:
     stop_hook = StopEnvHook(
         name="download_artifact",
         download=[
-            Dir("/root/dump", root / "dump", overwrite=True,),
+            Dir("/root/dump", root / "dump", overwrite=True, ),
         ],
     )
     config.register_hook(start_hook, stop_hook)

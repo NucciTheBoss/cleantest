@@ -11,10 +11,10 @@ from io import StringIO
 
 from jinja2 import Environment, FileSystemLoader
 
-from cleantest.control.hooks import StopEnvHook
-from cleantest.control.lxd import InstanceConfig
+from cleantest import Archon
 from cleantest.data import File
-from cleantest.provider import lxd, LXDArchon
+from cleantest.hooks import StopEnvHook
+from cleantest.lxd import lxd, InstanceConfig
 
 root = pathlib.Path(os.path.dirname(os.path.realpath(__file__)))
 templates = Environment(loader=FileSystemLoader(root / "templates"))
@@ -64,13 +64,13 @@ def run_job():
 
 def test_lxd_archon_local() -> None:
     """Test LXDArchon against local LXD cluster."""
-    archon = LXDArchon()
+    archon = Archon("lxd")
     archon.config.register_hook(
         StopEnvHook(name="get_result", download=[File("/tmp/result", root / "result")])
     )
     placeholder = archon.config.get_instance_config("ubuntu-jammy-amd64").dict()
     placeholder["name"] = "mini-hpc-sm"
-    archon.config.add_instance_config(
+    archon.config.add(
         InstanceConfig(
             config={
                 "limits.cpu": "1",

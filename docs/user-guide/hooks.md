@@ -33,7 +33,7 @@ import os
 import pathlib
 
 from cleantest.control import Configure
-from cleantest.control.hooks import StartEnvHook
+from cleantest.hooks import StartEnvHook
 from cleantest.data.pkg import Connection, Plug, Slot, Snap
 from cleantest.provider import lxd
 
@@ -101,7 +101,7 @@ import pathlib
 import shutil
 
 from cleantest.control import Configure
-from cleantest.control.hooks import StopEnvHook
+from cleantest.hooks import StopEnvHook
 from cleantest.data import Dir, File
 from cleantest.provider import lxd
 
@@ -122,8 +122,8 @@ def test_download() -> None:
     stop_hook = StopEnvHook(
         name="download_artifact",
         download=[
-            File("/root/dump.txt", root / "dump.txt", overwrite=True,),
-            Dir("/root/dump", root / "dump", overwrite=True,),
+            File("/root/dump.txt", root / "dump.txt", overwrite=True, ),
+            Dir("/root/dump", root / "dump", overwrite=True, ),
         ],
     )
     config.register_hook(stop_hook)
