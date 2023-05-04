@@ -12,23 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Mixins used throughout cleantest."""
+"""Mixin to give objects dictionary-like methods."""
 
-import base64
-import hashlib
-import pickle
-import shutil
-from abc import ABC, abstractmethod
 from typing import Any, Dict, Iterable, Tuple
-
-from cleantest.utils import apt
-
-from .base_error import BaseError
-from .utils import detect_os_variant
-
-
-class Error(BaseError):
-    """Raise when mixin encounters an error."""
 
 
 class DictLike:
@@ -152,95 +138,3 @@ class DictLike:
                 result.append(v)
 
         return iter(result)
-
-
-class Injectable(ABC):
-    """Abstract metaclass that provides core methods needed by all injectable objects."""
-
-    @classmethod
-    def _loads(cls, checksum: str, data: str) -> Any:
-        """Alternative constructor to load previously initialized object.
-
-        Args:
-            checksum: Checksum to verify authenticity of serialized object.
-            data: Path to file containing serialized object.
-
-        Returns:
-            Any: Deserialized, verified object.
-        """
-        if type(data) != str:
-            raise Error(f"Cannot load object {data}. {type(data)} != str")
-
-        tmp = base64.b64decode(data)
-        if checksum != hashlib.sha224(tmp).hexdigest():
-            raise Error("Hashes do not match. Will not load untrusted object.")
-
-        tmp = pickle.loads(tmp)
-        posargs = [
-            value for key, value in tmp.__dict__.items() if not key.startswith("_")
-        ]
-        hiddenargs = {
-            key: value for key, value in tmp.__dict__.items() if key.startswith("_")
-        }
-        new_cls = cls(*posargs)
-        [setattr(new_cls, key, value) for key, value in hiddenargs.items()]
-        return new_cls
-
-    def _dumps(self, **kwargs) -> Dict[str, str]:
-        """Prepare object for injection.
-
-        Returns:
-            (Dict[str, str]):
-                checksum: Checksum to verify authenticity of serialized object.
-                data: Base64 encoded string containing serialized object.
-                injectable: Injectable Python script to run inside test instance.
-        """
-        pickle_data = pickle.dumps(self)
-        checksum = hashlib.sha224(pickle_data).hexdigest()
-        data = base64.b64encode(pickle_data).decode()
-        return {
-            "checksum": checksum,
-            "data": data,
-            "injectable": self._injectable(
-                {"checksum": checksum, "data": data}, **kwargs
-            ),
-        }
-
-    @abstractmethod
-    def _injectable(self, data: Dict[str, str], **kwargs) -> str:
-        """Injectable Python script to run inside of test environment provider."""
-
-
-class Singleton(type):
-    """Metaclass that implements the Singleton design pattern."""
-
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs) -> "Singleton":
-        """Call singleton object."""
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-
-class SnapdSupport:
-    """Mixin for classes that need snapd support."""
-
-    @staticmethod
-    def _install_snapd() -> None:
-        """Install snapd inside test environment.
-
-        Raises:
-            SnapdSupportError: Raised if snapd fails to install inside test environment.
-            NotImplementedError: Raised if unsupported operating system is
-                being used for a test environment.
-        """
-        os_variant = detect_os_variant()
-
-        if shutil.which("snap") is None:
-            if os_variant == "ubuntu":
-                apt.install("snapd")
-            else:
-                raise NotImplementedError(
-                    f"Support for {os_variant.capitalize()} not available yet."
-                )

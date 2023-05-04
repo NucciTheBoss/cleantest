@@ -16,7 +16,7 @@
 
 from abc import abstractmethod
 
-from .mixins import Injectable
+from cleantest.meta.mixins import Injectable
 
 
 class BasePackage(Injectable):

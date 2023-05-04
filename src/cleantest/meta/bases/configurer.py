@@ -20,7 +20,7 @@ from typing import Deque, Union
 
 from cleantest.hooks import StartEnvHook, StopEnvHook
 
-from .mixins import Singleton
+from cleantest.meta.mixins import Singleton
 
 
 class Error(Exception):

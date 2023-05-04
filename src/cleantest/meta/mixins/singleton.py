@@ -12,7 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Internal objects and methods used throughout cleantest source code.
+"""Mixin for implementing Singleton design pattern in classes."""
 
-These objects and methods are not for developing tests unless extending via plugins.
-"""
+
+class Singleton(type):
+    """Metaclass that implements the Singleton design pattern."""
+
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs) -> "Singleton":
+        """Call singleton object."""
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]

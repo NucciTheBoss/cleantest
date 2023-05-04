@@ -12,7 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Internal objects and methods used throughout cleantest source code.
+"""Base classes used throughout cleantest source code."""
 
-These objects and methods are not for developing tests unless extending via plugins.
-"""
+from .configurer import BaseConfigurer
+from .error import BaseError
+from .harness import BaseHarness
+from .injectable import BaseInjectable
+from .package import BasePackage
+from .result import Result

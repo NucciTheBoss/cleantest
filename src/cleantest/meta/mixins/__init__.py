@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Internal objects and methods used throughout cleantest source code.
+"""Mixins used throughout cleantest source code."""
 
-These objects and methods are not for developing tests unless extending via plugins.
-"""
+from .dict_like import DictLike
+from .singleton import Singleton
+from .snapd_support import SnapdSupport
