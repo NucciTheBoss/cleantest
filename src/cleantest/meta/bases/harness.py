@@ -33,7 +33,7 @@ class BaseHarness:
         src_code = inspect.getsource(func)
         if remove is not None:
             for regex in remove:
-                src_code = regex.sub(src_code, "")
+                src_code = regex.sub("", src_code)
 
         testlet = StringIO()
         testlet.writelines(
