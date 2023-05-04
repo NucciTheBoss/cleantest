@@ -63,7 +63,7 @@ def _injectable(checksum: str, data: str) -> str:
     return injectable.read()
 
 
-def _collect(dist: pkg_resources.Distribution) -> Dict[str, str]:
+def _collect(dist: pkg_resources.Distribution) -> Dict[str, Dict[str, str]]:
     """Collect source code of package distribution.
 
     Args:
@@ -75,13 +75,16 @@ def _collect(dist: pkg_resources.Distribution) -> Dict[str, str]:
     with temporary_cwd(dist.location):
         tarball = BytesIO()
         with tarfile.open(fileobj=tarball, mode="w:gz") as tar:
-            root = f"{dist.key.replace('-', '_')}-{dist.version}.dist_info"
-            record = pathlib.Path(root) / "RECORD"
-            with record.open(mode="rt") as record_in:
-                for row in csv.reader(record_in):
-                    # Ignore .pyc files
-                    if not _pyc_ignore.match(row[0]):
-                        tar.add(row[0])
+            if dist.key == "cleantest":
+                tar.add("cleantest")
+            else:
+                root = f"{dist.key.replace('-', '_')}-{dist.version}.dist-info"
+                record = pathlib.Path(root) / "RECORD"
+                with record.open(mode="rt") as record_in:
+                    for row in csv.reader(record_in):
+                        # Ignore .pyc files
+                        if not _pyc_ignore.match(row[0]):
+                            tar.add(row[0])
 
         tarball.seek(0)
         target = tarball.read()
@@ -114,8 +117,9 @@ def sourcefetch() -> Dict[str, Dict[str, str]]:
         )
     )
     with ProcessPoolExecutor(max_workers=thread_count()) as executor:
-        source = executor.map(_collect, dists)
-        for name, data in source:
-            result.update({name: data})
+        sources = executor.map(_collect, dists)
+        for source in sources:
+            for name, data in source.items():
+                result.update({name: data})
 
     return result
