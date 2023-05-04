@@ -14,10 +14,12 @@
 
 """Hook run when test environment instance starts."""
 
-from dataclasses import dataclass
-from typing import List
 
-from cleantest.meta import injectable
+from dataclasses import dataclass
+from typing import List, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from cleantest.meta.bases import BaseInjectable
 
 
 @dataclass(frozen=True)
@@ -31,5 +33,5 @@ class StartEnvHook:
     """
 
     name: str
-    packages: List[injectable.Injectable] = None
-    push: List[injectable.Injectable] = None
+    packages: List["BaseInjectable"] = None
+    push: List["BaseInjectable"] = None

@@ -15,9 +15,10 @@
 """Hook run before test environment instance stops."""
 
 from dataclasses import dataclass
-from typing import List
+from typing import List, TYPE_CHECKING
 
-from cleantest.meta import injectable
+if TYPE_CHECKING:
+    from cleantest.meta.bases import BaseInjectable
 
 
 @dataclass(frozen=True)
@@ -30,4 +31,4 @@ class StopEnvHook:
     """
 
     name: str
-    pull: List[injectable.Injectable] = None
+    pull: List["BaseInjectable"] = None
