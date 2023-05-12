@@ -44,7 +44,7 @@ jobs:
         env:
           CHARMCRAFT_AUTH_TOKEN: ${{ secrets.CHARMCRAFT_AUTH_TOKEN }}
       - name: Setup LXD test environment provider
-        uses: canonical/setup-lxd@v0.1.0
+        uses: canonical/setup-lxd@v0.1.1
         with:
           channel: 5.9/stable
       - name: Run functional tests
